@@ -451,33 +451,81 @@ git push origin hotfix/긴급수정명
 GitHub 저장소의 Settings → Branches → Branch protection rules에서 아래 규칙을 설정합니다.
 
 ### main 브랜치
-- **병합 전 Pull Request 리뷰 필수**
-  - 최소 1명 이상의 승인 필요
-- **병합 전 상태 체크 통과 필수**
+
+#### 1. Require a pull request before merging (병합 전 Pull Request 필수)
+- ✅ 체크 필수
+- **Require approvals**: 최소 승인 수를 `1`로 설정
+  - 최소 1명 이상의 리뷰어 승인이 있어야 병합 가능
+- **Dismiss stale pull request approvals when new commits are pushed** (선택사항)
+  - 새로운 커밋이 push되면 기존 승인 무효화
+
+#### 2. Require status checks to pass before merging (병합 전 상태 체크 통과 필수)
+- ✅ 체크 필수
+- **Require branches to be up to date before merging**
+  - ✅ 체크 필수
   - CI/CD 테스트가 모두 통과해야 병합 가능
-- **병합 전 브랜치를 최신 상태로 업데이트 필수**
   - 타겟 브랜치의 최신 변경사항을 반영해야 병합 가능
-- **위 설정 우회 불가**
-  - 관리자도 보호 규칙을 따라야 함
+
+#### 3. Require conversation resolution before merging (병합 전 대화 해결 필수)
+- ✅ 체크 권장
+- 모든 리뷰 코멘트가 해결되어야 병합 가능
+
+#### 4. Do not allow bypassing the above settings (위 설정 우회 불가)
+- ✅ 체크 필수
+- 관리자도 위의 보호 규칙을 따라야 함
+- **Include administrators** 옵션 체크
+
+#### 5. Restrict who can push to matching branches (브랜치 푸시 제한)
+- ✅ 체크 권장
+- 특정 팀이나 사용자만 직접 푸시 가능하도록 제한
+
+---
 
 ### release 브랜치
-- **병합 전 Pull Request 리뷰 필수**
-  - 최소 1명 이상의 승인 필요
-- **병합 전 상태 체크 통과 필수**
-  - CI/CD 테스트가 모두 통과해야 병합 가능
+
+#### 1. Require a pull request before merging
+- ✅ 체크 필수
+- **Require approvals**: 최소 승인 수를 `1`로 설정
+
+#### 2. Require status checks to pass before merging
+- ✅ 체크 필수
+- **Require branches to be up to date before merging** ✅ 체크 필수
+
+#### 3. Require conversation resolution before merging
+- ✅ 체크 권장
+
+---
 
 ### develop 브랜치
-- **병합 전 Pull Request 리뷰 필수**
-  - 최소 1명 이상의 승인 필요
-- **병합 전 상태 체크 통과 필수**
-  - CI/CD 테스트가 모두 통과해야 병합 가능
 
-### 설정 방법
+#### 1. Require a pull request before merging
+- ✅ 체크 필수
+- **Require approvals**: 최소 승인 수를 `1`로 설정
 
-1. GitHub 저장소 페이지 이동
-2. `Settings` 탭 클릭
-3. 좌측 메뉴에서 `Branches` 클릭
-4. `Add branch protection rule` 버튼 클릭
-5. Branch name pattern에 브랜치명 입력 (예: `main`, `develop`, `release`)
-6. 위의 규칙에 맞게 체크박스 선택
-7. `Create` 또는 `Save changes` 버튼 클릭
+#### 2. Require status checks to pass before merging
+- ✅ 체크 필수
+- **Require branches to be up to date before merging** ✅ 체크 필수
+
+#### 3. Require conversation resolution before merging
+- ✅ 체크 권장
+
+---
+
+### 설정 방법 (단계별)
+
+1. **GitHub 저장소 페이지 이동**
+2. **Settings** 탭 클릭
+3. 좌측 메뉴에서 **Branches** 클릭
+4. **Add branch protection rule** 버튼 클릭
+5. **Branch name pattern**에 브랜치명 입력
+   - `main` 또는 `develop` 또는 `release`
+6. 위의 규칙에 맞게 옵션 체크
+   - ✅ **Require a pull request before merging**
+     - Require approvals: `1`
+   - ✅ **Require status checks to pass before merging**
+     - ✅ Require branches to be up to date before merging
+   - ✅ **Require conversation resolution before merging** (권장)
+   - ✅ **Do not allow bypassing the above settings** (main 브랜치)
+     - ✅ Include administrators
+7. 페이지 하단의 **Create** 또는 **Save changes** 버튼 클릭
+8. 각 브랜치(main, release, develop)에 대해 1~7단계 반복
