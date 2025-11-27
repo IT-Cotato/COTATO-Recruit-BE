@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '4.0.0'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'com.diffplug.spotless' version '6.25.0'
 }
 
 group = 'org.cotato.backend'
@@ -35,4 +36,51 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+spotless {
+	java {
+		target 'src/**/*.java'
+
+		// Google Java Format 사용
+		googleJavaFormat('1.19.2').aosp().reflowLongStrings()
+
+		// import 정리
+		importOrder()
+		removeUnusedImports()
+
+		// 파일 끝 개행 처리
+		endWithNewline()
+
+		// 들여쓰기를 탭으로 통일
+		indentWithTabs()
+		trimTrailingWhitespace()
+	}
+
+	format 'misc', {
+		target '**/*.md', '**/*.yml', '**/*.yaml', '**/.gitignore'
+		trimTrailingWhitespace()
+		endWithNewline()
+	}
+}
+
+// Pre-commit 훅 설정
+tasks.register('installGitHooks', Copy) {
+	description = 'Git pre-commit 훅을 설치합니다.'
+	from file("${rootDir}/scripts/pre-commit")
+	into file("${rootDir}/.git/hooks")
+	filePermissions {
+		unix(0755)
+	}
+}
+
+// 빌드 시 자동으로 훅 설치 및 포맷팅 적용
+tasks.named('build') {
+	dependsOn installGitHooks
+	dependsOn spotlessApply
+}
+
+// 컴파일 전에 자동으로 포맷팅 적용
+tasks.named('compileJava') {
+	dependsOn spotlessApply
 }

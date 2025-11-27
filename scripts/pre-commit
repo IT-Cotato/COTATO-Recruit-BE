@@ -1,0 +1,19 @@
+#!/bin/bash
+
+echo "Running pre-commit checks..."
+
+# Spotless 체크 실행
+./gradlew spotlessCheck --daemon
+
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ Spotless check failed!"
+    echo "코드 포맷이 맞지 않습니다. 다음 명령어를 실행하여 자동으로 수정하세요:"
+    echo ""
+    echo "    ./gradlew spotlessApply"
+    echo ""
+    exit 1
+fi
+
+echo "✅ All pre-commit checks passed!"
+exit 0
