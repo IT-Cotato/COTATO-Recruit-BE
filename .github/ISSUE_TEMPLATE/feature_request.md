@@ -1,9 +1,10 @@
 ---
-name: 🚀 기능 제안
+name: "\U0001F680 기능 제안"
 about: 새로운 기능을 제안합니다
-title: '[Feature] '
-labels: 'enhancement'
+title: "[Feature] "
+labels: feature
 assignees: ''
+
 ---
 
 ### 📋 기능 설명
