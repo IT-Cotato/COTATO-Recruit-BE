@@ -1,13 +1,4 @@
 ---
-name: Feature request
-about: 기능 구현
-title: "[FEATURE] "
-labels: ''
-assignees: ''
-
----
-
----
 name: 🚀 기능 제안
 about: 새로운 기능을 제안합니다
 title: '[Feature] '
