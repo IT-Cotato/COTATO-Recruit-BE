@@ -25,15 +25,15 @@ echo "1️⃣ 현재 활성 컨테이너 확인 중..."
 if docker ps --format '{{.Names}}' | grep -q "$BLUE_CONTAINER"; then
     ACTIVE_CONTAINER=$BLUE_CONTAINER
     IDLE_CONTAINER=$GREEN_CONTAINER
-    ACTIVE_SERVICE=$GREEN_SERVICE
-    IDLE_SERVICE=$BLUE_SERVICE
+    ACTIVE_SERVICE=$BLUE_SERVICE
+    IDLE_SERVICE=$GREEN_SERVICE
     ACTIVE_COLOR="BLUE"
     IDLE_COLOR="GREEN"
 else
     ACTIVE_CONTAINER=$GREEN_CONTAINER
     IDLE_CONTAINER=$BLUE_CONTAINER
-    ACTIVE_SERVICE=$BLUE_SERVICE
-    IDLE_SERVICE=$GREEN_SERVICE
+    ACTIVE_SERVICE=$GREEN_SERVICE
+    IDLE_SERVICE=$BLUE_SERVICE
     ACTIVE_COLOR="GREEN"
     IDLE_COLOR="BLUE"
 fi
@@ -60,6 +60,13 @@ docker compose -f $COMPOSE_FILE up -d $IDLE_SERVICE
 echo ""
 echo "5️⃣ $IDLE_COLOR 컨테이너 헬스 체크 중..."
 echo "   최대 $(($MAX_RETRY * $RETRY_INTERVAL))초 대기..."
+
+# nginx 컨테이너에 curl이 없으면 설치
+if ! docker exec nginx which curl > /dev/null 2>&1; then
+    echo "   nginx 컨테이너에 curl 설치 중..."
+    docker exec nginx apt-get update -qq > /dev/null 2>&1
+    docker exec nginx apt-get install -y curl -qq > /dev/null 2>&1
+fi
 
 for i in $(seq 1 $MAX_RETRY); do
     echo -n "   시도 $i/$MAX_RETRY: "
