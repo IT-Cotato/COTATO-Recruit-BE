@@ -111,50 +111,32 @@ jobs:
             # certbot 디렉토리 생성
             mkdir -p ~/certbot/www
 
-            # SSL 인증서 확인 및 경고 메시지
+            # SSL 인증서 확인
             if [ ! -f ~/ssl/fullchain.pem ] || [ ! -f ~/ssl/privkey.pem ]; then
-              echo "⚠️  Let's Encrypt SSL 인증서가 없습니다."
-              echo "⚠️  서버에 SSH 접속하여 인증서를 발급받으세요:"
-              echo "    sudo certbot certonly --standalone -d cotato-recruit.o-r.kr --email your-email@example.com"
-              echo "    sudo cp /etc/letsencrypt/live/cotato-recruit.o-r.kr/fullchain.pem ~/ssl/"
-              echo "    sudo cp /etc/letsencrypt/live/cotato-recruit.o-r.kr/privkey.pem ~/ssl/"
-              echo "⚠️  자세한 내용은 deployment/dev/SSL_SETUP.md 참고"
+              echo "❌ SSL 인증서 없음. 서버에서 인증서를 먼저 발급받으세요."
               exit 1
             fi
 
-            # Nginx 컨테이너 시작 및 설정
+            # Nginx 컨테이너 시작
             if ! docker ps --format '{{.Names}}' | grep -q "nginx"; then
-              echo "Nginx 컨테이너 시작..."
               docker compose -f ./docker-compose.dev.yml up -d nginx
               sleep 5
             fi
 
-            # default.conf가 없으면 Blue 설정으로 초기화
+            # default.conf 초기화 (Blue)
             if ! docker exec nginx test -f /etc/nginx/conf.d/default.conf 2>/dev/null; then
-              echo "Nginx 초기 설정 (Blue 환경)..."
               docker exec nginx cp /etc/nginx/templates/nginx-blue.conf /etc/nginx/conf.d/default.conf
               docker exec nginx nginx -s reload
-              echo "✅ Nginx 초기 설정 완료"
-            else
-              echo "✅ Nginx 이미 설정되어 있음"
             fi
 
-            # 스크립트 실행 권한 부여
+            # 배포 실행
             chmod +x ./deploy.sh
-
-            # Blue-Green 배포 스크립트 실행
             ./deploy.sh
 
       - name: Notify deployment success
         if: success()
-        run: |
-          echo "✅ 배포 성공!"
-          echo "Image: ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}"
-          echo "Commit: ${{ github.sha }}"
+        run: echo "✅ 배포 성공!"
 
       - name: Notify deployment failure
         if: failure()
-        run: |
-          echo "❌ 배포 실패!"
-          echo "Image: ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}"
-          echo "Commit: ${{ github.sha }}"
+        run: echo "❌ 배포 실패!"

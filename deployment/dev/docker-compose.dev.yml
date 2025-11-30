@@ -1,6 +1,6 @@
 services:
-  recruit-blue:
-    container_name: cotato-recruit-blue
+  blue:
+    container_name: blue
     image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
     environment:
       SPRING_PROFILES_ACTIVE: dev
@@ -13,8 +13,8 @@ services:
     networks:
       - app_network
 
-  recruit-green:
-    container_name: cotato-recruit-green
+  green:
+    container_name: green
     image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
     environment:
       SPRING_PROFILES_ACTIVE: dev
