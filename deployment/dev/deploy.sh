@@ -1,7 +1,9 @@
 #!/bin/bash
 set -e
 
-# 컨테이너 이름 설정
+# 서비스 및 컨테이너 이름 설정
+BLUE_SERVICE="recruit-blue"
+GREEN_SERVICE="recruit-green"
 BLUE_CONTAINER="cotato-recruit-blue"
 GREEN_CONTAINER="cotato-recruit-green"
 NGINX_CONTAINER="nginx"
@@ -24,11 +26,15 @@ echo "1️⃣ 현재 활성 컨테이너 확인 중..."
 if docker ps --format '{{.Names}}' | grep -q "$BLUE_CONTAINER"; then
     ACTIVE_CONTAINER=$BLUE_CONTAINER
     IDLE_CONTAINER=$GREEN_CONTAINER
+    ACTIVE_SERVICE=$GREEN_SERVICE
+    IDLE_SERVICE=$BLUE_SERVICE
     ACTIVE_COLOR="BLUE"
     IDLE_COLOR="GREEN"
 else
     ACTIVE_CONTAINER=$GREEN_CONTAINER
     IDLE_CONTAINER=$BLUE_CONTAINER
+    ACTIVE_SERVICE=$BLUE_SERVICE
+    IDLE_SERVICE=$GREEN_SERVICE
     ACTIVE_COLOR="GREEN"
     IDLE_COLOR="BLUE"
 fi
@@ -39,17 +45,17 @@ echo "   배포 대상: $IDLE_COLOR ($IDLE_CONTAINER)"
 # 2. 최신 이미지 Pull
 echo ""
 echo "2️⃣ 최신 Docker 이미지 Pull 중..."
-docker compose -f $COMPOSE_FILE pull $IDLE_CONTAINER
+docker compose -f $COMPOSE_FILE pull $IDLE_SERVICE
 
 # 3. IDLE 컨테이너 기존 인스턴스 정리
 echo ""
 echo "3️⃣ 기존 $IDLE_COLOR 컨테이너 정리 중..."
-docker compose -f $COMPOSE_FILE rm -f -s $IDLE_CONTAINER
+docker compose -f $COMPOSE_FILE rm -f -s $IDLE_SERVICE
 
 # 4. IDLE 컨테이너 시작
 echo ""
 echo "4️⃣ $IDLE_COLOR 컨테이너 시작 중..."
-docker compose -f $COMPOSE_FILE up -d $IDLE_CONTAINER
+docker compose -f $COMPOSE_FILE up -d $IDLE_SERVICE
 
 # 5. 헬스 체크
 echo ""
@@ -72,10 +78,10 @@ for i in $(seq 1 $MAX_RETRY); do
             echo "❌ 헬스 체크 실패! 배포를 중단합니다."
             echo ""
             echo "📋 $IDLE_COLOR 컨테이너 로그:"
-            docker compose -f $COMPOSE_FILE logs --tail=50 $IDLE_CONTAINER
+            docker compose -f $COMPOSE_FILE logs --tail=50 $IDLE_SERVICE
             echo ""
             echo "🔄 롤백: $IDLE_COLOR 컨테이너 제거 중..."
-            docker compose -f $COMPOSE_FILE rm -f -s $IDLE_CONTAINER
+            docker compose -f $COMPOSE_FILE rm -f -s $IDLE_SERVICE
             exit 1
         fi
         sleep $RETRY_INTERVAL
@@ -107,7 +113,7 @@ if docker exec $NGINX_CONTAINER nginx -t 2>&1 | grep -q "successful"; then
 else
     echo "   ❌ Nginx 설정 검증 실패! 롤백합니다."
     docker exec $NGINX_CONTAINER sed -i "s/server $NEW_UPSTREAM:8080/server $OLD_UPSTREAM:8080/g" /etc/nginx/conf.d/default.conf
-    docker compose -f $COMPOSE_FILE rm -f -s $IDLE_CONTAINER
+    docker compose -f $COMPOSE_FILE rm -f -s $IDLE_SERVICE
     exit 1
 fi
 
@@ -120,7 +126,7 @@ echo "   ✅ Nginx 리로드 완료"
 echo ""
 echo "7️⃣ 이전 $ACTIVE_COLOR 컨테이너 종료 중..."
 sleep 5  # 안전을 위해 5초 대기
-docker compose -f $COMPOSE_FILE rm -f -s $ACTIVE_CONTAINER
+docker compose -f $COMPOSE_FILE rm -f -s $ACTIVE_SERVICE
 echo "   ✅ $ACTIVE_COLOR 컨테이너 종료 완료"
 
 # 8. 배포 완료
