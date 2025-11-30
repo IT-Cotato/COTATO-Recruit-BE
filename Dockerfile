@@ -1,5 +1,5 @@
 # Java 17 런타임 환경을 기반 이미지로 사용
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jre-jammy
 
 # 필수 패키지 설치 (헬스체크를 위한 curl)
 RUN apt-get update && \
