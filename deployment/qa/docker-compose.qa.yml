@@ -3,7 +3,7 @@ services:
     container_name: blue
     image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: qa
       TZ: "Asia/Seoul"
       # GitHub Secrets에서 주입될 환경변수들
       DB_URL: ${DB_URL}
@@ -17,7 +17,7 @@ services:
     container_name: green
     image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: qa
       TZ: "Asia/Seoul"
       # GitHub Secrets에서 주입될 환경변수들
       DB_URL: ${DB_URL}

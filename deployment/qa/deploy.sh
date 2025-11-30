@@ -9,7 +9,7 @@ GREEN_CONTAINER="green"
 NGINX_CONTAINER="nginx"
 
 # Docker Compose 파일 경로
-COMPOSE_FILE="./docker-compose.dev.yml"
+COMPOSE_FILE="./docker-compose.qa.yml"
 
 # 헬스 체크 설정
 MAX_RETRY=30
