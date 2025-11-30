@@ -1,0 +1,150 @@
+name: Deploy to Development Server
+
+on:
+  push:
+    branches:
+      - chore/ci-cd-setup
+  workflow_dispatch:  # 수동 실행 가능
+
+env:
+  DOCKER_IMAGE_NAME: cotato-recruit
+  DOCKER_IMAGE_TAG: dev-${{ github.sha }}
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew clean build -x test
+
+      - name: Run tests
+        run: ./gradlew test
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
+            ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:dev-latest
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:buildcache,mode=max
+
+  deploy:
+    name: Deploy to Development Server
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy deployment files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DEV_SERVER_HOST }}
+          username: ${{ secrets.DEV_SERVER_USERNAME }}
+          key: ${{ secrets.DEV_SERVER_SSH_KEY }}
+          port: ${{ secrets.DEV_SERVER_PORT || 22 }}
+          source: "deployment/dev/docker-compose.dev.yml,deployment/dev/nginx.conf,deployment/dev/deploy.sh"
+          target: "~/"
+          strip_components: 2
+          rm: false
+
+      - name: Deploy with Blue-Green strategy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEV_SERVER_HOST }}
+          username: ${{ secrets.DEV_SERVER_USERNAME }}
+          key: ${{ secrets.DEV_SERVER_SSH_KEY }}
+          port: ${{ secrets.DEV_SERVER_PORT || 22 }}
+          script: |
+            cd ~
+
+            # 환경변수 설정
+            export DOCKER_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}
+            export DOCKER_IMAGE_TAG=${{ env.DOCKER_IMAGE_TAG }}
+            export DB_URL=${{ secrets.DB_URL }}
+            export DB_USERNAME=${{ secrets.DB_USERNAME }}
+            export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            export JWT_SECRET=${{ secrets.JWT_SECRET }}
+
+            # 환경변수 .env 파일로 저장
+            cat > .env << EOF
+            DOCKER_IMAGE_NAME=$DOCKER_IMAGE_NAME
+            DOCKER_IMAGE_TAG=$DOCKER_IMAGE_TAG
+            DB_URL=$DB_URL
+            DB_USERNAME=$DB_USERNAME
+            DB_PASSWORD=$DB_PASSWORD
+            JWT_SECRET=$JWT_SECRET
+            EOF
+
+            # Docker 로그인
+            echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+
+            # certbot 디렉토리 생성
+            mkdir -p ~/certbot/www
+
+            # SSL 인증서 확인 및 경고 메시지
+            if [ ! -f ~/ssl/fullchain.pem ] || [ ! -f ~/ssl/privkey.pem ]; then
+              echo "⚠️  Let's Encrypt SSL 인증서가 없습니다."
+              echo "⚠️  서버에 SSH 접속하여 인증서를 발급받으세요:"
+              echo "    sudo certbot certonly --standalone -d cotato-recruit.o-r.kr --email your-email@example.com"
+              echo "    sudo cp /etc/letsencrypt/live/cotato-recruit.o-r.kr/fullchain.pem ~/ssl/"
+              echo "    sudo cp /etc/letsencrypt/live/cotato-recruit.o-r.kr/privkey.pem ~/ssl/"
+              echo "⚠️  자세한 내용은 deployment/dev/SSL_SETUP.md 참고"
+              exit 1
+            fi
+
+            # Nginx 컨테이너가 없으면 먼저 시작
+            if ! docker ps --format '{{.Names}}' | grep -q "nginx"; then
+              echo "Nginx 컨테이너 초기 시작..."
+              docker compose -f ./docker-compose.dev.yml up -d nginx
+              sleep 5
+            fi
+
+            # 스크립트 실행 권한 부여
+            chmod +x ./deploy.sh
+
+            # Blue-Green 배포 스크립트 실행
+            ./deploy.sh
+
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "✅ 배포 성공!"
+          echo "Image: ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}"
+          echo "Commit: ${{ github.sha }}"
+
+      - name: Notify deployment failure
+        if: failure()
+        run: |
+          echo "❌ 배포 실패!"
+          echo "Image: ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}"
+          echo "Commit: ${{ github.sha }}"
