@@ -105,16 +105,17 @@ else
     OLD_UPSTREAM="recruit-blue"
 fi
 
-# Nginx 설정 파일에서 upstream 변경
-docker exec $NGINX_CONTAINER sed -i "s/server $OLD_UPSTREAM:8080/server $NEW_UPSTREAM:8080/g" /etc/nginx/conf.d/default.conf
+# 호스트의 nginx.conf 파일 수정
+sed -i.bak "s/server $OLD_UPSTREAM:8080/server $NEW_UPSTREAM:8080/g" ./nginx.conf
 
 # Nginx 설정 테스트
 echo "   Nginx 설정 테스트 중..."
 if docker exec $NGINX_CONTAINER nginx -t 2>&1 | grep -q "successful"; then
     echo "   ✅ Nginx 설정 검증 성공"
+    rm -f ./nginx.conf.bak
 else
     echo "   ❌ Nginx 설정 검증 실패! 롤백합니다."
-    docker exec $NGINX_CONTAINER sed -i "s/server $NEW_UPSTREAM:8080/server $OLD_UPSTREAM:8080/g" /etc/nginx/conf.d/default.conf
+    mv ./nginx.conf.bak ./nginx.conf
     docker compose -f $COMPOSE_FILE rm -f -s $IDLE_SERVICE
     exit 1
 fi
