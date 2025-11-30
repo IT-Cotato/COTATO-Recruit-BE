@@ -97,6 +97,15 @@ fi
 # 6. Nginx 설정 전환 (upstream 전환)
 echo ""
 echo "6️⃣ Nginx 설정 전환 중..."
+
+# Nginx 컨테이너 실행 확인 및 시작
+if ! docker ps --format '{{.Names}}' | grep -q "^$NGINX_CONTAINER$"; then
+    echo "   ⚠️  Nginx 컨테이너가 실행 중이 아닙니다. 시작합니다..."
+    docker compose -f $COMPOSE_FILE up -d $NGINX_CONTAINER
+    sleep 5
+    echo "   ✅ Nginx 컨테이너 시작 완료"
+fi
+
 if [ "$IDLE_COLOR" = "BLUE" ]; then
     NEW_CONFIG="nginx-blue.conf"
     ACTIVE_CONFIG="Blue"
