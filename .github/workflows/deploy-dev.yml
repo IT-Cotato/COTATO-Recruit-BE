@@ -72,7 +72,7 @@ jobs:
           username: ${{ secrets.DEV_SERVER_USERNAME }}
           key: ${{ secrets.DEV_SERVER_SSH_KEY }}
           port: ${{ secrets.DEV_SERVER_PORT || 22 }}
-          source: "deployment/dev/docker-compose.dev.yml,deployment/dev/nginx.conf,deployment/dev/deploy.sh"
+          source: "deployment/dev/docker-compose.dev.yml,deployment/dev/nginx-blue.conf,deployment/dev/nginx-green.conf,deployment/dev/deploy.sh"
           target: "~/"
           strip_components: 2
           rm: false
@@ -122,11 +122,15 @@ jobs:
               exit 1
             fi
 
-            # Nginx 컨테이너가 없으면 먼저 시작
+            # Nginx 컨테이너가 없으면 먼저 시작 (초기 설정은 Blue)
             if ! docker ps --format '{{.Names}}' | grep -q "nginx"; then
               echo "Nginx 컨테이너 초기 시작..."
               docker compose -f ./docker-compose.dev.yml up -d nginx
               sleep 5
+              # 초기 설정을 Blue로 설정
+              docker exec nginx cp /etc/nginx/conf.d/nginx-blue.conf /etc/nginx/conf.d/default.conf
+              docker exec nginx nginx -s reload
+              echo "✅ 초기 Nginx 설정 완료 (Blue 환경)"
             fi
 
             # 스크립트 실행 권한 부여

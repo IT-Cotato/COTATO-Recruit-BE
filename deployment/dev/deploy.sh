@@ -94,28 +94,28 @@ if [ "$HEALTH_CHECK_PASSED" = false ]; then
     exit 1
 fi
 
-# 6. Nginx 설정 변경 (upstream 전환)
+# 6. Nginx 설정 전환 (upstream 전환)
 echo ""
 echo "6️⃣ Nginx 설정 전환 중..."
 if [ "$IDLE_COLOR" = "BLUE" ]; then
-    NEW_UPSTREAM="recruit-blue"
-    OLD_UPSTREAM="recruit-green"
+    NEW_CONFIG="nginx-blue.conf"
+    ACTIVE_CONFIG="Blue"
 else
-    NEW_UPSTREAM="recruit-green"
-    OLD_UPSTREAM="recruit-blue"
+    NEW_CONFIG="nginx-green.conf"
+    ACTIVE_CONFIG="Green"
 fi
 
-# 호스트의 nginx.conf 파일 수정
-sed -i.bak "s/server $OLD_UPSTREAM:8080/server $NEW_UPSTREAM:8080/g" ./nginx.conf
+echo "   새로운 설정: $NEW_CONFIG"
+
+# 컨테이너 내부에서 설정 파일 복사
+docker exec $NGINX_CONTAINER cp /etc/nginx/conf.d/$NEW_CONFIG /etc/nginx/conf.d/default.conf
 
 # Nginx 설정 테스트
 echo "   Nginx 설정 테스트 중..."
 if docker exec $NGINX_CONTAINER nginx -t 2>&1 | grep -q "successful"; then
     echo "   ✅ Nginx 설정 검증 성공"
-    rm -f ./nginx.conf.bak
 else
     echo "   ❌ Nginx 설정 검증 실패! 롤백합니다."
-    mv ./nginx.conf.bak ./nginx.conf
     docker compose -f $COMPOSE_FILE rm -f -s $IDLE_SERVICE
     exit 1
 fi
@@ -123,13 +123,13 @@ fi
 # Nginx 리로드
 echo "   Nginx 리로드 중..."
 docker exec $NGINX_CONTAINER nginx -s reload
-echo "   ✅ Nginx 리로드 완료"
+echo "   ✅ Nginx 리로드 완료 ($ACTIVE_CONFIG 환경으로 전환)"
 
 # 7. 이전 컨테이너 종료
 echo ""
 echo "7️⃣ 이전 $ACTIVE_COLOR 컨테이너 종료 중..."
-sleep 5  # 안전을 위해 5초 대기
-docker compose -f $COMPOSE_FILE rm -f -s $ACTIVE_SERVICE
+sleep 3  # Nginx 리로드 후 안정화 대기
+docker compose -f $COMPOSE_FILE stop $ACTIVE_SERVICE
 echo "   ✅ $ACTIVE_COLOR 컨테이너 종료 완료"
 
 # 8. 배포 완료
@@ -138,5 +138,5 @@ echo "=========================================="
 echo "✅ 배포 완료!"
 echo "=========================================="
 echo "   새로운 활성 컨테이너: $IDLE_COLOR ($IDLE_CONTAINER)"
-echo "   Nginx upstream: $NEW_UPSTREAM"
+echo "   Nginx 설정 파일: $NEW_CONFIG"
 echo "=========================================="
