@@ -61,20 +61,13 @@ echo ""
 echo "5️⃣ $IDLE_COLOR 컨테이너 헬스 체크 중..."
 echo "   최대 $(($MAX_RETRY * $RETRY_INTERVAL))초 대기..."
 
-# nginx 컨테이너에 curl이 없으면 설치
-if ! docker exec nginx which curl > /dev/null 2>&1; then
-    echo "   nginx 컨테이너에 curl 설치 중..."
-    docker exec nginx apt-get update -qq > /dev/null 2>&1
-    docker exec nginx apt-get install -y curl -qq > /dev/null 2>&1
-fi
-
 for i in $(seq 1 $MAX_RETRY); do
     echo -n "   시도 $i/$MAX_RETRY: "
 
-    # 같은 Docker 네트워크에 있으므로 컨테이너 이름으로 직접 접근
+    # Docker 네트워크를 통해 컨테이너 이름으로 접근
     HEALTH_CHECK_URL="http://$IDLE_CONTAINER:8080/actuator/health"
 
-    if docker exec nginx curl -sf $HEALTH_CHECK_URL > /dev/null 2>&1; then
+    if docker exec $IDLE_CONTAINER curl -sf http://localhost:8080/actuator/health > /dev/null 2>&1; then
         echo "✅ 성공"
         HEALTH_CHECK_PASSED=true
         break
