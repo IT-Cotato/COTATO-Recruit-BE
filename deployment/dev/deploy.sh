@@ -109,7 +109,7 @@ fi
 echo "   새로운 설정: $NEW_CONFIG"
 
 # 컨테이너 내부에서 설정 파일 복사
-docker exec $NGINX_CONTAINER cp /etc/nginx/conf.d/$NEW_CONFIG /etc/nginx/conf.d/default.conf
+docker exec $NGINX_CONTAINER cp /etc/nginx/templates/$NEW_CONFIG /etc/nginx/conf.d/default.conf
 
 # Nginx 설정 테스트
 echo "   Nginx 설정 테스트 중..."
