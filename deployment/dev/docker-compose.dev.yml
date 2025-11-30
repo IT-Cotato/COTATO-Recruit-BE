@@ -12,12 +12,6 @@ services:
       JWT_SECRET: ${JWT_SECRET}
     networks:
       - app_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 40s
 
   recruit-green:
     container_name: cotato-recruit-green
@@ -32,12 +26,6 @@ services:
       JWT_SECRET: ${JWT_SECRET}
     networks:
       - app_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 40s
 
   nginx:
     image: nginx:latest

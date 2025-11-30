@@ -12,7 +12,6 @@ NGINX_CONTAINER="nginx"
 COMPOSE_FILE="./docker-compose.dev.yml"
 
 # 헬스 체크 설정
-HEALTH_CHECK_URL="http://localhost:8080/actuator/health"
 MAX_RETRY=30
 RETRY_INTERVAL=5
 
@@ -65,7 +64,10 @@ echo "   최대 $(($MAX_RETRY * $RETRY_INTERVAL))초 대기..."
 for i in $(seq 1 $MAX_RETRY); do
     echo -n "   시도 $i/$MAX_RETRY: "
 
-    if docker exec $IDLE_CONTAINER curl -sf $HEALTH_CHECK_URL > /dev/null 2>&1; then
+    # 같은 Docker 네트워크에 있으므로 컨테이너 이름으로 직접 접근
+    HEALTH_CHECK_URL="http://$IDLE_CONTAINER:8080/actuator/health"
+
+    if docker exec nginx curl -sf $HEALTH_CHECK_URL > /dev/null 2>&1; then
         echo "✅ 성공"
         HEALTH_CHECK_PASSED=true
         break
