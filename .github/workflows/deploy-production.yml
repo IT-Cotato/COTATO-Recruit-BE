@@ -29,12 +29,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.tag || github.ref }}
+          ref: ${{ inputs.tag || github.event.inputs.tag || github.ref }}
 
       - name: Extract version from tag
         id: version
         run: |
-          if [ "${{ github.event.inputs.tag }}" != "" ]; then
+          if [ "${{ inputs.tag }}" != "" ]; then
+            TAG="${{ inputs.tag }}"
+          elif [ "${{ github.event.inputs.tag }}" != "" ]; then
             TAG="${{ github.event.inputs.tag }}"
           elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
             TAG=${GITHUB_REF#refs/tags/}
@@ -92,12 +94,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.tag || github.ref }}
+          ref: ${{ inputs.tag || github.event.inputs.tag || github.ref }}
 
       - name: Extract version from tag
         id: version
         run: |
-          if [ "${{ github.event.inputs.tag }}" != "" ]; then
+          if [ "${{ inputs.tag }}" != "" ]; then
+            TAG="${{ inputs.tag }}"
+          elif [ "${{ github.event.inputs.tag }}" != "" ]; then
             TAG="${{ github.event.inputs.tag }}"
           elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
             TAG=${GITHUB_REF#refs/tags/}
