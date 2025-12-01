@@ -19,6 +19,8 @@ jobs:
       (startsWith(github.event.pull_request.head.ref, 'release/') ||
        startsWith(github.event.pull_request.head.ref, 'hotfix/'))
     runs-on: ubuntu-latest
+    outputs:
+      tag_name: ${{ steps.version.outputs.tag_name }}
 
     steps:
       - name: Checkout code
@@ -100,3 +102,10 @@ jobs:
           echo "Release Type: ${{ steps.version.outputs.is_hotfix == 'true' && 'Hotfix' || 'Release' }}"
           echo "✅ main → develop 동기화 완료"
           echo "✅ Production 배포가 자동으로 시작됩니다"
+
+  trigger-production-deploy:
+    name: Trigger Production Deployment
+    needs: create-tag
+    uses: ./.github/workflows/deploy-production.yml
+    with:
+      tag: ${{ needs.create-tag.outputs.tag_name }}
