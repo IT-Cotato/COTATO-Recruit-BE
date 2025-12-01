@@ -1,0 +1,109 @@
+name: Create Release Branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: '버전 타입 (날짜 기반 자동 생성)'
+        required: true
+        type: choice
+        options:
+          - auto
+          - custom
+        default: 'auto'
+      custom_version:
+        description: '사용자 정의 버전 (custom 선택 시, 예: 2025.12.01)'
+        required: false
+        type: string
+
+jobs:
+  create-branch:
+    name: Create Release Branch
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Generate version
+        id: version
+        run: |
+          if [ "${{ github.event.inputs.version_type }}" == "custom" ]; then
+            VERSION="${{ github.event.inputs.custom_version }}"
+          else
+            DATE=$(date +'%Y.%m.%d')
+            # 같은 날짜의 release가 있는지 확인하고 일련번호 증가
+            COUNTER=1
+            while git ls-remote --heads origin release/$DATE.$COUNTER | grep -q release/$DATE.$COUNTER; do
+              COUNTER=$((COUNTER + 1))
+            done
+            VERSION="$DATE.$COUNTER"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "branch_name=release/$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check if branch exists
+        id: check_branch
+        run: |
+          if git ls-remote --heads origin ${{ steps.version.outputs.branch_name }} | grep -q ${{ steps.version.outputs.branch_name }}; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create release branch
+        if: steps.check_branch.outputs.exists == 'false'
+        run: |
+          git checkout -b ${{ steps.version.outputs.branch_name }}
+          git push origin ${{ steps.version.outputs.branch_name }}
+
+      - name: Update version in build.gradle
+        if: steps.check_branch.outputs.exists == 'false'
+        run: |
+          sed -i "s/version = .*/version = '${{ steps.version.outputs.version }}'/" build.gradle
+          git add build.gradle
+          git commit -m "chore: bump version to ${{ steps.version.outputs.version }}"
+          git push origin ${{ steps.version.outputs.branch_name }}
+
+      - name: Create Pull Request to main
+        if: steps.check_branch.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr create \
+            --base main \
+            --head ${{ steps.version.outputs.branch_name }} \
+            --title "Release ${{ steps.version.outputs.version }}" \
+            --body "## Release ${{ steps.version.outputs.version }}
+
+          ### 변경사항
+          - 자동 생성된 릴리즈 브랜치
+          - 버전: ${{ steps.version.outputs.version }}
+
+          ### 체크리스트
+          - [ ] QA 서버 배포 확인
+          - [ ] 기능 테스트 완료
+          - [ ] 버그 수정 완료
+
+          **주의**: main에 Merge하면 자동으로 Tag 생성 → Production 배포 → develop 동기화됩니다."
+
+      - name: Branch already exists
+        if: steps.check_branch.outputs.exists == 'true'
+        run: |
+          echo "❌ Branch ${{ steps.version.outputs.branch_name }} already exists"
+          exit 1
+
+      - name: Summary
+        if: success()
+        run: |
+          echo "✅ Release branch created successfully!"
+          echo "Branch: ${{ steps.version.outputs.branch_name }}"
+          echo "Version: ${{ steps.version.outputs.version }}"

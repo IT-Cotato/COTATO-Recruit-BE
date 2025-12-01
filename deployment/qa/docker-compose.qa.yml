@@ -1,0 +1,46 @@
+services:
+  blue:
+    container_name: blue
+    image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+    environment:
+      SPRING_PROFILES_ACTIVE: qa
+      TZ: "Asia/Seoul"
+      # GitHub Secrets에서 주입될 환경변수들
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+    networks:
+      - app_network
+
+  green:
+    container_name: green
+    image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+    environment:
+      SPRING_PROFILES_ACTIVE: qa
+      TZ: "Asia/Seoul"
+      # GitHub Secrets에서 주입될 환경변수들
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+    networks:
+      - app_network
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx-blue.conf:/etc/nginx/templates/nginx-blue.conf:ro
+      - ./nginx-green.conf:/etc/nginx/templates/nginx-green.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./certbot/www:/var/www/certbot:ro
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
