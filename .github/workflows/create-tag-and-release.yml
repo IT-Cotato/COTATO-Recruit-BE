@@ -1,0 +1,102 @@
+name: Create Tag and Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-tag:
+    name: Create Tag and Release
+    # PR이 merge되었고, release/ 또는 hotfix/ 브랜치에서 왔을 때만 실행
+    if: |
+      github.event.pull_request.merged == true &&
+      (startsWith(github.event.pull_request.head.ref, 'release/') ||
+       startsWith(github.event.pull_request.head.ref, 'hotfix/'))
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Extract version from branch name
+        id: version
+        run: |
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          VERSION=$(echo $BRANCH_NAME | sed 's/^release\///' | sed 's/^hotfix\///')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag_name=v$VERSION" >> $GITHUB_OUTPUT
+          echo "is_hotfix=${{ startsWith(github.event.pull_request.head.ref, 'hotfix/') }}" >> $GITHUB_OUTPUT
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create and push tag
+        run: |
+          git tag -a ${{ steps.version.outputs.tag_name }} -m "Release ${{ steps.version.outputs.version }}"
+          git push origin ${{ steps.version.outputs.tag_name }}
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # PR의 커밋 메시지들을 수집
+          COMMITS=$(git log --oneline origin/develop...${{ github.event.pull_request.merge_commit_sha }} --pretty=format:"- %s (%h)")
+
+          # Changelog 생성
+          CHANGELOG="## Changes
+
+          $COMMITS
+
+          ## Pull Request
+          - PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}
+          - Merged by: @${{ github.event.pull_request.merged_by.login }}
+          - Merged at: ${{ github.event.pull_request.merged_at }}"
+
+          # 여러 줄 출력을 위한 처리
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RELEASE_TYPE="${{ steps.version.outputs.is_hotfix == 'true' && 'Hotfix' || 'Release' }}"
+
+          gh release create ${{ steps.version.outputs.tag_name }} \
+            --title "$RELEASE_TYPE ${{ steps.version.outputs.version }}" \
+            --notes "${{ steps.changelog.outputs.changelog }}" \
+            --target main
+
+      - name: Sync main to develop
+        if: success()
+        run: |
+          git fetch origin develop
+          git checkout develop
+          git merge origin/main --no-edit
+          git push origin develop
+
+      - name: Delete merged branch
+        if: success()
+        run: |
+          git push origin --delete ${{ github.event.pull_request.head.ref }} || true
+
+      - name: Summary
+        if: success()
+        run: |
+          echo "✅ Tag and Release created successfully!"
+          echo "Tag: ${{ steps.version.outputs.tag_name }}"
+          echo "Version: ${{ steps.version.outputs.version }}"
+          echo "Release Type: ${{ steps.version.outputs.is_hotfix == 'true' && 'Hotfix' || 'Release' }}"
+          echo "✅ main → develop 동기화 완료"
+          echo "✅ Production 배포가 자동으로 시작됩니다"

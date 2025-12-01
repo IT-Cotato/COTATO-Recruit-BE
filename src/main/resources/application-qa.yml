@@ -1,0 +1,22 @@
+spring:
+  config:
+    activate:
+      on-profile: qa
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO
+    org.cotato.backend: DEBUG
+    org.springframework.web: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
