@@ -53,6 +53,8 @@ docker compose -f $COMPOSE_FILE up -d $IDLE_SERVICE
 # 5. 헬스 체크
 echo "⏳ 헬스 체크 중 (최대 $(($MAX_RETRY * $RETRY_INTERVAL))초)..."
 
+HEALTH_CHECK_PASSED=false
+
 for i in $(seq 1 $MAX_RETRY); do
     if docker exec $IDLE_CONTAINER curl -sf http://localhost:8080/actuator/health > /dev/null 2>&1; then
         echo "✅ 헬스 체크 성공 ($i/$MAX_RETRY)"
@@ -60,19 +62,16 @@ for i in $(seq 1 $MAX_RETRY); do
         break
     fi
 
-    if [ $i -eq $MAX_RETRY ]; then
-        echo "❌ 헬스 체크 실패! 배포 중단"
-        echo ""
-        echo "📋 컨테이너 로그:"
-        docker compose -f $COMPOSE_FILE logs --tail=50 $IDLE_SERVICE
-        docker compose -f $COMPOSE_FILE rm -f -s $IDLE_SERVICE
-        exit 1
-    fi
-
+    echo "⏳ 헬스 체크 대기 중... ($i/$MAX_RETRY)"
     sleep $RETRY_INTERVAL
 done
 
 if [ "$HEALTH_CHECK_PASSED" = false ]; then
+    echo "❌ 헬스 체크 실패! 배포 중단"
+    echo ""
+    echo "📋 컨테이너 로그:"
+    docker compose -f $COMPOSE_FILE logs --tail=50 $IDLE_SERVICE
+    docker compose -f $COMPOSE_FILE rm -f -s $IDLE_SERVICE
     exit 1
 fi
 
@@ -96,9 +95,10 @@ fi
 docker exec $NGINX_CONTAINER nginx -s reload
 echo "✅ 트래픽 전환 완료: $ACTIVE_COLOR → $IDLE_COLOR"
 
-# 7. 이전 컨테이너 종료
+# 7. 이전 컨테이너 종료 및 삭제
 sleep 3
-docker compose -f $COMPOSE_FILE stop $ACTIVE_SERVICE
+echo "🗑️  이전 컨테이너 종료 및 삭제 중..."
+docker compose -f $COMPOSE_FILE rm -f -s $ACTIVE_SERVICE
 
 # 8. 배포 완료
 echo ""

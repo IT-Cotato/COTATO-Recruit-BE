@@ -36,8 +36,12 @@ jobs:
         run: |
           if [ "${{ github.event.inputs.tag }}" != "" ]; then
             TAG="${{ github.event.inputs.tag }}"
-          else
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
             TAG=${GITHUB_REF#refs/tags/}
+          else
+            echo "❌ Error: This workflow must be triggered by a tag push or manual workflow_dispatch with a tag"
+            echo "Current ref: ${{ github.ref }}"
+            exit 1
           fi
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           echo "version=${TAG#v}" >> $GITHUB_OUTPUT
@@ -95,8 +99,12 @@ jobs:
         run: |
           if [ "${{ github.event.inputs.tag }}" != "" ]; then
             TAG="${{ github.event.inputs.tag }}"
-          else
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
             TAG=${GITHUB_REF#refs/tags/}
+          else
+            echo "❌ Error: This workflow must be triggered by a tag push or manual workflow_dispatch with a tag"
+            echo "Current ref: ${{ github.ref }}"
+            exit 1
           fi
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
