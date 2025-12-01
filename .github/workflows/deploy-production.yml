@@ -10,6 +10,12 @@ on:
         description: '배포할 Tag (예: v2025.12.01)'
         required: true
         type: string
+  workflow_call:  # 다른 워크플로우에서 호출 가능
+    inputs:
+      tag:
+        description: '배포할 Tag'
+        required: true
+        type: string
 
 env:
   DOCKER_IMAGE_NAME: cotato-recruit
