@@ -88,11 +88,6 @@ jobs:
           git merge origin/main --no-edit
           git push origin develop
 
-      - name: Delete merged branch
-        if: success()
-        run: |
-          git push origin --delete ${{ github.event.pull_request.head.ref }} || true
-
       - name: Summary
         if: success()
         run: |

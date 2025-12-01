@@ -15,18 +15,42 @@ on:
 
 env:
   DOCKER_IMAGE_NAME: cotato-recruit
-  DOCKER_IMAGE_TAG: qa-${{ github.sha }}
 
 jobs:
   build-and-push:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.extract-version.outputs.version }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref || github.ref }}
+
+      - name: Extract version from branch name
+        id: extract-version
+        run: |
+          # 브랜치 이름에서 버전 추출 (release/2025.12.01.1 -> 2025.12.01.1)
+          if [ "${{ inputs.ref }}" != "" ]; then
+            REF="${{ inputs.ref }}"
+          else
+            REF="${{ github.ref }}"
+          fi
+
+          # refs/heads/release/2025.12.01.1 형태에서 버전 추출
+          if [[ "$REF" =~ refs/heads/(release|hotfix)/(.+) ]]; then
+            VERSION="${BASH_REMATCH[2]}"
+          elif [[ "$REF" =~ (release|hotfix)/(.+) ]]; then
+            VERSION="${BASH_REMATCH[2]}"
+          else
+            echo "❌ Error: Could not extract version from ref: $REF"
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -60,7 +84,7 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
+            ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ steps.extract-version.outputs.version }}
             ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:qa-latest
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:buildcache,mode=max
@@ -100,7 +124,7 @@ jobs:
 
             # 환경변수 설정
             export DOCKER_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}
-            export DOCKER_IMAGE_TAG=${{ env.DOCKER_IMAGE_TAG }}
+            export DOCKER_IMAGE_TAG=${{ needs.build-and-push.outputs.image_tag }}
             export DB_URL=${{ secrets.DB_URL }}
             export DB_USERNAME=${{ secrets.DB_USERNAME }}
             export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
