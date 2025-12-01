@@ -102,15 +102,19 @@ develop: A --- B --- C --- D
 ```
 feature/* → develop (Squash Merge)
               ↓
-         release/* (GitHub Actions 자동 생성, develop 기준)
+    자동화: release/* 브랜치 생성 + 빌드
               ↓
-          QA 서버 배포
+    자동화: QA 서버 배포 (Blue-Green 무중단)
               ↓
          main (Squash Merge)
               ↓
-    Tag 생성 (main 기준) + Production 배포
+    자동화: Tag 생성
               ↓
-      main → develop 역머지
+    자동화: QA 이미지 재사용 + Production 배포
+              ↓
+    자동화: main → develop 역머지
+              ↓
+    release/* 브랜치 유지 (롤백용)
 ```
 
 ### 개발 워크플로우
@@ -142,27 +146,46 @@ git push origin feature/user-authentication
 
 #### 3. Release 배포
 
-1. GitHub Actions에서 `Create Release Branch` 워크플로우 실행
-2. `release/2025.12.01.1` 브랜치 자동 생성 (develop 기준) 및 QA 서버 배포
-3. QA 테스트 진행 (버그 발견 시 release 브랜치에서 수정 → 재배포)
-4. QA 완료 후 `release/2025.12.01.1` → `main` PR 생성 및 Merge
-5. 자동으로:
-   - Tag 생성 (`v2025.12.01.1`, main 기준)
-   - Production 서버 배포
-   - main → develop 역머지 (release에서 수정한 내용 반영)
-   - release 브랜치 삭제
+1. **develop 브랜치에 feature 병합 시 자동 실행됨**
+   - 자동으로 `release/2025.12.01.1` 브랜치 생성 (develop 기준)
+   - 버전 번호는 현재 날짜 기반으로 자동 생성 (같은 날짜 중복 시 일련번호 자동 증가)
+   - `build.gradle`의 버전 자동 업데이트
+   - QA 서버에 자동 배포 (Blue-Green 무중단)
+
+2. **QA 테스트 진행**
+   - QA 서버에서 테스트 수행
+   - 버그 발견 시 release 브랜치에서 직접 수정 후 push
+   - Push 시 QA 서버에 자동 재배포
+
+3. **운영 배포**
+   - QA 완료 후 `release/2025.12.01.1` → `main` PR 생성 및 Squash Merge
+   - Merge 시 자동으로:
+     - Tag 생성 (`v2025.12.01.1`, main 기준)
+     - QA 이미지 재사용 (재빌드 없음)
+     - Production 서버 배포 (Blue-Green 무중단)
+     - main → develop 역머지 (release에서 수정한 내용 반영)
+     - **release 브랜치 유지** (롤백/재배포용)
 
 #### 4. Hotfix 배포
 
-1. GitHub Actions에서 `Create Hotfix Branch` 워크플로우 실행
-2. `hotfix/2025.12.01-hotfix.1` 브랜치 자동 생성 (main 기준) 및 QA 서버 배포
-3. 버그 수정 후 QA 테스트
-4. QA 완료 후 `hotfix/*` → `main` Merge
-5. 자동으로:
-   - Tag 생성 (`v2025.12.01-hotfix.1`, main 기준)
-   - Production 서버 배포
-   - main → develop 역머지
-   - hotfix 브랜치 삭제
+1. **Hotfix 브랜치 생성** (수동 - GitHub Actions 필요)
+   - GitHub Actions에서 `Create Hotfix Branch` 워크플로우 실행
+   - `hotfix/2025.12.01-hotfix.1` 브랜치 자동 생성 (main 기준)
+   - 버전 번호는 현재 날짜 기반으로 자동 생성
+   - QA 서버에 자동 배포 (Blue-Green 무중단)
+
+2. **버그 수정 및 QA 테스트**
+   - hotfix 브랜치에서 버그 수정 후 push
+   - Push 시 QA 서버에 자동 재배포
+
+3. **운영 배포**
+   - QA 완료 후 `hotfix/*` → `main` PR 생성 및 Squash Merge
+   - Merge 시 자동으로:
+     - Tag 생성 (`v2025.12.01-hotfix.1`, main 기준)
+     - QA 이미지 재사용 (재빌드 없음)
+     - Production 서버 배포 (Blue-Green 무중단)
+     - main → develop 역머지
+     - **hotfix 브랜치 유지** (롤백/재배포용)
 
 ## 브랜치 보호 규칙
 
@@ -191,12 +214,33 @@ git push origin feature/user-authentication
 - PR을 통한 코드 리뷰 필수
 - Squash and Merge로 히스토리를 깔끔하게 유지
 - 의미 있는 커밋 메시지 작성
-- Release/Hotfix 브랜치는 GitHub Actions를 통해 생성
+- develop 브랜치에 merge하면 자동으로 release 브랜치 생성 및 QA 배포됨
+- Hotfix 브랜치는 GitHub Actions를 통해 생성
 
 ### ❌ DON'T
-- `main`, `develop`, `release/*` 브랜치에 직접 커밋 금지
+- `main`, `develop`, `release/*`, `hotfix/*` 브랜치에 직접 커밋 금지
 - 리뷰 없이 병합 금지
 - 너무 큰 단위의 PR 생성 지양
 - Release/Hotfix 브랜치를 수동으로 생성하지 말 것
 
-자세한 CI/CD 자동화 내용은 [CI/CD 가이드](./CI-CD-GUIDE.md)를 참고하세요.
+## 자동화된 배포 프로세스
+
+### develop → release 자동화
+- **트리거**: feature 브랜치가 develop에 merge될 때
+- **자동 처리**:
+  1. 날짜 기반 버전 자동 생성 (예: 2025.12.01.1)
+  2. release 브랜치 자동 생성
+  3. build.gradle 버전 자동 업데이트
+  4. QA 서버에 자동 배포 (Blue-Green 무중단)
+
+### release/hotfix → main 자동화
+- **트리거**: release 또는 hotfix 브랜치가 main에 merge될 때
+- **자동 처리**:
+  1. Git Tag 자동 생성 (예: v2025.12.01.1)
+  2. GitHub Release 자동 생성
+  3. **QA 이미지 재사용** (빌드 없이 태그만 추가)
+  4. Production 서버에 자동 배포 (Blue-Green 무중단)
+  5. main → develop 자동 역머지
+  6. **release/hotfix 브랜치 유지** (롤백용)
+
+자세한 CI/CD 자동화 내용은 [CI/CD 가이드](./ci-cd-guide.md)를 참고하세요.
