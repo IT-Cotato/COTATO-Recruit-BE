@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'org.cotato.backend'
-version = '2025.12.01.7'
+version = '2025.12.01.8'
 description = 'Cotato Recruit project for Spring Boot'
 
 java {

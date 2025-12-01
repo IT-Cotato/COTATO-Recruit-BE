@@ -109,3 +109,4 @@ jobs:
     uses: ./.github/workflows/deploy-production.yml
     with:
       tag: ${{ needs.create-tag.outputs.tag_name }}
+    secrets: inherit
