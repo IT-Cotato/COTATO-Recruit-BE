@@ -89,31 +89,6 @@ jobs:
           git commit -m "chore: bump version to ${{ steps.version.outputs.version }}"
           git push origin ${{ steps.version.outputs.branch_name }}
 
-      - name: Create Pull Request
-        if: steps.check_branch.outputs.exists == 'false'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh pr create \
-            --base ${{ github.event.inputs.base_branch }} \
-            --head ${{ steps.version.outputs.branch_name }} \
-            --title "Hotfix ${{ steps.version.outputs.version }}" \
-            --body "## Hotfix ${{ steps.version.outputs.version }}
-
-          ### 설명
-          ${{ github.event.inputs.description }}
-
-          ### 변경사항
-          - 자동 생성된 핫픽스 브랜치
-          - 버전: ${{ steps.version.outputs.version }}
-          - 기준 브랜치: ${{ github.event.inputs.base_branch }}
-
-          ### 체크리스트
-          - [ ] 버그 수정 완료
-          - [ ] QA 서버 배포 및 테스트 완료
-          - [ ] 영향 범위 확인
-
-          **주의**: main에 Merge하면 자동으로 Tag 생성 → Production 배포 → develop 동기화됩니다."
       - name: Branch already exists
         if: steps.check_branch.outputs.exists == 'true'
         run: |

@@ -54,27 +54,6 @@ jobs:
           git commit -m "chore: bump version to ${{ steps.version.outputs.version }}"
           git push origin ${{ steps.version.outputs.branch_name }}
 
-      - name: Create Pull Request to main
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh pr create \
-            --base main \
-            --head ${{ steps.version.outputs.branch_name }} \
-            --title "Release ${{ steps.version.outputs.version }}" \
-            --body "## Release ${{ steps.version.outputs.version }}
-
-          ### 변경사항
-          - develop 브랜치의 변경사항을 포함한 릴리즈
-          - 버전: ${{ steps.version.outputs.version }}
-
-          ### 체크리스트
-          - [ ] QA 서버 배포 확인
-          - [ ] 기능 테스트 완료
-          - [ ] 버그 수정 완료
-
-          **주의**: main에 Merge하면 자동으로 Tag 생성 → Production 배포 → develop 동기화됩니다."
-
       - name: Summary
         run: |
           echo "✅ Release branch created: ${{ steps.version.outputs.branch_name }}"
