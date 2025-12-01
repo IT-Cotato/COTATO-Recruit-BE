@@ -102,19 +102,19 @@ develop: A --- B --- C --- D
 ```
 feature/* → develop (Squash Merge)
               ↓
-    자동화: release/* 브랜치 생성 (develop 기준)
+    자동화: release/* 브랜치 생성 + 빌드
               ↓
     자동화: QA 서버 배포 (Blue-Green 무중단)
               ↓
          main (Squash Merge)
               ↓
-    자동화: Tag 생성 (main 기준)
+    자동화: Tag 생성
               ↓
-    자동화: Production 서버 배포 (Blue-Green 무중단)
+    자동화: QA 이미지 재사용 + Production 배포
               ↓
     자동화: main → develop 역머지
               ↓
-    자동화: release/* 브랜치 삭제
+    release/* 브랜치 유지 (롤백용)
 ```
 
 ### 개발 워크플로우
@@ -161,9 +161,10 @@ git push origin feature/user-authentication
    - QA 완료 후 `release/2025.12.01.1` → `main` PR 생성 및 Squash Merge
    - Merge 시 자동으로:
      - Tag 생성 (`v2025.12.01.1`, main 기준)
+     - QA 이미지 재사용 (재빌드 없음)
      - Production 서버 배포 (Blue-Green 무중단)
      - main → develop 역머지 (release에서 수정한 내용 반영)
-     - release 브랜치 삭제
+     - **release 브랜치 유지** (롤백/재배포용)
 
 #### 4. Hotfix 배포
 
@@ -181,9 +182,10 @@ git push origin feature/user-authentication
    - QA 완료 후 `hotfix/*` → `main` PR 생성 및 Squash Merge
    - Merge 시 자동으로:
      - Tag 생성 (`v2025.12.01-hotfix.1`, main 기준)
+     - QA 이미지 재사용 (재빌드 없음)
      - Production 서버 배포 (Blue-Green 무중단)
      - main → develop 역머지
-     - hotfix 브랜치 삭제
+     - **hotfix 브랜치 유지** (롤백/재배포용)
 
 ## 브랜치 보호 규칙
 
@@ -236,8 +238,9 @@ git push origin feature/user-authentication
 - **자동 처리**:
   1. Git Tag 자동 생성 (예: v2025.12.01.1)
   2. GitHub Release 자동 생성
-  3. Production 서버에 자동 배포 (Blue-Green 무중단)
-  4. main → develop 자동 역머지
-  5. release/hotfix 브랜치 자동 삭제
+  3. **QA 이미지 재사용** (빌드 없이 태그만 추가)
+  4. Production 서버에 자동 배포 (Blue-Green 무중단)
+  5. main → develop 자동 역머지
+  6. **release/hotfix 브랜치 유지** (롤백용)
 
 자세한 CI/CD 자동화 내용은 [CI/CD 가이드](./ci-cd-guide.md)를 참고하세요.
