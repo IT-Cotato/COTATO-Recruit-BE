@@ -106,7 +106,6 @@ jobs:
   trigger-production-deploy:
     name: Trigger Production Deployment
     needs: create-tag
-    runs-on: ubuntu-latest
     uses: ./.github/workflows/deploy-production.yml
     with:
       tag: ${{ needs.create-tag.outputs.tag_name }}
