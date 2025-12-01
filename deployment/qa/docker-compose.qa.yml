@@ -10,6 +10,12 @@ services:
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     networks:
       - app_network
 
@@ -24,6 +30,12 @@ services:
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     networks:
       - app_network
 
@@ -36,8 +48,8 @@ services:
     volumes:
       - ./nginx-blue.conf:/etc/nginx/templates/nginx-blue.conf:ro
       - ./nginx-green.conf:/etc/nginx/templates/nginx-green.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro
-      - ./certbot/www:/var/www/certbot:ro
+      - ~/ssl:/etc/nginx/ssl:ro
+      - ~/certbot/www:/var/www/certbot:ro
     networks:
       - app_network
 
