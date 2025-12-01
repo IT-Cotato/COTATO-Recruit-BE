@@ -32,13 +32,24 @@ jobs:
       - name: Generate version
         id: version
         run: |
-          DATE=$(date +'%Y.%m.%d')
-          # 같은 날짜의 release가 있는지 확인하고 일련번호 증가
-          COUNTER=1
-          while git ls-remote --heads origin release/$DATE.$COUNTER | grep -q release/$DATE.$COUNTER; do
+          # build.gradle에서 현재 버전 읽기
+          CURRENT_VERSION=$(grep "^version = " build.gradle | sed "s/version = '\(.*\)'/\1/")
+          echo "Current version in build.gradle: $CURRENT_VERSION"
+
+          # 버전이 YYYY.MM.DD.N 형식인지 확인
+          if [[ $CURRENT_VERSION =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.([0-9]+)$ ]]; then
+            # 마지막 숫자를 1 증가
+            COUNTER=${BASH_REMATCH[1]}
             COUNTER=$((COUNTER + 1))
-          done
+            DATE=$(echo $CURRENT_VERSION | cut -d'.' -f1-3)
+          else
+            # 버전 형식이 다르면 새로 생성
+            DATE=$(date +'%Y.%m.%d')
+            COUNTER=1
+          fi
+
           VERSION="$DATE.$COUNTER"
+          echo "New version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "branch_name=release/$VERSION" >> $GITHUB_OUTPUT
 
@@ -50,9 +61,14 @@ jobs:
       - name: Update version in build.gradle
         run: |
           sed -i "s/version = .*/version = '${{ steps.version.outputs.version }}'/" build.gradle
-          git add build.gradle
-          git commit -m "chore: bump version to ${{ steps.version.outputs.version }}"
-          git push origin ${{ steps.version.outputs.branch_name }}
+          if git diff --quiet build.gradle; then
+            echo "✅ Version already up to date: ${{ steps.version.outputs.version }}"
+          else
+            git add build.gradle
+            git commit -m "chore: bump version to ${{ steps.version.outputs.version }}"
+            git push origin ${{ steps.version.outputs.branch_name }}
+            echo "✅ Version updated to: ${{ steps.version.outputs.version }}"
+          fi
 
       - name: Summary
         run: |
