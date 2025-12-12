@@ -1,7 +1,7 @@
 ---
 name: "\U0001F680 기능 제안"
 about: 새로운 기능을 제안합니다
-title: "[Feature] "
+title: 'feat : '
 labels: feature
 assignees: ''
 
