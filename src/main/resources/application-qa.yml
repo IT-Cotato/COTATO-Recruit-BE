@@ -3,6 +3,47 @@ spring:
     activate:
       on-profile: qa
 
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: false
+
+  # MySQL Database (QA Environment - Same RDS instance, different database)
+  datasource:
+    url: ${DB_URL}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  # H2 Console (Disabled in QA)
+  h2:
+    console:
+      enabled: false
+
+# Swagger Configuration (Enabled in QA for testing)
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+    disable-swagger-default-url: true
+    display-request-duration: true
+  show-actuator: false
+  server-url: ${SERVER_URL:https://qa.cotato.com} # 추후 도메인 변경 예정
+  server-description: QA Server
+
 server:
   port: 8080
 
@@ -11,6 +52,7 @@ logging:
     root: INFO
     org.cotato.backend: DEBUG
     org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
 
 management:
   endpoints:

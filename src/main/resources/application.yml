@@ -4,6 +4,10 @@ spring:
   profiles:
     active: local
 
+  # JPA Configuration (Common)
+  jpa:
+    open-in-view: false
+
 server:
   port: 8080
   shutdown: graceful
