@@ -19,7 +19,16 @@ echo "=========================================="
 echo "🚀 Blue-Green 배포 시작"
 echo "=========================================="
 
-# 1. 현재 활성 컨테이너 확인
+# 1. Redis 컨테이너 확인 및 시작
+if ! docker ps --format '{{.Names}}' | grep -q "^redis$"; then
+    echo "📦 Redis 컨테이너 시작 중..."
+    docker compose -f $COMPOSE_FILE up -d redis
+    sleep 5
+else
+    echo "✅ Redis 컨테이너 실행 중"
+fi
+
+# 2. 현재 활성 컨테이너 확인
 if docker ps --format '{{.Names}}' | grep -q "^$BLUE_CONTAINER$"; then
     ACTIVE_CONTAINER=$BLUE_CONTAINER
     IDLE_CONTAINER=$GREEN_CONTAINER
@@ -39,18 +48,18 @@ fi
 echo "현재 활성: $ACTIVE_COLOR → 배포 대상: $IDLE_COLOR"
 echo ""
 
-# 2. 최신 이미지 Pull
+# 3. 최신 이미지 Pull
 echo "📥 최신 이미지 다운로드 중..."
 docker compose -f $COMPOSE_FILE pull $IDLE_SERVICE
 
-# 3. IDLE 컨테이너 기존 인스턴스 정리
+# 4. IDLE 컨테이너 기존 인스턴스 정리
 docker compose -f $COMPOSE_FILE rm -f -s $IDLE_SERVICE 2>/dev/null || true
 
-# 4. IDLE 컨테이너 시작
+# 5. IDLE 컨테이너 시작
 echo "🔄 $IDLE_COLOR 컨테이너 시작 중..."
 docker compose -f $COMPOSE_FILE up -d $IDLE_SERVICE
 
-# 5. 헬스 체크
+# 6. 헬스 체크
 echo "⏳ 헬스 체크 중 (최대 $(($MAX_RETRY * $RETRY_INTERVAL))초)..."
 
 HEALTH_CHECK_PASSED=false
@@ -75,7 +84,7 @@ if [ "$HEALTH_CHECK_PASSED" = false ]; then
     exit 1
 fi
 
-# 6. Nginx 설정 전환
+# 7. Nginx 설정 전환
 echo "🔀 Nginx 트래픽 전환 중..."
 
 if [ "$IDLE_COLOR" = "Blue" ]; then
@@ -95,12 +104,12 @@ fi
 docker exec $NGINX_CONTAINER nginx -s reload
 echo "✅ 트래픽 전환 완료: $ACTIVE_COLOR → $IDLE_COLOR"
 
-# 7. 이전 컨테이너 종료 및 삭제
+# 8. 이전 컨테이너 종료 및 삭제
 sleep 3
 echo "🗑️  이전 컨테이너 종료 및 삭제 중..."
 docker compose -f $COMPOSE_FILE rm -f -s $ACTIVE_SERVICE
 
-# 8. 배포 완료
+# 9. 배포 완료
 echo ""
 echo "=========================================="
 echo "✅ 배포 완료! 활성 컨테이너: $IDLE_COLOR"
