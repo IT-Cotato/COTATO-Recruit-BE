@@ -23,6 +23,21 @@ spring:
       minimum-idle: 5
       connection-timeout: 30000
 
+  # Redis Configuration
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+
+  # OAuth2 Configuration
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+
   # H2 Console (Disabled in QA)
   h2:
     console:
