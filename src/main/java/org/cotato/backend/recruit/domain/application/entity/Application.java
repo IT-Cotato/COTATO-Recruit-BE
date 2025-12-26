@@ -66,7 +66,7 @@ public class Application {
 	private String major;
 
 	@Column(name = "is_prev_activity", nullable = false)
-	private Boolean isPrevActivity;
+	private boolean isPrevActivity;
 
 	@Column(name = "is_submitted", nullable = false)
 	private boolean isSubmitted;
