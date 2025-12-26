@@ -39,11 +39,11 @@ public class RecruitmentInformation {
 	private InformationType informationType;
 
 	@Column(name = "event_datetime", nullable = false)
-	private LocalDateTime eventDatetime;
+	private String eventDatetime;
 
 	@Builder
 	public RecruitmentInformation(
-			Generation generation, InformationType informationType, LocalDateTime eventDatetime) {
+			Generation generation, InformationType informationType, String eventDatetime) {
 		this.generation = generation;
 		this.informationType = informationType;
 		this.eventDatetime = eventDatetime;
