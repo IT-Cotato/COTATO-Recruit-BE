@@ -40,33 +40,33 @@ public class RecruitmentNotice {
 	@Column(name = "schedule_title")
 	private String scheduleTitle;
 
-	@Column(name = "schedule_desc")
-	private String scheduleDesc;
+	@Column(name = "schedule")
+	private String schedule;
 
 	@Column(name = "part_name")
 	private String partName;
 
-	@Column(name = "part_short_desc")
-	private String partShortDesc;
+	@Column(name = "part_short")
+	private String partShort;
 
-	@Column(name = "part_detail_desc")
-	private String partDetailDesc;
+	@Column(name = "part_detail")
+	private String partDetail;
 
 	@Builder
 	public RecruitmentNotice(
 			Generation generation,
 			NoticeType noticeType,
 			String scheduleTitle,
-			String scheduleDesc,
+			String schedule,
 			String partName,
-			String partShortDesc,
-			String partDetailDesc) {
+			String partShort,
+			String partDetail) {
 		this.generation = generation;
 		this.noticeType = noticeType;
 		this.scheduleTitle = scheduleTitle;
-		this.scheduleDesc = scheduleDesc;
+		this.schedule = schedule;
 		this.partName = partName;
-		this.partShortDesc = partShortDesc;
-		this.partDetailDesc = partDetailDesc;
+		this.partShort = partShort;
+		this.partDetail = partDetail;
 	}
 }
