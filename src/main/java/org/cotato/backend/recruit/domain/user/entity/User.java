@@ -55,7 +55,7 @@ public class User {
 		User user = new User();
 		user.email = email;
 		user.name = name;
-		user.role = Role.USER; // 기본값
+		user.role = Role.APPLICANT; // 기본값
 		user.provider = Provider.GOOGLE;
 		user.providerId = providerId;
 		return user;
@@ -67,7 +67,7 @@ public class User {
 		User user = new User();
 		user.email = email;
 		user.name = name;
-		user.role = Role.ADMIN;
+		user.role = Role.STAFF;
 		user.provider = provider;
 		user.providerId = providerId;
 		return user;
@@ -78,8 +78,12 @@ public class User {
 	}
 
 	public enum Role {
-		USER,
-		ADMIN
+		APPLICANT,
+		STAFF;
+
+		public String getKey() {
+			return name();
+		}
 	}
 
 	public enum Provider {
