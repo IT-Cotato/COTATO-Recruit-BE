@@ -37,7 +37,7 @@ public class Evaluation {
 	@Column(name = "evaluator_type", nullable = false)
 	private EvaluatorType evaluatorType;
 
-	@Column(name = "comment", nullable = false)
+	@Column(name = "comment", nullable = true)
 	private String comment;
 
 	@Builder
