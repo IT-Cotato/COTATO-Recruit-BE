@@ -98,9 +98,12 @@ public class ApplicationController {
 	public ApiResponse<Void> saveAnswers(
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
 			@Parameter(description = "지원서 ID", required = true) @PathVariable Long applicationId,
+			@Parameter(description = "파트 타입 (PM, DE, FE, BE, ETC)", required = true) @RequestParam
+					String partType,
 			@Parameter(description = "질문 응답 목록", required = true) @Valid @RequestBody
 					List<AnswerRequest> requests) {
-		applicationAnswerService.saveAnswers(userDetails.getUserId(), applicationId, requests);
+		applicationAnswerService.saveAnswers(
+				userDetails.getUserId(), applicationId, partType, requests);
 		return ApiResponse.success();
 	}
 

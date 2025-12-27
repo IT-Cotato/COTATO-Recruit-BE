@@ -139,15 +139,23 @@ public class ApplicationAnswerService {
 	 *
 	 * @param userId 사용자 ID
 	 * @param applicationId 지원서 ID
+	 * @param partType 파트 타입 (PM, DE, FE, BE, ETC)
 	 * @param requests 질문 응답 요청 목록
 	 */
 	@Transactional
-	public void saveAnswers(Long userId, Long applicationId, List<AnswerRequest> requests) {
+	public void saveAnswers(
+			Long userId, Long applicationId, String partType, List<AnswerRequest> requests) {
 		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
 
 		// 이미 제출된 지원서인지 확인
 		if (application.isSubmitted()) {
 			throw new ApplicationException(ApplicationErrorCode.ALREADY_SUBMITTED);
+		}
+
+		// 지원서에 선택한 파트 저장 (ETC가 아닌 경우에만)
+		if (!partType.equalsIgnoreCase("ETC") && !partType.equalsIgnoreCase("COMMON")) {
+			PartType selectedPart = PartType.valueOf(partType.toUpperCase());
+			application.updatePartType(selectedPart);
 		}
 
 		// 각 질문에 대한 답변 저장
