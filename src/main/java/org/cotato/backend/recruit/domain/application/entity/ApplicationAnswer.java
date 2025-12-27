@@ -12,7 +12,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.backend.recruit.domain.application.enums.AnswerType;
@@ -53,8 +52,8 @@ public class ApplicationAnswer {
 	@Column(name = "file_url")
 	private String fileUrl;
 
-	@Builder
-	public ApplicationAnswer(
+	// 정적 팩토리 메서드 - 새 답변 생성
+	public static ApplicationAnswer of(
 			Application application,
 			Question question,
 			AnswerType answerType,
@@ -62,8 +61,24 @@ public class ApplicationAnswer {
 			String content,
 			String fileKey,
 			String fileUrl) {
-		this.application = application;
-		this.question = question;
+		ApplicationAnswer answer = new ApplicationAnswer();
+		answer.application = application;
+		answer.question = question;
+		answer.answerType = answerType;
+		answer.isChecked = isChecked;
+		answer.content = content;
+		answer.fileKey = fileKey;
+		answer.fileUrl = fileUrl;
+		return answer;
+	}
+
+	// 답변 업데이트
+	public void update(
+			AnswerType answerType,
+			Boolean isChecked,
+			String content,
+			String fileKey,
+			String fileUrl) {
 		this.answerType = answerType;
 		this.isChecked = isChecked;
 		this.content = content;

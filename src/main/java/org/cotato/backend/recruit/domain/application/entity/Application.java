@@ -14,7 +14,6 @@ import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.backend.recruit.domain.application.enums.PassStatus;
@@ -47,26 +46,26 @@ public class Application {
 	@Column(name = "completed_semesters")
 	private Integer completedSemesters;
 
-	@Column(name = "name", nullable = false)
+	@Column(name = "name")
 	private String name;
 
-	@Column(name = "gender", nullable = false)
+	@Column(name = "gender")
 	private String gender;
 
-	@Column(name = "birth_date", nullable = false)
+	@Column(name = "birth_date")
 	private LocalDate birthDate;
 
-	@Column(name = "phone_number", nullable = false)
+	@Column(name = "phone_number")
 	private String phoneNumber;
 
-	@Column(name = "university", nullable = false)
+	@Column(name = "university")
 	private String university;
 
-	@Column(name = "major", nullable = false)
+	@Column(name = "major")
 	private String major;
 
-	@Column(name = "is_prev_activity", nullable = false)
-	private boolean isPrevActivity;
+	@Column(name = "is_prev_activity")
+	private Boolean isPrevActivity;
 
 	@Column(name = "is_submitted", nullable = false)
 	private boolean isSubmitted;
@@ -77,35 +76,40 @@ public class Application {
 	@Column(name = "is_enrolled", nullable = false)
 	private boolean isEnrolled;
 
-	@Builder
-	public Application(
-			User user,
-			Generation generation,
-			PassStatus passStatus,
-			Integer completedSemesters,
+	// 정적 팩토리 메서드 - 새 지원서 생성
+	public static Application createNew(User user, Generation generation) {
+		Application application = new Application();
+		application.user = user;
+		application.generation = generation;
+		application.isSubmitted = false;
+		application.submittedAt = LocalDateTime.now();
+		application.isEnrolled = false;
+		return application;
+	}
+
+	// 기본 인적사항 업데이트
+	public void updateBasicInfo(
 			String name,
 			String gender,
 			LocalDate birthDate,
 			String phoneNumber,
 			String university,
 			String major,
-			Boolean isPrevActivity,
-			boolean isSubmitted,
-			LocalDateTime submittedAt,
-			boolean isEnrolled) {
-		this.user = user;
-		this.generation = generation;
-		this.passStatus = passStatus;
-		this.completedSemesters = completedSemesters;
+			Integer completedSemesters,
+			Boolean isPrevActivity) {
 		this.name = name;
 		this.gender = gender;
 		this.birthDate = birthDate;
 		this.phoneNumber = phoneNumber;
 		this.university = university;
 		this.major = major;
+		this.completedSemesters = completedSemesters;
 		this.isPrevActivity = isPrevActivity;
-		this.isSubmitted = isSubmitted;
-		this.submittedAt = submittedAt;
-		this.isEnrolled = isEnrolled;
+	}
+
+	// 제출 처리
+	public void submit() {
+		this.isSubmitted = true;
+		this.submittedAt = LocalDateTime.now();
 	}
 }
