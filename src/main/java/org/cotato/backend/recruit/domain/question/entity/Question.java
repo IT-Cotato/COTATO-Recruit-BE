@@ -15,6 +15,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.cotato.backend.recruit.domain.application.enums.AnswerType;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.question.enums.PartType;
 
@@ -43,6 +44,10 @@ public class Question {
 	@Column(name = "part_type", nullable = false)
 	private PartType partType;
 
+	@Enumerated(EnumType.STRING)
+	@Column(name = "answer_type", nullable = false)
+	private AnswerType answerType;
+
 	@Column(name = "max_length", nullable = false)
 	private Integer maxLength;
 
@@ -52,11 +57,13 @@ public class Question {
 			Integer sequence,
 			String content,
 			PartType partType,
+			AnswerType answerType,
 			Integer maxLength) {
 		this.generation = generation;
 		this.sequence = sequence;
 		this.content = content;
 		this.partType = partType;
+		this.answerType = answerType;
 		this.maxLength = maxLength;
 	}
 }
