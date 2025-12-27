@@ -18,6 +18,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.backend.recruit.domain.application.enums.PassStatus;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
+import org.cotato.backend.recruit.domain.question.enums.PartType;
 import org.cotato.backend.recruit.domain.user.entity.User;
 
 @Entity
@@ -42,6 +43,10 @@ public class Application {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "pass_status")
 	private PassStatus passStatus;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "part_type")
+	private PartType partType;
 
 	@Column(name = "completed_semesters")
 	private Integer completedSemesters;
@@ -105,6 +110,11 @@ public class Application {
 		this.major = major;
 		this.completedSemesters = completedSemesters;
 		this.isPrevActivity = isPrevActivity;
+	}
+
+	// 지원 파트 업데이트
+	public void updatePartType(PartType partType) {
+		this.partType = partType;
 	}
 
 	// 제출 처리

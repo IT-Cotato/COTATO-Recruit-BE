@@ -22,7 +22,6 @@ import org.cotato.backend.recruit.domain.question.entity.Question;
 @Table(name = "application_answers")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ApplicationAnswer {
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "answer_id")
