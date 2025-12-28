@@ -44,9 +44,7 @@ public class ApplicationService {
 										new ApplicationException(
 												ApplicationErrorCode.APPLICATION_NOT_FOUND));
 
-		if (!application.getUser().getId().equals(userId)) {
-			throw new ApplicationException(ApplicationErrorCode.APPLICATION_FORBIDDEN);
-		}
+		application.validateUser(userId);
 
 		return application;
 	}
@@ -96,12 +94,6 @@ public class ApplicationService {
 	public void saveBasicInfo(Long userId, Long applicationId, BasicInfoRequest request) {
 		Application application = getApplicationWithAuth(applicationId, userId);
 
-		// 이미 제출된 지원서인지 확인
-		if (application.isSubmitted()) {
-			throw new ApplicationException(ApplicationErrorCode.ALREADY_SUBMITTED);
-		}
-
-		// 기본 정보 업데이트
 		application.updateBasicInfo(
 				request.name(),
 				request.gender(),
@@ -147,12 +139,6 @@ public class ApplicationService {
 	public void submitApplication(Long userId, Long applicationId) {
 		Application application = getApplicationWithAuth(applicationId, userId);
 
-		// 이미 제출된 지원서인지 확인
-		if (application.isSubmitted()) {
-			throw new ApplicationException(ApplicationErrorCode.ALREADY_SUBMITTED);
-		}
-
-		// 제출 처리
 		application.submit();
 		applicationRepository.save(application);
 	}

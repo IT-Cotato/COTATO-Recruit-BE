@@ -20,6 +20,8 @@ import org.cotato.backend.recruit.domain.application.enums.PassStatus;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.question.enums.PartType;
 import org.cotato.backend.recruit.domain.user.entity.User;
+import org.cotato.backend.recruit.presentation.error.ApplicationErrorCode;
+import org.cotato.backend.recruit.presentation.exception.ApplicationException;
 
 @Entity
 @Getter
@@ -92,6 +94,13 @@ public class Application {
 		return application;
 	}
 
+	// 권한 검증
+	public void validateUser(Long userId) {
+		if (!this.user.getId().equals(userId)) {
+			throw new ApplicationException(ApplicationErrorCode.APPLICATION_FORBIDDEN);
+		}
+	}
+
 	// 기본 인적사항 업데이트
 	public void updateBasicInfo(
 			String name,
@@ -102,6 +111,11 @@ public class Application {
 			String major,
 			Integer completedSemesters,
 			Boolean isPrevActivity) {
+		// 이미 제출된 지원서인지 확인
+		if (this.isSubmitted) {
+			throw new ApplicationException(ApplicationErrorCode.ALREADY_SUBMITTED);
+		}
+
 		this.name = name;
 		this.gender = gender;
 		this.birthDate = birthDate;
@@ -114,11 +128,21 @@ public class Application {
 
 	// 지원 파트 업데이트
 	public void updatePartType(PartType partType) {
+		// 이미 제출된 지원서인지 확인
+		if (this.isSubmitted) {
+			throw new ApplicationException(ApplicationErrorCode.ALREADY_SUBMITTED);
+		}
+
 		this.partType = partType;
 	}
 
 	// 제출 처리
 	public void submit() {
+		// 이미 제출된 지원서인지 확인
+		if (this.isSubmitted) {
+			throw new ApplicationException(ApplicationErrorCode.ALREADY_SUBMITTED);
+		}
+
 		this.isSubmitted = true;
 		this.submittedAt = LocalDateTime.now();
 	}
