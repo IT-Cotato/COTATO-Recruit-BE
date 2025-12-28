@@ -57,7 +57,9 @@ public class SecurityConfig {
 												"/actuator/**",
 												"/api/auth/login/**",
 												"/api/auth/refresh",
-												"/api/test/oauth2/**")
+												"/api/test/oauth2/**",
+												"/api/faq/**",
+												"/api/recruitment/**")
 										.permitAll()
 										// 그 외 모든 요청은 인증 필요
 										.anyRequest()
