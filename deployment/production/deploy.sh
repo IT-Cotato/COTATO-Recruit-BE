@@ -32,7 +32,14 @@ fi
 if ! docker ps --format '{{.Names}}' | grep -q "^$NGINX_CONTAINER$"; then
     echo "[1/8] Starting Nginx container..."
     docker compose -f $COMPOSE_FILE up -d $NGINX_CONTAINER
-    sleep 3
+    sleep 5
+
+    # 첫 배포 시 default.conf 초기화
+    if ! docker exec $NGINX_CONTAINER test -f /etc/nginx/conf.d/default.conf 2>/dev/null; then
+        echo "[1/8] Initializing Nginx default.conf..."
+        docker exec $NGINX_CONTAINER cp /etc/nginx/templates/nginx-blue.conf /etc/nginx/conf.d/default.conf
+        docker exec $NGINX_CONTAINER nginx -s reload
+    fi
 else
     echo "[1/8] Nginx container already running"
 fi

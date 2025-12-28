@@ -157,19 +157,7 @@ jobs:
             fi
             echo "[INFO] SSL certificates found"
 
-            # Nginx 컨테이너 시작
-            if ! docker ps --format '{{.Names}}' | grep -q "nginx"; then
-              docker compose -f ./docker-compose.qa.yml up -d nginx
-              sleep 5
-            fi
-
-            # default.conf 초기화 (Blue)
-            if ! docker exec nginx test -f /etc/nginx/conf.d/default.conf 2>/dev/null; then
-              docker exec nginx cp /etc/nginx/templates/nginx-blue.conf /etc/nginx/conf.d/default.conf
-              docker exec nginx nginx -s reload
-            fi
-
-            # 배포 실행
+            # 배포 실행 (deploy.sh에서 Nginx 및 모든 컨테이너 관리)
             chmod +x ./deploy.sh
             ./deploy.sh
 
