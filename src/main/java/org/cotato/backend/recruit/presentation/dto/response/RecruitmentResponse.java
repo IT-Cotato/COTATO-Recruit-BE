@@ -1,4 +1,4 @@
-package org.cotato.backend.recruit.recruitment;
+package org.cotato.backend.recruit.presentation.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;

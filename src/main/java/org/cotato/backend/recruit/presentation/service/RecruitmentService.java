@@ -1,14 +1,12 @@
-package org.cotato.backend.recruit.recruitment;
+package org.cotato.backend.recruit.presentation.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.cotato.backend.recruit.domain.generation.entity.Generation;
-import org.cotato.backend.recruit.domain.recruitment.Repository.RecruitmentInformationRepository;
-import org.cotato.backend.recruit.domain.recruitment.Repository.RecruitmentNoticeRepository;
-import org.cotato.backend.recruit.domain.recruitment.entity.RecruitmentInformation;
 import org.cotato.backend.recruit.domain.recruitment.entity.RecruitmentNotice;
-import org.cotato.backend.recruit.domain.recruitment.enums.InformationType;
 import org.cotato.backend.recruit.domain.recruitment.enums.NoticeType;
+import org.cotato.backend.recruit.domain.recruitment.repository.RecruitmentNoticeRepository;
+import org.cotato.backend.recruit.presentation.dto.response.RecruitmentResponse;
+import org.cotato.backend.recruit.presentation.dto.response.RecruitmentScheduleResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,37 +16,21 @@ import org.springframework.transaction.annotation.Transactional;
 public class RecruitmentService {
 
 	private final RecruitmentNoticeRepository noticeRepository;
-	private final RecruitmentInformationRepository informationRepository;
+	private final RecruitmentInformationService recruitmentInformationService;
 
 	public RecruitmentResponse getRecruitmentData() {
-		// 1. 모든 공지 및 정보 데이터를 가져오기
+
+		// 1. 이미 구현된 서비스를 통해 현재 기수와 일정 정보를 가져옴
+		RecruitmentScheduleResponse scheduleInfo =
+				recruitmentInformationService.getRecruitmentSchedule();
+
+		// 2. 공지 데이터(Part, Activity 등) 가져오기
 		List<RecruitmentNotice> notices = noticeRepository.findAll();
-		List<RecruitmentInformation> informations = informationRepository.findAll();
-		int generationNumber = 0;
-		boolean isActive = false;
 
-		// 2. 기수 정보 추출
-		if (!notices.isEmpty()) {
-			Generation gen = notices.get(0).getGeneration();
-			// 엔티티 필드명이 id이므로 getId()를 사용합니다.
-			generationNumber = gen.getId().intValue();
-			isActive = gen.isRecruitingActive();
-		}
-
-		// 3. startDate, endDate 추출
-		String startDate =
-				informations.stream()
-						.filter(i -> i.getInformationType() == InformationType.RECRUITMENT_START)
-						.map(RecruitmentInformation::getEventDatetime)
-						.findFirst()
-						.orElse("");
-
-		String endDate =
-				informations.stream()
-						.filter(i -> i.getInformationType() == InformationType.RECRUITMENT_END)
-						.map(RecruitmentInformation::getEventDatetime)
-						.findFirst()
-						.orElse("");
+		// 3. 기수 번호 및 활성화 여부 추출
+		// 이미 구현된 서비스가 activeGeneration을 기준으로 가져오므로 0번째 인덱스 접근보다 안전합니다.
+		int generationNumber = scheduleInfo.generationId().intValue();
+		boolean isActive = true;
 
 		// 4. Schedule 가공 (NoticeType.RECRUITMENT_SCHEDULE)
 		List<RecruitmentResponse.ScheduleResponse> schedules =
@@ -92,8 +74,8 @@ public class RecruitmentService {
 		return RecruitmentResponse.builder()
 				.isActive(isActive)
 				.generation(generationNumber)
-				.startDate(startDate)
-				.endDate(endDate)
+				.startDate(String.valueOf(scheduleInfo.applicationStartDate()))
+				.endDate(String.valueOf(scheduleInfo.applicationEndDate()))
 				.schedule(schedules)
 				.parts(parts)
 				.activities(activities)

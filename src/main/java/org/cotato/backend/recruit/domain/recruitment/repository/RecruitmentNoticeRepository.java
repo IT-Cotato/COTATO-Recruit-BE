@@ -1,4 +1,4 @@
-package org.cotato.backend.recruit.domain.recruitment.Repository;
+package org.cotato.backend.recruit.domain.recruitment.repository;
 
 import org.cotato.backend.recruit.domain.recruitment.entity.RecruitmentNotice;
 import org.springframework.data.jpa.repository.JpaRepository;

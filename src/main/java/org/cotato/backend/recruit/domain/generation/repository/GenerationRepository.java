@@ -16,4 +16,3 @@ public interface GenerationRepository extends JpaRepository<Generation, Long> {
 	 */
 	Optional<Generation> findByIsRecruitingActive(boolean isRecruitingActive);
 }
-public interface GenerationRepository extends JpaRepository<Generation, Long> {}
