@@ -1,4 +1,4 @@
-package org.cotato.backend.recruit.domain.recruitment.entity;
+package org.cotato.backend.recruit.domain.recruitmentInformation.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,7 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
-import org.cotato.backend.recruit.domain.recruitment.enums.InformationType;
+import org.cotato.backend.recruit.domain.recruitmentInformation.enums.InformationType;
 
 @Entity
 @Getter
@@ -39,13 +39,17 @@ public class RecruitmentInformation {
 	private InformationType informationType;
 
 	@Column(name = "event_datetime", nullable = false)
-	private String eventDatetime;
+	private LocalDateTime eventDatetime;
 
 	@Builder
 	public RecruitmentInformation(
-			Generation generation, InformationType informationType, String eventDatetime) {
+			Generation generation, InformationType informationType, LocalDateTime eventDatetime) {
 		this.generation = generation;
 		this.informationType = informationType;
+		this.eventDatetime = eventDatetime;
+	}
+
+	public void updateEventDatetime(LocalDateTime eventDatetime) {
 		this.eventDatetime = eventDatetime;
 	}
 }
