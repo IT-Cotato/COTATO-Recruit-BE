@@ -9,7 +9,8 @@ public enum InformationType {
 	RECRUITMENT_START("지원시작"),
 	RECRUITMENT_END("지원종료"),
 	DOCUMENT_ANNOUNCEMENT("서류발표"),
-	INTERVIEW("면접평가"),
+	INTERVIEW_START("면접평가시작"),
+	INTERVIEW_END("면접평가종료"),
 	FINAL_ANNOUNCEMENT("최종발표"),
 	OT("OT");
 
