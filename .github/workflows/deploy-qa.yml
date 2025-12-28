@@ -131,6 +131,7 @@ jobs:
             export JWT_SECRET=${{ secrets.JWT_SECRET }}
             export GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
             export GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+            export SERVER_URL=${{ secrets.QA_SERVER_URL }}
 
             # 환경변수 .env 파일로 저장
             cat > .env << EOF
@@ -142,22 +143,13 @@ jobs:
             JWT_SECRET=$JWT_SECRET
             GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
             GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
+            SERVER_URL=$SERVER_URL
             EOF
 
             # Docker 로그인
             echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
-            # certbot 디렉토리 생성
-            mkdir -p ~/certbot/www
-
-            # SSL 인증서 확인
-            if [ ! -f ~/ssl/fullchain.pem ] || [ ! -f ~/ssl/privkey.pem ]; then
-              echo "[ERROR] SSL certificates not found. Please issue certificates first."
-              exit 1
-            fi
-            echo "[INFO] SSL certificates found"
-
-            # 배포 실행 (deploy.sh에서 Nginx 및 모든 컨테이너 관리)
+            # 배포 실행
             chmod +x ./deploy.sh
             ./deploy.sh
 
