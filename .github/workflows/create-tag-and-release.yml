@@ -43,32 +43,16 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Check if tag exists
-        id: check_tag
-        run: |
-          if git rev-parse ${{ steps.version.outputs.tag_name }} >/dev/null 2>&1; then
-            echo "[ERROR] Tag ${{ steps.version.outputs.tag_name }} already exists"
-            exit 1
-          fi
-
       - name: Create and push tag
         run: |
           git tag -a ${{ steps.version.outputs.tag_name }} -m "Release ${{ steps.version.outputs.version }}"
           git push origin ${{ steps.version.outputs.tag_name }}
-          echo "[INFO] Tag created: ${{ steps.version.outputs.tag_name }}"
 
       - name: Generate changelog
         id: changelog
         run: |
-          # develop 브랜치 fetch
-          git fetch origin develop:develop 2>/dev/null || true
-
           # PR의 커밋 메시지들을 수집
-          if git rev-parse develop >/dev/null 2>&1; then
-            COMMITS=$(git log --oneline develop...${{ github.event.pull_request.merge_commit_sha }} --pretty=format:"- %s (%h)" 2>/dev/null || echo "- Initial release")
-          else
-            COMMITS=$(git log --oneline --max-count=10 --pretty=format:"- %s (%h)")
-          fi
+          COMMITS=$(git log --oneline origin/develop...${{ github.event.pull_request.merge_commit_sha }} --pretty=format:"- %s (%h)")
 
           # Changelog 생성
           CHANGELOG="## Changes
@@ -99,24 +83,20 @@ jobs:
       - name: Sync main to develop
         if: success()
         run: |
-          echo "[INFO] Syncing main to develop..."
           git fetch origin develop
           git checkout develop
           git merge origin/main --no-edit
           git push origin develop
-          echo "[INFO] Sync completed: main -> develop"
 
       - name: Summary
         if: success()
         run: |
-          echo "=========================================="
-          echo "Tag and Release Created"
+          echo "✅ Tag and Release created successfully!"
           echo "Tag: ${{ steps.version.outputs.tag_name }}"
           echo "Version: ${{ steps.version.outputs.version }}"
-          echo "Type: ${{ steps.version.outputs.is_hotfix == 'true' && 'Hotfix' || 'Release' }}"
-          echo "Synced: main -> develop"
-          echo "Next: Triggering production deployment"
-          echo "=========================================="
+          echo "Release Type: ${{ steps.version.outputs.is_hotfix == 'true' && 'Hotfix' || 'Release' }}"
+          echo "✅ main → develop 동기화 완료"
+          echo "✅ Production 배포가 자동으로 시작됩니다"
 
   trigger-production-deploy:
     name: Trigger Production Deployment
