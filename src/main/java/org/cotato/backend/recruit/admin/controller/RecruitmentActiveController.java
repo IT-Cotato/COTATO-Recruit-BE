@@ -4,14 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.dto.request.ActivationRequest;
-import org.cotato.backend.recruit.admin.dto.response.ActivationResponse;
 import org.cotato.backend.recruit.admin.service.RecruitmentActiveService;
 import org.cotato.backend.recruit.common.response.ApiResponse;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "모집 활성화 API", description = "모집 기간 활성화 및 조회 관련 API")
@@ -30,13 +27,13 @@ public class RecruitmentActiveController {
 		return ApiResponse.success();
 	}
 
-	@Operation(summary = "모집 활성화 조회", description = "해당 기수의 모집 활성화 정보를 조회합니다.")
-	// query parameter
-	@GetMapping("/recruitment-activation")
-	public ApiResponse<ActivationResponse> getRecruitmentActivation(
-			@RequestParam(name = "generation") Long generationId) {
-		ActivationResponse response =
-				recruitmentActiveService.getRecruitmentActivation(generationId);
-		return ApiResponse.success(response);
-	}
+	// @Operation(summary = "모집 활성화 조회", description = "해당 기수의 모집 활성화 정보를 조회합니다.")
+	// // query parameter
+	// @GetMapping("/recruitment-activation")
+	// public ApiResponse<ActivationResponse> getRecruitmentActivation(
+	// @RequestParam(name = "generation") Long generationId) {
+	// ActivationResponse response =
+	// recruitmentActiveService.getRecruitmentActivation(generationId);
+	// return ApiResponse.success(response);
+	// }
 }

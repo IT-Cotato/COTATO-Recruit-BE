@@ -3,30 +3,34 @@ package org.cotato.backend.recruit.admin.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
-import org.cotato.backend.recruit.admin.dto.response.ActivationResponse;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
-import org.cotato.backend.recruit.domain.generation.repository.GenerationRepository;
 import org.cotato.backend.recruit.domain.recruitmentInformation.entity.RecruitmentInformation;
 import org.cotato.backend.recruit.domain.recruitmentInformation.enums.InformationType;
 import org.cotato.backend.recruit.domain.recruitmentInformation.repository.RecruitmentInformationRepository;
+import org.cotato.backend.recruit.presentation.service.GenerationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class RecruitmentActiveService {
 
 	private final RecruitmentInformationRepository recruitmentInformationRepository;
-	private final GenerationRepository generationRepository;
+	private final GenerationService generationService;
 
 	@Transactional
 	public void activateRecruitment(Long generationId, LocalDate startDate, LocalDate endDate) {
 		// null 체크
 		validate(generationId, startDate, endDate);
 
+		// 기존 Generation인지 확인
+		Generation generation = generationService.findGeneration(generationId);
+		if (generation != null) {
+			throw new IllegalArgumentException("이미 생성된 기수입니다.");
+		}
+
 		// Generation 생성, id를 그대로 PK로 사용
-		Generation generation = Generation.builder().id(generationId).build();
+		generation = generationService.saveGeneration(generationId);
 
 		// 모집 활성화
 		generation.updateRecruitmentStatus(true);
@@ -38,33 +42,28 @@ public class RecruitmentActiveService {
 				generation, InformationType.RECRUITMENT_END, endDate.atTime(23, 59, 59));
 	}
 
-	public ActivationResponse getRecruitmentActivation(Long generationId) {
-		Generation generation =
-				generationRepository
-						.findById(generationId)
-						.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기수입니다."));
+	// public ActivationResponse getRecruitmentActivation(Long generationId) {
+	// Generation generation = generationService.findGeneration(generationId);
 
-		LocalDateTime startDate =
-				recruitmentInformationRepository
-						.findByGenerationAndInformationType(
-								generation, InformationType.RECRUITMENT_START)
-						.map(RecruitmentInformation::getEventDatetime)
-						.orElse(null);
+	// LocalDateTime startDate = recruitmentInformationRepository
+	// .findByGenerationAndInformationType(
+	// generation, InformationType.RECRUITMENT_START)
+	// .map(RecruitmentInformation::getEventDatetime)
+	// .orElse(null);
 
-		LocalDateTime endDate =
-				recruitmentInformationRepository
-						.findByGenerationAndInformationType(
-								generation, InformationType.RECRUITMENT_END)
-						.map(RecruitmentInformation::getEventDatetime)
-						.orElse(null);
+	// LocalDateTime endDate = recruitmentInformationRepository
+	// .findByGenerationAndInformationType(
+	// generation, InformationType.RECRUITMENT_END)
+	// .map(RecruitmentInformation::getEventDatetime)
+	// .orElse(null);
 
-		return ActivationResponse.builder()
-				.generation(generation.getId())
-				.startDate(startDate)
-				.endDate(endDate)
-				.isActive(generation.isRecruitingActive())
-				.build();
-	}
+	// return ActivationResponse.builder()
+	// .generation(generation.getId())
+	// .startDate(startDate)
+	// .endDate(endDate)
+	// .isActive(generation.isRecruitingActive())
+	// .build();
+	// }
 
 	private void validate(Long generationId, LocalDate startDate, LocalDate endDate) {
 		if (generationId == null || startDate == null || endDate == null) {
