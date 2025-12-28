@@ -39,21 +39,24 @@ public class RecruitmentActiveService {
 	}
 
 	public ActivationResponse getRecruitmentActivation(Long generationId) {
-		Generation generation = generationRepository
-				.findById(generationId)
-				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기수입니다."));
+		Generation generation =
+				generationRepository
+						.findById(generationId)
+						.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기수입니다."));
 
-		LocalDateTime startDate = recruitmentInformationRepository
-				.findByGenerationAndInformationType(
-						generation, InformationType.RECRUITMENT_START)
-				.map(RecruitmentInformation::getEventDatetime)
-				.orElse(null);
+		LocalDateTime startDate =
+				recruitmentInformationRepository
+						.findByGenerationAndInformationType(
+								generation, InformationType.RECRUITMENT_START)
+						.map(RecruitmentInformation::getEventDatetime)
+						.orElse(null);
 
-		LocalDateTime endDate = recruitmentInformationRepository
-				.findByGenerationAndInformationType(
-						generation, InformationType.RECRUITMENT_END)
-				.map(RecruitmentInformation::getEventDatetime)
-				.orElse(null);
+		LocalDateTime endDate =
+				recruitmentInformationRepository
+						.findByGenerationAndInformationType(
+								generation, InformationType.RECRUITMENT_END)
+						.map(RecruitmentInformation::getEventDatetime)
+						.orElse(null);
 
 		return ActivationResponse.builder()
 				.generation(generation.getId())
@@ -78,11 +81,12 @@ public class RecruitmentActiveService {
 				.findByGenerationAndInformationType(generation, type)
 				.ifPresentOrElse(
 						info -> info.updateEventDatetime(datetime),
-						() -> recruitmentInformationRepository.save(
-								RecruitmentInformation.builder()
-										.generation(generation)
-										.informationType(type)
-										.eventDatetime(datetime)
-										.build()));
+						() ->
+								recruitmentInformationRepository.save(
+										RecruitmentInformation.builder()
+												.generation(generation)
+												.informationType(type)
+												.eventDatetime(datetime)
+												.build()));
 	}
 }
