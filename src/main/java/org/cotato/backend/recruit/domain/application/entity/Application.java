@@ -14,12 +14,14 @@ import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.backend.recruit.domain.application.enums.PassStatus;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
+import org.cotato.backend.recruit.domain.question.enums.PartType;
 import org.cotato.backend.recruit.domain.user.entity.User;
+import org.cotato.backend.recruit.presentation.error.ApplicationErrorCode;
+import org.cotato.backend.recruit.presentation.exception.ApplicationException;
 
 @Entity
 @Getter
@@ -44,29 +46,33 @@ public class Application {
 	@Column(name = "pass_status")
 	private PassStatus passStatus;
 
+	@Enumerated(EnumType.STRING)
+	@Column(name = "part_type")
+	private PartType partType;
+
 	@Column(name = "completed_semesters")
 	private Integer completedSemesters;
 
-	@Column(name = "name", nullable = false)
+	@Column(name = "name")
 	private String name;
 
-	@Column(name = "gender", nullable = false)
+	@Column(name = "gender")
 	private String gender;
 
-	@Column(name = "birth_date", nullable = false)
+	@Column(name = "birth_date")
 	private LocalDate birthDate;
 
-	@Column(name = "phone_number", nullable = false)
+	@Column(name = "phone_number")
 	private String phoneNumber;
 
-	@Column(name = "university", nullable = false)
+	@Column(name = "university")
 	private String university;
 
-	@Column(name = "major", nullable = false)
+	@Column(name = "major")
 	private String major;
 
-	@Column(name = "is_prev_activity", nullable = false)
-	private boolean isPrevActivity;
+	@Column(name = "is_prev_activity")
+	private Boolean isPrevActivity;
 
 	@Column(name = "is_submitted", nullable = false)
 	private boolean isSubmitted;
@@ -77,35 +83,67 @@ public class Application {
 	@Column(name = "is_enrolled", nullable = false)
 	private boolean isEnrolled;
 
-	@Builder
-	public Application(
-			User user,
-			Generation generation,
-			PassStatus passStatus,
-			Integer completedSemesters,
+	// 정적 팩토리 메서드 - 새 지원서 생성
+	public static Application createNew(User user, Generation generation) {
+		Application application = new Application();
+		application.user = user;
+		application.generation = generation;
+		application.isSubmitted = false;
+		application.submittedAt = LocalDateTime.now();
+		application.isEnrolled = false;
+		return application;
+	}
+
+	// 권한 검증
+	public void validateUser(Long userId) {
+		if (!this.user.getId().equals(userId)) {
+			throw new ApplicationException(ApplicationErrorCode.APPLICATION_FORBIDDEN);
+		}
+	}
+
+	// 기본 인적사항 업데이트
+	public void updateBasicInfo(
 			String name,
 			String gender,
 			LocalDate birthDate,
 			String phoneNumber,
 			String university,
 			String major,
-			Boolean isPrevActivity,
-			boolean isSubmitted,
-			LocalDateTime submittedAt,
-			boolean isEnrolled) {
-		this.user = user;
-		this.generation = generation;
-		this.passStatus = passStatus;
-		this.completedSemesters = completedSemesters;
+			Integer completedSemesters,
+			Boolean isPrevActivity) {
+		// 이미 제출된 지원서인지 확인
+		if (this.isSubmitted) {
+			throw new ApplicationException(ApplicationErrorCode.ALREADY_SUBMITTED);
+		}
+
 		this.name = name;
 		this.gender = gender;
 		this.birthDate = birthDate;
 		this.phoneNumber = phoneNumber;
 		this.university = university;
 		this.major = major;
+		this.completedSemesters = completedSemesters;
 		this.isPrevActivity = isPrevActivity;
-		this.isSubmitted = isSubmitted;
-		this.submittedAt = submittedAt;
-		this.isEnrolled = isEnrolled;
+	}
+
+	// 지원 파트 업데이트
+	public void updatePartType(PartType partType) {
+		// 이미 제출된 지원서인지 확인
+		if (this.isSubmitted) {
+			throw new ApplicationException(ApplicationErrorCode.ALREADY_SUBMITTED);
+		}
+
+		this.partType = partType;
+	}
+
+	// 제출 처리
+	public void submit() {
+		// 이미 제출된 지원서인지 확인
+		if (this.isSubmitted) {
+			throw new ApplicationException(ApplicationErrorCode.ALREADY_SUBMITTED);
+		}
+
+		this.isSubmitted = true;
+		this.submittedAt = LocalDateTime.now();
 	}
 }
