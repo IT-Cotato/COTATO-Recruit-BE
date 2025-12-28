@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,11 +39,11 @@ public class RecruitmentInformation {
 	private InformationType informationType;
 
 	@Column(name = "event_datetime", nullable = false)
-	private String eventDatetime;
+	private LocalDateTime eventDatetime;
 
 	@Builder
 	public RecruitmentInformation(
-			Generation generation, InformationType informationType, String eventDatetime) {
+			Generation generation, InformationType informationType, LocalDateTime eventDatetime) {
 		this.generation = generation;
 		this.informationType = informationType;
 		this.eventDatetime = eventDatetime;

@@ -1,5 +1,6 @@
 package org.cotato.backend.recruit.presentation.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,27 +35,20 @@ public class RecruitmentInformationService {
 				recruitmentInformationRepository.findByGeneration(activeGeneration);
 
 		// InformationType별로 그룹화
-		Map<InformationType, String> scheduleMap =
+		Map<InformationType, LocalDateTime> scheduleMap =
 				informations.stream()
 						.collect(
 								Collectors.toMap(
 										RecruitmentInformation::getInformationType,
 										RecruitmentInformation::getEventDatetime));
 
-		// 지원 기간: RECRUITMENT_START ~ RECRUITMENT_END
-		String applicationPeriod =
-				scheduleMap.getOrDefault(InformationType.RECRUITMENT_START, "")
-						+ " ~ "
-						+ scheduleMap.getOrDefault(InformationType.RECRUITMENT_END, "");
-
-		// 면접 평가: INTERVIEW 시작과 끝이 있으면 범위로, 하나만 있으면 단일로
-		String interview = scheduleMap.getOrDefault(InformationType.INTERVIEW, "");
-
 		return new RecruitmentScheduleResponse(
 				activeGeneration.getId(),
-				applicationPeriod,
-				scheduleMap.getOrDefault(InformationType.DOCUMENT_ANNOUNCEMENT, ""),
-				interview,
-				scheduleMap.getOrDefault(InformationType.FINAL_ANNOUNCEMENT, ""));
+				scheduleMap.get(InformationType.RECRUITMENT_START),
+				scheduleMap.get(InformationType.RECRUITMENT_END),
+				scheduleMap.get(InformationType.DOCUMENT_ANNOUNCEMENT),
+				scheduleMap.get(InformationType.INTERVIEW_START),
+				scheduleMap.get(InformationType.INTERVIEW_END),
+				scheduleMap.get(InformationType.FINAL_ANNOUNCEMENT));
 	}
 }

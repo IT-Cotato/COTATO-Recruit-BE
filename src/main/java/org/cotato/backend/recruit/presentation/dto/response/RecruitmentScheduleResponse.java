@@ -1,13 +1,20 @@
 package org.cotato.backend.recruit.presentation.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDateTime;
 
 @Schema(description = "모집 일정 응답")
 public record RecruitmentScheduleResponse(
 		@Schema(description = "기수 ID", example = "13") Long generationId,
-		@Schema(description = "지원 기간", example = "2025년 1월 1일 00:00 ~ 2025년 1월 7일 23:59")
-				String applicationPeriod,
-		@Schema(description = "서류 발표", example = "2025년 1월 10일 18:00") String documentAnnouncement,
-		@Schema(description = "면접 평가", example = "2025년 1월 13일 10:00 ~ 2025년 1월 14일 18:00")
-				String interview,
-		@Schema(description = "최종 발표", example = "2025년 1월 17일 18:00") String finalAnnouncement) {}
+		@Schema(description = "지원 시작일자", example = "2025-01-01T00:00:00")
+				LocalDateTime applicationStartDate,
+		@Schema(description = "지원 종료일자", example = "2025-01-07T23:59:00")
+				LocalDateTime applicationEndDate,
+		@Schema(description = "서류 발표일자", example = "2025-01-10T18:00:00")
+				LocalDateTime documentAnnouncement,
+		@Schema(description = "면접 평가 시작일자", example = "2025-01-13T10:00:00")
+				LocalDateTime interviewStartDate,
+		@Schema(description = "면접 평가 종료일자", example = "2025-01-14T18:00:00")
+				LocalDateTime interviewEndDate,
+		@Schema(description = "최종 발표일자", example = "2025-01-17T18:00:00")
+				LocalDateTime finalAnnouncement) {}

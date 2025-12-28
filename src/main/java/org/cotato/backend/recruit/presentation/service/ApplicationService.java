@@ -10,9 +10,7 @@ import org.cotato.backend.recruit.domain.application.repository.ApplicationRepos
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.user.entity.User;
 import org.cotato.backend.recruit.domain.user.repository.UserRepository;
-import org.cotato.backend.recruit.presentation.dto.request.BasicInfoRequest;
 import org.cotato.backend.recruit.presentation.dto.response.ApplicationStartResponse;
-import org.cotato.backend.recruit.presentation.dto.response.BasicInfoResponse;
 import org.cotato.backend.recruit.presentation.error.ApplicationErrorCode;
 import org.cotato.backend.recruit.presentation.exception.ApplicationException;
 import org.springframework.stereotype.Service;
@@ -81,52 +79,6 @@ public class ApplicationService {
 		Application savedApplication = applicationRepository.save(newApplication);
 
 		return new ApplicationStartResponse(savedApplication.getId(), false);
-	}
-
-	/**
-	 * 기본 인적사항 작성(임시저장)
-	 *
-	 * @param userId 사용자 ID
-	 * @param applicationId 지원서 ID
-	 * @param request 기본 인적사항 요청
-	 */
-	@Transactional
-	public void saveBasicInfo(Long userId, Long applicationId, BasicInfoRequest request) {
-		Application application = getApplicationWithAuth(applicationId, userId);
-
-		application.updateBasicInfo(
-				request.name(),
-				request.gender(),
-				request.birthDate(),
-				request.phoneNumber(),
-				request.university(),
-				request.major(),
-				request.completedSemesters(),
-				request.isPrevActivity());
-
-		applicationRepository.save(application);
-	}
-
-	/**
-	 * 기본 인적사항 조회
-	 *
-	 * @param userId 사용자 ID
-	 * @param applicationId 지원서 ID
-	 * @return 기본 인적사항 응답
-	 */
-	public BasicInfoResponse getBasicInfo(Long userId, Long applicationId) {
-		Application application = getApplicationWithAuth(applicationId, userId);
-
-		return new BasicInfoResponse(
-				application.getId(),
-				application.getName(),
-				application.getGender(),
-				application.getBirthDate(),
-				application.getPhoneNumber(),
-				application.getUniversity(),
-				application.getMajor(),
-				application.getCompletedSemesters(),
-				application.getIsPrevActivity());
 	}
 
 	/**
