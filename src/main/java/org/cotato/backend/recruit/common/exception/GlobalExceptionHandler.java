@@ -6,6 +6,8 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.backend.recruit.common.error.ErrorCode;
 import org.cotato.backend.recruit.common.response.ApiResponse;
+import org.cotato.backend.recruit.presentation.error.ApplicationErrorCode;
+import org.cotato.backend.recruit.presentation.exception.ApplicationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -17,6 +19,16 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+	/** ApplicationException 처리 */
+	@ExceptionHandler(ApplicationException.class)
+	protected ApiResponse<Void> handleApplicationException(
+			ApplicationException e, HttpServletResponse response) {
+		log.error("ApplicationException: {}", e.getMessage(), e);
+		ApplicationErrorCode errorCode = e.getErrorCode();
+		response.setStatus(errorCode.getStatus().value());
+		return ApiResponse.error(errorCode.getCode(), e.getMessage());
+	}
 
 	/** GlobalException 처리 */
 	@ExceptionHandler(GlobalException.class)
