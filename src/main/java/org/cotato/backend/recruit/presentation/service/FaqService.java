@@ -1,4 +1,4 @@
-package org.cotato.backend.recruit.faq;
+package org.cotato.backend.recruit.presentation.service;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.domain.faq.entity.Faq;
 import org.cotato.backend.recruit.domain.faq.enums.FaqType;
 import org.cotato.backend.recruit.domain.faq.repository.FaqRepository;
+import org.cotato.backend.recruit.presentation.dto.response.FaqResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

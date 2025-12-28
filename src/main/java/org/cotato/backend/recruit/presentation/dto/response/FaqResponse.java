@@ -1,4 +1,4 @@
-package org.cotato.backend.recruit.faq;
+package org.cotato.backend.recruit.presentation.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Builder;
