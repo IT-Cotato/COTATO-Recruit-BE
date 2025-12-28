@@ -100,29 +100,27 @@ jobs:
         run: |
           sed -i "s/version = .*/version = '${{ steps.version.outputs.version }}'/" build.gradle
           if git diff --quiet build.gradle; then
-            echo "[INFO] Version already up to date: ${{ steps.version.outputs.version }}"
+            echo "✅ Version already up to date: ${{ steps.version.outputs.version }}"
           else
             git add build.gradle
             git commit -m "chore: bump version to ${{ steps.version.outputs.version }}"
             git push origin ${{ steps.version.outputs.branch_name }}
-            echo "[INFO] Version updated to: ${{ steps.version.outputs.version }}"
+            echo "✅ Version updated to: ${{ steps.version.outputs.version }}"
           fi
 
       - name: Branch already exists
         if: steps.check_branch.outputs.exists == 'true'
         run: |
-          echo "[ERROR] Branch ${{ steps.version.outputs.branch_name }} already exists"
+          echo "❌ Branch ${{ steps.version.outputs.branch_name }} already exists"
           exit 1
 
       - name: Summary
         if: success()
         run: |
-          echo "=========================================="
-          echo "Hotfix Branch Created"
+          echo "✅ Hotfix branch created successfully!"
           echo "Branch: ${{ steps.version.outputs.branch_name }}"
           echo "Version: ${{ steps.version.outputs.version }}"
-          echo "Next: Triggering QA deployment"
-          echo "=========================================="
+          echo "🚀 QA deployment will start automatically..."
 
   deploy-to-qa:
     name: Deploy to QA Server

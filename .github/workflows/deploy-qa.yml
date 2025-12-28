@@ -152,10 +152,9 @@ jobs:
 
             # SSL 인증서 확인
             if [ ! -f ~/ssl/fullchain.pem ] || [ ! -f ~/ssl/privkey.pem ]; then
-              echo "[ERROR] SSL certificates not found. Please issue certificates first."
+              echo "❌ SSL 인증서 없음. 서버에서 인증서를 먼저 발급받으세요."
               exit 1
             fi
-            echo "[INFO] SSL certificates found"
 
             # Nginx 컨테이너 시작
             if ! docker ps --format '{{.Names}}' | grep -q "nginx"; then
@@ -175,14 +174,8 @@ jobs:
 
       - name: Notify deployment success
         if: success()
-        run: |
-          echo "=========================================="
-          echo "QA Deployment Succeeded"
-          echo "=========================================="
+        run: echo "✅ 배포 성공!"
 
       - name: Notify deployment failure
         if: failure()
-        run: |
-          echo "=========================================="
-          echo "[ERROR] QA Deployment Failed"
-          echo "=========================================="
+        run: echo "❌ 배포 실패!"

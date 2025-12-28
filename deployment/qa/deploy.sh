@@ -16,95 +16,76 @@ MAX_RETRY=30
 RETRY_INTERVAL=5
 
 echo "=========================================="
-echo "Blue-Green Deployment Started"
+echo "🚀 Blue-Green 배포 시작"
 echo "=========================================="
 
 # 1. Redis 컨테이너 확인 및 시작
 if ! docker ps --format '{{.Names}}' | grep -q "^redis$"; then
-    echo "[1/8] Starting Redis container..."
+    echo "📦 Redis 컨테이너 시작 중..."
     docker compose -f $COMPOSE_FILE up -d redis
     sleep 5
 else
-    echo "[1/8] Redis container already running"
-fi
-
-# Nginx 컨테이너 확인 및 시작
-if ! docker ps --format '{{.Names}}' | grep -q "^$NGINX_CONTAINER$"; then
-    echo "[1/8] Starting Nginx container..."
-    docker compose -f $COMPOSE_FILE up -d $NGINX_CONTAINER
-    sleep 3
-else
-    echo "[1/8] Nginx container already running"
+    echo "✅ Redis 컨테이너 실행 중"
 fi
 
 # 2. 현재 활성 컨테이너 확인
-BLUE_RUNNING=$(docker ps --format '{{.Names}}' | grep -q "^$BLUE_CONTAINER$" && echo "true" || echo "false")
-GREEN_RUNNING=$(docker ps --format '{{.Names}}' | grep -q "^$GREEN_CONTAINER$" && echo "true" || echo "false")
-
-if [ "$BLUE_RUNNING" = "true" ]; then
+if docker ps --format '{{.Names}}' | grep -q "^$BLUE_CONTAINER$"; then
     ACTIVE_CONTAINER=$BLUE_CONTAINER
     IDLE_CONTAINER=$GREEN_CONTAINER
     ACTIVE_SERVICE=$BLUE_SERVICE
     IDLE_SERVICE=$GREEN_SERVICE
     ACTIVE_COLOR="Blue"
     IDLE_COLOR="Green"
-elif [ "$GREEN_RUNNING" = "true" ]; then
+else
     ACTIVE_CONTAINER=$GREEN_CONTAINER
     IDLE_CONTAINER=$BLUE_CONTAINER
     ACTIVE_SERVICE=$GREEN_SERVICE
     IDLE_SERVICE=$BLUE_SERVICE
     ACTIVE_COLOR="Green"
     IDLE_COLOR="Blue"
-else
-    # 첫 배포: 둘 다 없는 경우 Blue부터 시작
-    echo "[2/8] Initial deployment detected"
-    ACTIVE_CONTAINER=""
-    IDLE_CONTAINER=$BLUE_CONTAINER
-    ACTIVE_SERVICE=""
-    IDLE_SERVICE=$BLUE_SERVICE
-    ACTIVE_COLOR="None"
-    IDLE_COLOR="Blue"
 fi
 
-echo "[2/8] Active: $ACTIVE_COLOR -> Target: $IDLE_COLOR"
+echo "현재 활성: $ACTIVE_COLOR → 배포 대상: $IDLE_COLOR"
+echo ""
 
 # 3. 최신 이미지 Pull
-echo "[3/8] Pulling latest image for $IDLE_SERVICE..."
+echo "📥 최신 이미지 다운로드 중..."
 docker compose -f $COMPOSE_FILE pull $IDLE_SERVICE
 
 # 4. IDLE 컨테이너 기존 인스턴스 정리
 docker compose -f $COMPOSE_FILE rm -f -s $IDLE_SERVICE 2>/dev/null || true
 
 # 5. IDLE 컨테이너 시작
-echo "[4/8] Starting $IDLE_COLOR container..."
+echo "🔄 $IDLE_COLOR 컨테이너 시작 중..."
 docker compose -f $COMPOSE_FILE up -d $IDLE_SERVICE
 
 # 6. 헬스 체크
-echo "[5/8] Health checking (max $(($MAX_RETRY * $RETRY_INTERVAL))s)..."
+echo "⏳ 헬스 체크 중 (최대 $(($MAX_RETRY * $RETRY_INTERVAL))초)..."
 
 HEALTH_CHECK_PASSED=false
 
 for i in $(seq 1 $MAX_RETRY); do
     if docker exec $IDLE_CONTAINER curl -sf http://localhost:8080/actuator/health > /dev/null 2>&1; then
-        echo "[5/8] Health check passed ($i/$MAX_RETRY)"
+        echo "✅ 헬스 체크 성공 ($i/$MAX_RETRY)"
         HEALTH_CHECK_PASSED=true
         break
     fi
 
-    echo "[5/8] Waiting... ($i/$MAX_RETRY)"
+    echo "⏳ 헬스 체크 대기 중... ($i/$MAX_RETRY)"
     sleep $RETRY_INTERVAL
 done
 
 if [ "$HEALTH_CHECK_PASSED" = false ]; then
-    echo "[ERROR] Health check failed. Deployment aborted."
-    echo "Container logs:"
+    echo "❌ 헬스 체크 실패! 배포 중단"
+    echo ""
+    echo "📋 컨테이너 로그:"
     docker compose -f $COMPOSE_FILE logs --tail=50 $IDLE_SERVICE
     docker compose -f $COMPOSE_FILE rm -f -s $IDLE_SERVICE
     exit 1
 fi
 
 # 7. Nginx 설정 전환
-echo "[6/8] Switching traffic to $IDLE_COLOR..."
+echo "🔀 Nginx 트래픽 전환 중..."
 
 if [ "$IDLE_COLOR" = "Blue" ]; then
     NEW_CONFIG="nginx-blue.conf"
@@ -112,34 +93,24 @@ else
     NEW_CONFIG="nginx-green.conf"
 fi
 
-# 현재 설정 백업
-docker exec $NGINX_CONTAINER cp /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.backup 2>/dev/null || true
-
-# 새 설정 적용
 docker exec $NGINX_CONTAINER cp /etc/nginx/templates/$NEW_CONFIG /etc/nginx/conf.d/default.conf
 
-# 설정 검증
 if ! docker exec $NGINX_CONTAINER nginx -t 2>&1 | grep -q "successful"; then
-    echo "[ERROR] Nginx config validation failed. Rolling back..."
-    docker exec $NGINX_CONTAINER cp /etc/nginx/conf.d/default.conf.backup /etc/nginx/conf.d/default.conf 2>/dev/null || true
-    docker exec $NGINX_CONTAINER nginx -s reload 2>/dev/null || true
+    echo "❌ Nginx 설정 검증 실패! 롤백"
     docker compose -f $COMPOSE_FILE rm -f -s $IDLE_SERVICE
     exit 1
 fi
 
 docker exec $NGINX_CONTAINER nginx -s reload
-echo "[6/8] Traffic switched: $ACTIVE_COLOR -> $IDLE_COLOR"
+echo "✅ 트래픽 전환 완료: $ACTIVE_COLOR → $IDLE_COLOR"
 
 # 8. 이전 컨테이너 종료 및 삭제
-if [ -n "$ACTIVE_SERVICE" ]; then
-    echo "[7/8] Waiting for graceful shutdown (30s)..."
-    sleep 30
-    echo "[7/8] Removing old container..."
-    docker compose -f $COMPOSE_FILE rm -f -s $ACTIVE_SERVICE
-else
-    echo "[7/8] No previous container to remove (initial deployment)"
-fi
+sleep 3
+echo "🗑️  이전 컨테이너 종료 및 삭제 중..."
+docker compose -f $COMPOSE_FILE rm -f -s $ACTIVE_SERVICE
 
 # 9. 배포 완료
-echo "[8/8] Deployment completed. Active: $IDLE_COLOR"
+echo ""
+echo "=========================================="
+echo "✅ 배포 완료! 활성 컨테이너: $IDLE_COLOR"
 echo "=========================================="
