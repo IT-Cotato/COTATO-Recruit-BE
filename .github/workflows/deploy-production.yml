@@ -140,32 +140,26 @@ jobs:
 
             # SSL 인증서 확인
             if [ ! -f ~/ssl/fullchain.pem ] || [ ! -f ~/ssl/privkey.pem ]; then
-              echo "❌ SSL 인증서 없음. 서버에서 인증서를 먼저 발급받으세요."
+              echo "[ERROR] SSL certificates not found. Please issue certificates first."
               exit 1
             fi
+            echo "[INFO] SSL certificates found"
 
-            # Nginx 컨테이너 시작
-            if ! docker ps --format '{{.Names}}' | grep -q "nginx"; then
-              docker compose -f ./docker-compose.prod.yml up -d nginx
-              sleep 5
-            fi
-
-            # default.conf 초기화 (Blue)
-            if ! docker exec nginx test -f /etc/nginx/conf.d/default.conf 2>/dev/null; then
-              docker exec nginx cp /etc/nginx/templates/nginx-blue.conf /etc/nginx/conf.d/default.conf
-              docker exec nginx nginx -s reload
-            fi
-
-            # 배포 실행
+            # 배포 실행 (deploy.sh에서 Nginx 및 모든 컨테이너 관리)
             chmod +x ./deploy.sh
             ./deploy.sh
 
       - name: Notify deployment success
         if: success()
         run: |
-          echo "✅ Production 배포 성공!"
+          echo "=========================================="
+          echo "Production Deployment Succeeded"
           echo "Tag: ${{ needs.retag-image.outputs.tag }}"
+          echo "=========================================="
 
       - name: Notify deployment failure
         if: failure()
-        run: echo "❌ Production 배포 실패!"
+        run: |
+          echo "=========================================="
+          echo "[ERROR] Production Deployment Failed"
+          echo "=========================================="
