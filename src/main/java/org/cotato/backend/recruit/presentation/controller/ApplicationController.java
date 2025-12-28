@@ -41,7 +41,7 @@ public class ApplicationController {
 	@Operation(
 			summary = "파트별 질문 + 저장된 답변 조회 (페이지 2)",
 			description = "공통 + 선택한 파트 질문을 저장된 답변과 함께 조회합니다. (페이지 2 진입 시)")
-	@GetMapping("/{applicationId}/questions")
+	@GetMapping("/{applicationId}/part-questions")
 	public ApiResponse<List<QuestionWithAnswerResponse>> getQuestionsWithAnswers(
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
 			@Parameter(description = "지원서 ID", required = true) @PathVariable Long applicationId,
