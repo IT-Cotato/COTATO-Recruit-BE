@@ -19,6 +19,17 @@ echo "=========================================="
 echo "Blue-Green Deployment Started"
 echo "=========================================="
 
+# SSL 인증서 확인
+if [ ! -f ~/ssl/fullchain.pem ] || [ ! -f ~/ssl/privkey.pem ]; then
+    echo "[ERROR] SSL certificates not found at ~/ssl/"
+    echo "[ERROR] Please issue certificates first"
+    exit 1
+fi
+echo "[INFO] SSL certificates found"
+
+# certbot 디렉토리 생성
+mkdir -p ~/certbot/www
+
 # 1. Redis 컨테이너 확인 및 시작
 if ! docker ps --format '{{.Names}}' | grep -q "^redis$"; then
     echo "[1/8] Starting Redis container..."
