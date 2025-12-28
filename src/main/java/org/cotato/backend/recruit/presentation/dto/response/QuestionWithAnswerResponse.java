@@ -13,5 +13,5 @@ public record QuestionWithAnswerResponse(
 						example = "TEXT",
 						allowableValues = {"CHECKBOX", "TEXT", "FILE"})
 				String answerType,
-		@Schema(description = "최대 입력 길이", example = "500") Integer maxLength,
+		@Schema(description = "최대 입력 바이트 수", example = "500") Integer maxByte,
 		@Schema(description = "저장된 답변 (없으면 null)") AnswerResponse savedAnswer) {}

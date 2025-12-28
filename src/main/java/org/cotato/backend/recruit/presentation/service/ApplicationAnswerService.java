@@ -70,7 +70,7 @@ public class ApplicationAnswerService {
 									q.getContent(),
 									q.getPartType().name(),
 									q.getAnswerType().name(),
-									q.getMaxLength(),
+									q.getMaxByte(),
 									answerResponse);
 						})
 				.collect(Collectors.toList());
@@ -146,11 +146,6 @@ public class ApplicationAnswerService {
 	public void saveAnswers(
 			Long userId, Long applicationId, String partType, List<AnswerRequest> requests) {
 		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
-
-		// 이미 제출된 지원서인지 확인
-		if (application.isSubmitted()) {
-			throw new ApplicationException(ApplicationErrorCode.ALREADY_SUBMITTED);
-		}
 
 		// 지원서에 선택한 파트 저장 (ETC가 아닌 경우에만)
 		if (!partType.equalsIgnoreCase("ETC") && !partType.equalsIgnoreCase("COMMON")) {
