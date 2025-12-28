@@ -28,22 +28,6 @@ else
     echo "[1/8] Redis container already running"
 fi
 
-# Nginx 컨테이너 확인 및 시작
-if ! docker ps --format '{{.Names}}' | grep -q "^$NGINX_CONTAINER$"; then
-    echo "[1/8] Starting Nginx container..."
-    docker compose -f $COMPOSE_FILE up -d $NGINX_CONTAINER
-    sleep 5
-
-    # 첫 배포 시 default.conf 초기화
-    if ! docker exec $NGINX_CONTAINER test -f /etc/nginx/conf.d/default.conf 2>/dev/null; then
-        echo "[1/8] Initializing Nginx default.conf..."
-        docker exec $NGINX_CONTAINER cp /etc/nginx/templates/nginx-blue.conf /etc/nginx/conf.d/default.conf
-        docker exec $NGINX_CONTAINER nginx -s reload
-    fi
-else
-    echo "[1/8] Nginx container already running"
-fi
-
 # 2. 현재 활성 컨테이너 확인
 BLUE_RUNNING=$(docker ps --format '{{.Names}}' | grep -q "^$BLUE_CONTAINER$" && echo "true" || echo "false")
 GREEN_RUNNING=$(docker ps --format '{{.Names}}' | grep -q "^$GREEN_CONTAINER$" && echo "true" || echo "false")
@@ -108,6 +92,23 @@ if [ "$HEALTH_CHECK_PASSED" = false ]; then
     docker compose -f $COMPOSE_FILE logs --tail=50 $IDLE_SERVICE
     docker compose -f $COMPOSE_FILE rm -f -s $IDLE_SERVICE
     exit 1
+fi
+
+# 6.5. Nginx 컨테이너 확인 및 시작 (IDLE 컨테이너가 준비된 후)
+if ! docker ps --format '{{.Names}}' | grep -q "^$NGINX_CONTAINER$"; then
+    echo "[5.5/8] Starting Nginx container..."
+    docker compose -f $COMPOSE_FILE up -d $NGINX_CONTAINER
+    sleep 5
+
+    # 첫 배포 시 default.conf 초기화
+    if ! docker exec $NGINX_CONTAINER test -f /etc/nginx/conf.d/default.conf 2>/dev/null; then
+        echo "[5.5/8] Initializing Nginx default.conf..."
+        IDLE_COLOR_LOWER=$(echo "$IDLE_COLOR" | tr '[:upper:]' '[:lower:]')
+        docker exec $NGINX_CONTAINER cp /etc/nginx/templates/nginx-$IDLE_COLOR_LOWER.conf /etc/nginx/conf.d/default.conf
+        docker exec $NGINX_CONTAINER nginx -s reload
+    fi
+else
+    echo "[5.5/8] Nginx container already running"
 fi
 
 # 7. Nginx 설정 전환
