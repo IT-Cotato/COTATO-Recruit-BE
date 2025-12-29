@@ -1,10 +1,10 @@
-package org.cotato.backend.recruit.admin.controller;
+package org.cotato.backend.recruit.admin.controller.recruitmentActive;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.cotato.backend.recruit.admin.dto.request.ActivationRequest;
-import org.cotato.backend.recruit.admin.service.RecruitmentActiveService;
+import org.cotato.backend.recruit.admin.dto.request.recruitmentActive.ActivationRequest;
+import org.cotato.backend.recruit.admin.service.recruitmentActive.RecruitmentActiveService;
 import org.cotato.backend.recruit.common.response.ApiResponse;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
