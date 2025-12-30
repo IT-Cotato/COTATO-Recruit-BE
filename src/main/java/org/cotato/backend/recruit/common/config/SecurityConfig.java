@@ -60,6 +60,9 @@ public class SecurityConfig {
 												"/api/test/oauth2/**",
 												"/api/recruitment/**")
 										.permitAll()
+										// Admin 엔드포인트 (STAFF 권한 필요)
+										.requestMatchers("/api/admin/**")
+										.hasRole("STAFF")
 										// 그 외 모든 요청은 인증 필요
 										.anyRequest()
 										.authenticated())
