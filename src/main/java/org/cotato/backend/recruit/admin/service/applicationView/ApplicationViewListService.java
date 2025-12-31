@@ -31,7 +31,6 @@ public class ApplicationViewListService {
 	private final ApplicationRepository applicationRepository;
 	private final RecruitmentInformationAdminService recruitmentInformationAdminService;
 	private final ApplicationViewPageInfoManager applicationViewPageInfoManager;
-	// private final ApplicationListManager applicationListManager;
 	private final GenerationAdminService generationAdminService;
 
 	private void validateRequest(ApplicationListRequest request) {
