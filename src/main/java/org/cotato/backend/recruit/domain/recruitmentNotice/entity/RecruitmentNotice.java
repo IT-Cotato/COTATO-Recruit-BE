@@ -1,4 +1,4 @@
-package org.cotato.backend.recruit.domain.recruitment.entity;
+package org.cotato.backend.recruit.domain.recruitmentNotice.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,7 +16,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
-import org.cotato.backend.recruit.domain.recruitment.enums.NoticeType;
+import org.cotato.backend.recruit.domain.recruitmentNotice.enums.NoticeType;
 
 @Entity
 @Getter

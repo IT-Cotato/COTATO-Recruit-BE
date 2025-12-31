@@ -60,13 +60,14 @@ public class SecurityConfig {
 												"/api/test/oauth2/**",
 												"/api/recruitment/**")
 										.permitAll()
-										// Admin 엔드포인트 (STAFF 권한 필요)
+										// admin api는 STAFF 역할만 접근 가능
 										.requestMatchers("/api/admin/**")
 										.hasRole("STAFF")
 										// 그 외 모든 요청은 인증 필요
 										.anyRequest()
 										.authenticated())
 				// JWT 인증 필터 추가 (UsernamePasswordAuthenticationFilter 이전에 실행)
+
 				.addFilterBefore(
 						jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
