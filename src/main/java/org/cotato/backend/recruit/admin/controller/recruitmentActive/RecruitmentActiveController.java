@@ -23,17 +23,7 @@ public class RecruitmentActiveController {
 	@PostMapping("/recruitment-activation")
 	public ApiResponse<Void> activateRecruitment(@RequestBody ActivationRequest request) {
 		recruitmentActiveService.activateRecruitment(
-				request.getGeneration(), request.getStartDate(), request.getEndDate());
+				request.generation(), request.startDate(), request.endDate());
 		return ApiResponse.success();
 	}
-
-	// @Operation(summary = "모집 활성화 조회", description = "해당 기수의 모집 활성화 정보를 조회합니다.")
-	// // query parameter
-	// @GetMapping("/recruitment-activation")
-	// public ApiResponse<ActivationResponse> getRecruitmentActivation(
-	// @RequestParam(name = "generation") Long generationId) {
-	// ActivationResponse response =
-	// recruitmentActiveService.getRecruitmentActivation(generationId);
-	// return ApiResponse.success(response);
-	// }
 }
