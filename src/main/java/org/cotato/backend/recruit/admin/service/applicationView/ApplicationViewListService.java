@@ -74,27 +74,30 @@ public class ApplicationViewListService {
 			}
 		}
 
-		List<Application> applications = applicationRepository.findApplicationsWithUniversitySort(
-				request.generation(),
-				request.partViewType(),
-				request.passViewStatus(),
-				request.searchKeyword(),
-				universityDir,
-				pageable.getPageSize(),
-				pageable.getOffset());
+		List<Application> applications =
+				applicationRepository.findApplicationsWithUniversitySort(
+						request.generation(),
+						request.partViewType(),
+						request.passViewStatus(),
+						request.searchKeyword(),
+						universityDir,
+						pageable.getPageSize(),
+						pageable.getOffset());
 
-		List<ApplicationElementResponse> content = applications.stream().map(this::toApplicationElementResponse)
-				.toList();
+		List<ApplicationElementResponse> content =
+				applications.stream().map(this::toApplicationElementResponse).toList();
 
 		Generation generation = generationAdminService.findGeneration(request.generation());
-		RecruitmentInformationResponse recruitmentInformationResponse = getRecruitmentInformationResponse(generation);
+		RecruitmentInformationResponse recruitmentInformationResponse =
+				getRecruitmentInformationResponse(generation);
 
 		// 파트별 지원자수 통계
 		ApplicationSummaryResponse summary = getSummaryResponse(request);
 
 		// 필터링된 지원서 총 개수 - 페이징 계산용
 		// 필터링된 지원서 총 개수 및 페이징 정보 조회
-		PageInfoResponse pageInfo = applicationViewPageInfoManager.getApplicationPageInfo(request, pageable);
+		PageInfoResponse pageInfo =
+				applicationViewPageInfoManager.getApplicationPageInfo(request, pageable);
 
 		return AdminApplicationsResponse.builder()
 				.recruitmentInformationResponse(recruitmentInformationResponse)
@@ -103,11 +106,14 @@ public class ApplicationViewListService {
 				.build();
 	}
 
-	private RecruitmentInformationResponse getRecruitmentInformationResponse(Generation generation) {
-		RecruitmentInformation recruitmentStart = recruitmentInformationAdminService.getRecruitmentInformation(
-				generation, InformationType.RECRUITMENT_START);
-		RecruitmentInformation recruitmentEnd = recruitmentInformationAdminService.getRecruitmentInformation(
-				generation, InformationType.RECRUITMENT_END);
+	private RecruitmentInformationResponse getRecruitmentInformationResponse(
+			Generation generation) {
+		RecruitmentInformation recruitmentStart =
+				recruitmentInformationAdminService.getRecruitmentInformation(
+						generation, InformationType.RECRUITMENT_START);
+		RecruitmentInformation recruitmentEnd =
+				recruitmentInformationAdminService.getRecruitmentInformation(
+						generation, InformationType.RECRUITMENT_END);
 
 		return RecruitmentInformationResponse.builder()
 				.recruitmentStart(recruitmentStart.getEventDatetime())
@@ -118,11 +124,12 @@ public class ApplicationViewListService {
 	// 검색, 필터링 결과 summary
 	private ApplicationSummaryResponse getSummaryResponse(ApplicationListRequest request) {
 		// 1. DB 조회 (결과 예시: [[ "BE", 10 ], [ "FE", 5 ]])
-		List<Object[]> counts = applicationRepository.countByFilterGroupByPartType(
-				request.generation(),
-				request.partViewType(),
-				request.passViewStatus(),
-				request.searchKeyword());
+		List<Object[]> counts =
+				applicationRepository.countByFilterGroupByPartType(
+						request.generation(),
+						request.partViewType(),
+						request.passViewStatus(),
+						request.searchKeyword());
 
 		// 2. 초기값 0으로 설정
 		long pmCount = 0;
