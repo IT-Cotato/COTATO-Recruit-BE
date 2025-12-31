@@ -1,4 +1,4 @@
-package org.cotato.backend.recruit.domain.recruitment.enums;
+package org.cotato.backend.recruit.domain.recruitmentNotice.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
