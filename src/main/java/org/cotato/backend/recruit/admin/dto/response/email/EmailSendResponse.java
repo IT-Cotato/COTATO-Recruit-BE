@@ -1,4 +1,4 @@
-package org.cotato.backend.recruit.admin.dto.response;
+package org.cotato.backend.recruit.admin.dto.response.email;
 
 import java.time.LocalDateTime;
 import org.cotato.backend.recruit.domain.email.enums.TemplateType;

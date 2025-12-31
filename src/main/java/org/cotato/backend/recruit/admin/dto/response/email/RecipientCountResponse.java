@@ -1,4 +1,4 @@
-package org.cotato.backend.recruit.admin.dto.response;
+package org.cotato.backend.recruit.admin.dto.response.email;
 
 import org.cotato.backend.recruit.domain.application.enums.PassStatus;
 import org.cotato.backend.recruit.domain.email.enums.TemplateType;

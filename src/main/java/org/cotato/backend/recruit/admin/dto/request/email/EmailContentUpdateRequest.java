@@ -1,4 +1,4 @@
-package org.cotato.backend.recruit.admin.dto.request;
+package org.cotato.backend.recruit.admin.dto.request.email;
 
 import jakarta.validation.constraints.NotBlank;
 
