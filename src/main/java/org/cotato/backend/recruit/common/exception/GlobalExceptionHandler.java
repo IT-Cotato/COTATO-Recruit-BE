@@ -4,8 +4,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.cotato.backend.recruit.admin.error.EmailAdminErrorCode;
-import org.cotato.backend.recruit.admin.exception.EmailAdminException;
+import org.cotato.backend.recruit.admin.error.AdminErrorCode;
+import org.cotato.backend.recruit.admin.exception.AdminException;
 import org.cotato.backend.recruit.common.error.ErrorCode;
 import org.cotato.backend.recruit.common.response.ApiResponse;
 import org.cotato.backend.recruit.presentation.error.ApplicationErrorCode;
@@ -33,11 +33,11 @@ public class GlobalExceptionHandler {
 	}
 
 	/** EmailAdminException 처리 */
-	@ExceptionHandler(EmailAdminException.class)
+	@ExceptionHandler(AdminException.class)
 	protected ApiResponse<Void> handleEmailAdminException(
-			EmailAdminException e, HttpServletResponse response) {
+			AdminException e, HttpServletResponse response) {
 		log.error("EmailAdminException: {}", e.getMessage(), e);
-		EmailAdminErrorCode errorCode = e.getErrorCode();
+		AdminErrorCode errorCode = e.getErrorCode();
 		response.setStatus(errorCode.getStatus().value());
 		return ApiResponse.error(errorCode.getCode(), e.getMessage());
 	}

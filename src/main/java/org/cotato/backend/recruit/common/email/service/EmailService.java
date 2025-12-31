@@ -5,8 +5,8 @@ import jakarta.mail.internet.MimeMessage;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cotato.backend.recruit.admin.error.EmailAdminErrorCode;
-import org.cotato.backend.recruit.admin.exception.EmailAdminException;
+import org.cotato.backend.recruit.admin.error.AdminErrorCode;
+import org.cotato.backend.recruit.admin.exception.AdminException;
 import org.cotato.backend.recruit.common.email.dto.EmailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -23,7 +23,7 @@ public class EmailService {
 	 * 이메일 전송
 	 *
 	 * @param emailMessage 이메일 메시지
-	 * @throws EmailAdminException 메일 전송 실패 시
+	 * @throws AdminException 메일 전송 실패 시
 	 */
 	public void sendEmail(EmailMessage emailMessage) {
 		try {
@@ -39,8 +39,8 @@ public class EmailService {
 
 		} catch (MessagingException e) {
 			log.error("이메일 전송 실패: {}", emailMessage.getTo(), e);
-			throw new EmailAdminException(
-					EmailAdminErrorCode.EMAIL_SEND_FAILED,
+			throw new AdminException(
+					AdminErrorCode.EMAIL_SEND_FAILED,
 					"이메일 전송 중 오류가 발생했습니다: " + emailMessage.getTo());
 		}
 	}
@@ -58,7 +58,7 @@ public class EmailService {
 			try {
 				sendEmail(emailMessage);
 				successCount++;
-			} catch (EmailAdminException e) {
+			} catch (AdminException e) {
 				log.error("개별 이메일 전송 실패: {}", emailMessage.getTo());
 				// 계속 진행
 			}

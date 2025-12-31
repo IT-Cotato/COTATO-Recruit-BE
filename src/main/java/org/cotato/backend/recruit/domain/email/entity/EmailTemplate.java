@@ -16,8 +16,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.cotato.backend.recruit.admin.error.EmailAdminErrorCode;
-import org.cotato.backend.recruit.admin.exception.EmailAdminException;
+import org.cotato.backend.recruit.admin.error.AdminErrorCode;
+import org.cotato.backend.recruit.admin.exception.AdminException;
 import org.cotato.backend.recruit.domain.email.enums.TemplateType;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 
@@ -71,7 +71,7 @@ public class EmailTemplate {
 	/** 이미 전송되었는지 확인 */
 	public void validateNotSent() {
 		if (this.isSent) {
-			throw new EmailAdminException(EmailAdminErrorCode.EMAIL_ALREADY_SENT);
+			throw new AdminException(AdminErrorCode.EMAIL_ALREADY_SENT);
 		}
 	}
 }
