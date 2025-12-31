@@ -3,11 +3,11 @@ package org.cotato.backend.recruit.admin.service.recruitmentActive;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import org.cotato.backend.recruit.admin.service.generationAdmin.GenerationAdminService;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.recruitmentInformation.entity.RecruitmentInformation;
 import org.cotato.backend.recruit.domain.recruitmentInformation.enums.InformationType;
 import org.cotato.backend.recruit.domain.recruitmentInformation.repository.RecruitmentInformationRepository;
-import org.cotato.backend.recruit.presentation.service.GenerationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,21 +16,21 @@ import org.springframework.transaction.annotation.Transactional;
 public class RecruitmentActiveService {
 
 	private final RecruitmentInformationRepository recruitmentInformationRepository;
-	private final GenerationService generationService;
+	private final GenerationAdminService generationAdminService;
 
 	@Transactional
 	public void activateRecruitment(Long generationId, LocalDate startDate, LocalDate endDate) {
-		// null 체크
+		// null 체크 + startDate < endDate
 		validate(generationId, startDate, endDate);
 
 		// 기존 Generation인지 확인
-		Generation generation = generationService.findGenerationById(generationId);
+		Generation generation = generationAdminService.findGeneration(generationId);
 		if (generation != null) {
 			throw new IllegalArgumentException("이미 생성된 기수입니다.");
 		}
 
 		// Generation 생성, id를 그대로 PK로 사용
-		generation = generationService.saveGeneration(generationId);
+		generation = generationAdminService.saveGeneration(generationId);
 
 		// 모집 활성화
 		generation.updateRecruitmentStatus(true);
@@ -41,29 +41,6 @@ public class RecruitmentActiveService {
 		updateRecruitmentInformation(
 				generation, InformationType.RECRUITMENT_END, endDate.atTime(23, 59, 59));
 	}
-
-	// public ActivationResponse getRecruitmentActivation(Long generationId) {
-	// Generation generation = generationService.findGeneration(generationId);
-
-	// LocalDateTime startDate = recruitmentInformationRepository
-	// .findByGenerationAndInformationType(
-	// generation, InformationType.RECRUITMENT_START)
-	// .map(RecruitmentInformation::getEventDatetime)
-	// .orElse(null);
-
-	// LocalDateTime endDate = recruitmentInformationRepository
-	// .findByGenerationAndInformationType(
-	// generation, InformationType.RECRUITMENT_END)
-	// .map(RecruitmentInformation::getEventDatetime)
-	// .orElse(null);
-
-	// return ActivationResponse.builder()
-	// .generation(generation.getId())
-	// .startDate(startDate)
-	// .endDate(endDate)
-	// .isActive(generation.isRecruitingActive())
-	// .build();
-	// }
 
 	private void validate(Long generationId, LocalDate startDate, LocalDate endDate) {
 		if (generationId == null || startDate == null || endDate == null) {
