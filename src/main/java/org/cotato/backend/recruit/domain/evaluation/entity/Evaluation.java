@@ -46,4 +46,8 @@ public class Evaluation {
 		this.evaluatorType = evaluatorType;
 		this.comment = comment;
 	}
+
+	public void updateComment(String comment) {
+		this.comment = comment;
+	}
 }

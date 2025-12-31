@@ -29,28 +29,4 @@ public class GenerationService {
 				.orElseThrow(
 						() -> new ApplicationException(ApplicationErrorCode.GENERATION_NOT_FOUND));
 	}
-
-	// Generation find
-	/**
-	 * @param generationId
-	 * @return
-	 */
-	public Generation findGeneration(Long generationId) {
-		return generationRepository
-				.findById(generationId)
-				.orElseThrow(
-						() -> new ApplicationException(ApplicationErrorCode.GENERATION_NOT_FOUND));
-	}
-
-	// Generation save
-	/**
-	 * @param generationId
-	 * @return
-	 */
-	@Transactional
-	public Generation saveGeneration(Long generationId) {
-		Generation generation = Generation.builder().id(generationId).build();
-		generationRepository.save(generation);
-		return generation;
-	}
 }

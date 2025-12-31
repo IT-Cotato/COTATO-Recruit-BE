@@ -19,4 +19,13 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 	 */
 	List<Question> findByGenerationAndPartTypeOrderBySequenceAsc(
 			Generation generation, PartType partType);
+
+	/**
+	 * 기수와 파트 타입으로 질문 조회 (정렬X)
+	 *
+	 * @param generation
+	 * @param partType
+	 * @return
+	 */
+	List<Question> findByGenerationAndPartType(Generation generation, PartType partType);
 }
