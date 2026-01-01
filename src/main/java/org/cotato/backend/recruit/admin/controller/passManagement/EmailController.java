@@ -5,7 +5,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.cotato.backend.recruit.admin.dto.request.email.EmailContentUpdateRequest;
+import org.cotato.backend.recruit.admin.dto.request.email.EmailSaveRequest;
+import org.cotato.backend.recruit.admin.dto.request.email.EmailSendRequest;
 import org.cotato.backend.recruit.admin.dto.response.email.EmailSendResponse;
 import org.cotato.backend.recruit.admin.dto.response.email.EmailTemplateResponse;
 import org.cotato.backend.recruit.admin.service.email.EmailSendService;
@@ -47,27 +48,17 @@ public class EmailController {
 			summary = "메일 내용 저장",
 			description = "메일 템플릿의 내용을 저장합니다. 존재하면 수정, 없으면 생성됩니다. 이미 전송된 메일은 수정할 수 없습니다.")
 	@PostMapping
-	public ApiResponse<Void> saveEmailContent(
-			@Parameter(description = "템플릿 타입 (PASS, FAIL, PRELIMINARY)", required = true)
-					@RequestParam
-					TemplateType templateType,
-			@Parameter(description = "기수 ID (미입력시 현재 모집 중인 기수)") @RequestParam(required = false)
-					Long generationId,
-			@Parameter(description = "메일 내용", required = true) @Valid @RequestBody
-					EmailContentUpdateRequest request) {
-		emailTemplateService.saveEmailContent(templateType, generationId, request);
+	public ApiResponse<Void> saveEmailContent(@Valid @RequestBody EmailSaveRequest request) {
+		emailTemplateService.saveEmailContent(
+				request.templateType(), request.generationId(), request.content());
 		return ApiResponse.success();
 	}
 
 	@Operation(summary = "메일 전송", description = "지정된 타입의 메일을 대상자들에게 전송합니다. ")
 	@PostMapping("/send")
-	public ApiResponse<EmailSendResponse> sendEmails(
-			@Parameter(description = "템플릿 타입 (PASS, FAIL, PRELIMINARY)", required = true)
-					@RequestParam
-					TemplateType templateType,
-			@Parameter(description = "기수 ID (미입력시 현재 모집 중인 기수)") @RequestParam(required = false)
-					Long generationId) {
-		EmailSendResponse response = emailSendService.sendEmails(templateType, generationId);
+	public ApiResponse<EmailSendResponse> sendEmails(@Valid @RequestBody EmailSendRequest request) {
+		EmailSendResponse response =
+				emailSendService.sendEmails(request.templateType(), request.generationId());
 		return ApiResponse.success(response);
 	}
 }

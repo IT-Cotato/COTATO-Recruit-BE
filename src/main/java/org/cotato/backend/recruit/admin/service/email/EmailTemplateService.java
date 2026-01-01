@@ -3,7 +3,6 @@ package org.cotato.backend.recruit.admin.service.email;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cotato.backend.recruit.admin.dto.request.email.EmailContentUpdateRequest;
 import org.cotato.backend.recruit.admin.dto.response.email.EmailTemplateResponse;
 import org.cotato.backend.recruit.admin.service.application.ApplicationAdminService;
 import org.cotato.backend.recruit.admin.service.generation.GenerationAdminService;
@@ -25,13 +24,7 @@ public class EmailTemplateService {
 	private final ApplicationAdminService applicationAdminService;
 	private final GenerationAdminService generationAdminService;
 
-	/**
-	 * 메일 템플릿 조회 (대상자 수 포함)
-	 *
-	 * @param templateType 템플릿 타입
-	 * @param generationId 기수 ID (null이면 현재 활성화된 기수 사용)
-	 * @return 이메일 템플릿 응답 (대상자 수 포함), 모집 중인 기수가 없으면 빈 응답
-	 */
+	/** 메일 템플릿 조회 (대상자 수 포함) */
 	@Transactional
 	public EmailTemplateResponse getEmailTemplate(TemplateType templateType, Long generationId) {
 		// generationId가 null이면 현재 활성화된 기수를 조회하되, 없으면 빈 응답 반환
@@ -56,16 +49,9 @@ public class EmailTemplateService {
 		return EmailTemplateResponse.of(emailTemplate, recipientCount);
 	}
 
-	/**
-	 * 메일 내용 저장 (존재하면 수정, 없으면 생성)
-	 *
-	 * @param templateType 템플릿 타입
-	 * @param generationId 기수 ID (null이면 현재 활성화된 기수 사용)
-	 * @param request 메일 내용 저장 요청
-	 */
+	/** 메일 내용 저장 (존재하면 수정, 없으면 생성) */
 	@Transactional
-	public void saveEmailContent(
-			TemplateType templateType, Long generationId, EmailContentUpdateRequest request) {
+	public void saveEmailContent(TemplateType templateType, Long generationId, String content) {
 		Generation generation = generationAdminService.getGenerationOrActive(generationId);
 
 		// 존재하면 조회, 없으면 생성
@@ -75,7 +61,7 @@ public class EmailTemplateService {
 		emailTemplate.validateNotSent();
 
 		// 내용 저장 (생성/수정)
-		emailTemplate.updateContent(request.content());
+		emailTemplate.updateContent(content);
 
 		emailTemplateRepository.save(emailTemplate);
 	}
