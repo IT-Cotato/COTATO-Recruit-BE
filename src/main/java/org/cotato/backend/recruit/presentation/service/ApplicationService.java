@@ -71,14 +71,14 @@ public class ApplicationService {
 			// 기존 지원서가 있으면 해당 ID와 제출 여부 반환
 			Application application = existingApplication.get();
 
-			return ApplicationStartResponse.from(application);
+			return new ApplicationStartResponse(application.getId(), application.isSubmitted());
 		}
 
 		// 지원서가 없으면 새로 생성
 		Application newApplication = Application.createNew(user, activeGeneration);
 		Application savedApplication = applicationRepository.save(newApplication);
 
-		return ApplicationStartResponse.from(savedApplication);
+		return new ApplicationStartResponse(savedApplication.getId(), false);
 	}
 
 	/**
