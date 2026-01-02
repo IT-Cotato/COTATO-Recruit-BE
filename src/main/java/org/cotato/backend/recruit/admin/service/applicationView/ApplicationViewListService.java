@@ -8,9 +8,9 @@ import org.cotato.backend.recruit.admin.dto.response.applicationView.AdminApplic
 import org.cotato.backend.recruit.admin.dto.response.applicationView.ApplicationElementResponse;
 import org.cotato.backend.recruit.admin.dto.response.applicationView.ApplicationSummaryResponse;
 import org.cotato.backend.recruit.admin.dto.response.applicationView.PageInfoResponse;
-import org.cotato.backend.recruit.admin.dto.response.applicationView.RecruitmentInformationResponse;
-import org.cotato.backend.recruit.admin.service.generationAdmin.GenerationAdminService;
-import org.cotato.backend.recruit.admin.service.recruitmentInformationAdmin.RecruitmentInformationAdminService;
+import org.cotato.backend.recruit.admin.dto.response.recruitmentInformation.RecruitmentPeriodResponse;
+import org.cotato.backend.recruit.admin.service.generation.GenerationAdminService;
+import org.cotato.backend.recruit.admin.service.recruitmentInformation.RecruitmentInformationAdminService;
 import org.cotato.backend.recruit.domain.application.entity.Application;
 import org.cotato.backend.recruit.domain.application.enums.PassStatus;
 import org.cotato.backend.recruit.domain.application.repository.ApplicationRepository;
@@ -64,49 +64,60 @@ public class ApplicationViewListService {
 			ApplicationListRequest request, Pageable pageable) {
 		validateRequest(request);
 
-		// 지원자 적은 학교순이 기본값
-		String universityDir = "DESC";
+		// 정렬 로직 처리
+		// 1. 기본값: 지원제출최신순(submitted_at DESC) -> 이름 오름차순 고정
+		// 2. 이름 정렬시: 지원제출최신순 풀림
+		Sort sort = pageable.getSort();
+		Sort.Order nameOrder = sort.getOrderFor("name");
 
-		for (Sort.Order oder : pageable.getSort()) {
-			if (oder.getProperty().equals("university")) {
-				universityDir = oder.getDirection().name();
-			}
+		Sort newSort;
+		if (nameOrder == null) {
+			// 이름 정렬이 없으면 (기본값 or submittedAt) -> submitted_at DESC, name ASC 고정
+			// Native Query이므로 DB 컬럼명 사용 (submitted_at)
+			newSort =
+					Sort.by(Sort.Direction.DESC, "submitted_at")
+							.and(Sort.by(Sort.Direction.ASC, "name"));
+		} else {
+			// 이름 정렬이 있으면 해당 정렬 유지.
+			// Pageable의 name property는 DB 컬럼 name과 동일하므로 그대로 사용 가능.
+			newSort = sort;
 		}
 
-		List<Application> applications =
-				applicationRepository.findApplicationsWithUniversitySort(
+		Pageable newPageable =
+				org.springframework.data.domain.PageRequest.of(
+						pageable.getPageNumber(), pageable.getPageSize(), newSort);
+
+		org.springframework.data.domain.Page<Application> applicationsPage =
+				applicationRepository.findWithFilters(
 						request.generation(),
 						request.partViewType(),
 						request.passViewStatus(),
 						request.searchKeyword(),
-						universityDir,
-						pageable.getPageSize(),
-						pageable.getOffset());
+						newPageable);
 
 		List<ApplicationElementResponse> content =
-				applications.stream().map(this::toApplicationElementResponse).toList();
+				applicationsPage.getContent().stream()
+						.map(this::toApplicationElementResponse)
+						.toList();
 
 		Generation generation = generationAdminService.findGeneration(request.generation());
-		RecruitmentInformationResponse recruitmentInformationResponse =
-				getRecruitmentInformationResponse(generation);
+		RecruitmentPeriodResponse recruitmentPeriodResponse =
+				getRecruitmentPeriodResponse(generation);
 
 		// 파트별 지원자수 통계
 		ApplicationSummaryResponse summary = getSummaryResponse(request);
 
-		// 필터링된 지원서 총 개수 - 페이징 계산용
-		// 필터링된 지원서 총 개수 및 페이징 정보 조회
-		PageInfoResponse pageInfo =
-				applicationViewPageInfoManager.getApplicationPageInfo(request, pageable);
+		// 페이징 정보
+		PageInfoResponse pageInfo = applicationViewPageInfoManager.getPageInfo(applicationsPage);
 
 		return AdminApplicationsResponse.builder()
-				.recruitmentInformationResponse(recruitmentInformationResponse)
+				.recruitmentPeriodResponse(recruitmentPeriodResponse)
 				.summary(summary)
 				.applicants(Applicants.builder().content(content).pageInfo(pageInfo).build())
 				.build();
 	}
 
-	private RecruitmentInformationResponse getRecruitmentInformationResponse(
-			Generation generation) {
+	private RecruitmentPeriodResponse getRecruitmentPeriodResponse(Generation generation) {
 		RecruitmentInformation recruitmentStart =
 				recruitmentInformationAdminService.getRecruitmentInformation(
 						generation, InformationType.RECRUITMENT_START);
@@ -114,7 +125,7 @@ public class ApplicationViewListService {
 				recruitmentInformationAdminService.getRecruitmentInformation(
 						generation, InformationType.RECRUITMENT_END);
 
-		return RecruitmentInformationResponse.builder()
+		return RecruitmentPeriodResponse.builder()
 				.recruitmentStart(recruitmentStart.getEventDatetime())
 				.recruitmentEnd(recruitmentEnd.getEventDatetime())
 				.build();

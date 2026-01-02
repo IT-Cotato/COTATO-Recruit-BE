@@ -1,42 +1,25 @@
 package org.cotato.backend.recruit.admin.service.applicationView;
 
 import lombok.RequiredArgsConstructor;
-import org.cotato.backend.recruit.admin.dto.request.applicationView.ApplicationListRequest;
 import org.cotato.backend.recruit.admin.dto.response.applicationView.PageInfoResponse;
-import org.cotato.backend.recruit.domain.application.repository.ApplicationRepository;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class ApplicationViewPageInfoManager {
 
-	private final ApplicationRepository applicationRepository;
-
-	public PageInfoResponse getApplicationPageInfo(
-			ApplicationListRequest request, Pageable pageable) {
-		long totalElements = countApplicationsWithFilter(request);
-		int pageSize = pageable.getPageSize();
-		int totalPages = calculateTotalPages(totalElements, pageSize);
-		int currentPage = pageable.getPageNumber() + 1;
+	public PageInfoResponse getPageInfo(Page<?> page) {
+		int totalPages = page.getTotalPages();
+		long totalElements = page.getTotalElements();
+		int currentPage = page.getNumber() + 1;
+		int size = page.getSize();
 
 		return PageInfoResponse.builder()
 				.currentPage(currentPage)
 				.totalPages(totalPages == 0 ? 1 : totalPages)
 				.totalElements(totalElements)
-				.size(pageSize)
+				.size(size)
 				.build();
-	}
-
-	private long countApplicationsWithFilter(ApplicationListRequest request) {
-		return applicationRepository.countApplicationsWithFilter(
-				request.generation(),
-				request.partViewType(),
-				request.passViewStatus(),
-				request.searchKeyword());
-	}
-
-	private int calculateTotalPages(long totalElements, int pageSize) {
-		return (int) Math.ceil((double) totalElements / pageSize);
 	}
 }

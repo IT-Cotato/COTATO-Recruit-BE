@@ -21,49 +21,39 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 	@Query(
 			value =
 					"""
-			SELECT
-				a.*,
-				-- (정렬용) 학교별 지원자 수 계산 (university_count)
-				COUNT(a.application_id) OVER (PARTITION BY a.university) as university_count
-			FROM
-				applications a
+			SELECT *
+			FROM applications a
 			WHERE
 				a.generation_id = :generationId
-
-				-- [필터링]
-				-- partViewType이 ALL이면 항상 TRUE
-				-- 'ALL' = 'ALL'이 되므로 항상 TRUE
 				AND (:partViewType = 'ALL' OR a.part_type = :partViewType)
-				-- passViewType이 ALL이면 항상 TRUE
-				-- 'ALL' = 'ALL'이 되므로 항상 TRUE
-				AND (:passViewType = 'ALL' OR a.pass_status = :passViewType)
-
-				-- [검색]
-				-- keyword가 NULL, '' 공백이면 항상 TRUE
+				AND (:passViewStatus = 'ALL' OR a.pass_status = :passViewStatus)
 				AND (
 					:keyword IS NULL OR :keyword = ''
 					OR a.name LIKE CONCAT('%', :keyword, '%')
 					OR a.university LIKE CONCAT('%', :keyword, '%')
 				)
-			ORDER BY
-				-- [1순위] 학교 지원자 수 (파라미터 변경: schoolDir -> universityDir)
-				CASE WHEN :universityDir = 'DESC' THEN COUNT(a.application_id) OVER (PARTITION BY a.university) END DESC,
-				CASE WHEN :universityDir = 'ASC'  THEN COUNT(a.application_id) OVER (PARTITION BY a.university) END ASC,
-
-				-- [2순위] 이름 오름차순 고정
-				a.name ASC
-			LIMIT :limit
-			OFFSET :offset
+			""",
+			countQuery =
+					"""
+			SELECT COUNT(*)
+			FROM applications a
+			WHERE
+				a.generation_id = :generationId
+				AND (:partViewType = 'ALL' OR a.part_type = :partViewType)
+				AND (:passViewStatus = 'ALL' OR a.pass_status = :passViewStatus)
+				AND (
+					:keyword IS NULL OR :keyword = ''
+					OR a.name LIKE CONCAT('%', :keyword, '%')
+					OR a.university LIKE CONCAT('%', :keyword, '%')
+				)
 			""",
 			nativeQuery = true)
-	List<Application> findApplicationsWithUniversitySort(
+	org.springframework.data.domain.Page<Application> findWithFilters(
 			@Param("generationId") Long generationId,
 			@Param("partViewType") String partViewType,
-			@Param("passViewType") String passViewType,
+			@Param("passViewStatus") String passViewStatus,
 			@Param("keyword") String keyword,
-			@Param("universityDir") String universityDir, // [변경] schoolDir -> universityDir
-			@Param("limit") int limit,
-			@Param("offset") long offset);
+			org.springframework.data.domain.Pageable pageable);
 
 	// --------------------------------------------------------------------------------
 	// [2] 파트별 통계 조회
@@ -95,32 +85,9 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 			@Param("passViewStatus") String passViewStatus,
 			@Param("keyword") String keyword);
 
-	// --------------------------------------------------------------------------------
-	// [3] 전체 개수 조회 - 페이징 계산용
-	// --------------------------------------------------------------------------------
 	@Query(
-			value =
-					"""
-			SELECT COUNT(*)
-			FROM applications a
-			WHERE
-				a.generation_id = :generationId
-
-				-- [필터링]
-				AND (:partViewType = 'ALL' OR a.part_type = :partViewType)
-				AND (:passViewType = 'ALL' OR a.pass_status = :passViewType)
-
-				-- [검색]
-				AND (
-					:keyword IS NULL OR :keyword = ''
-					OR a.name LIKE CONCAT('%', :keyword, '%')
-					OR a.university LIKE CONCAT('%', :keyword, '%')
-				)
-			""",
-			nativeQuery = true)
-	long countApplicationsWithFilter(
-			@Param("generationId") Long generationId,
-			@Param("partViewType") String partViewType,
-			@Param("passViewType") String passViewType,
-			@Param("keyword") String keyword);
+			"SELECT a.passStatus, a.partType, COUNT(a) FROM Application a WHERE a.generation.id ="
+					+ " :generationId GROUP BY a.passStatus, a.partType")
+	List<Object[]> countByGenerationIdGroupByPassStatusAndPartType(
+			@Param("generationId") Long generationId);
 }
