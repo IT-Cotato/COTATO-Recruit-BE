@@ -42,13 +42,6 @@ public class RecruitmentInformationService {
 										RecruitmentInformation::getInformationType,
 										RecruitmentInformation::getEventDatetime));
 
-		return new RecruitmentScheduleResponse(
-				activeGeneration.getId(),
-				scheduleMap.get(InformationType.RECRUITMENT_START),
-				scheduleMap.get(InformationType.RECRUITMENT_END),
-				scheduleMap.get(InformationType.DOCUMENT_ANNOUNCEMENT),
-				scheduleMap.get(InformationType.INTERVIEW_START),
-				scheduleMap.get(InformationType.INTERVIEW_END),
-				scheduleMap.get(InformationType.FINAL_ANNOUNCEMENT));
+		return RecruitmentScheduleResponse.of(activeGeneration.getId(), scheduleMap);
 	}
 }

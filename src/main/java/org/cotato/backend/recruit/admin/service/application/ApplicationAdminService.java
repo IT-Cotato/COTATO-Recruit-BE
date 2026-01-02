@@ -1,0 +1,31 @@
+package org.cotato.backend.recruit.admin.service.application;
+
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.cotato.backend.recruit.domain.application.entity.Application;
+import org.cotato.backend.recruit.domain.application.enums.PassStatus;
+import org.cotato.backend.recruit.domain.application.repository.ApplicationRepository;
+import org.cotato.backend.recruit.domain.generation.entity.Generation;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class ApplicationAdminService {
+
+	private final ApplicationRepository applicationRepository;
+
+	/** 특정 기수와 합격 상태에 해당하는 지원자 수 조회 */
+	public long countByGenerationAndPassStatus(Generation generation, PassStatus passStatus) {
+		return applicationRepository.countByGenerationAndPassStatus(generation, passStatus);
+	}
+
+	/** 특정 기수와 합격 상태에 해당하는 지원자 목록 조회 */
+	public List<Application> findByGenerationAndPassStatus(
+			Generation generation, PassStatus passStatus) {
+		return applicationRepository.findByGenerationAndPassStatus(generation, passStatus);
+	}
+}
