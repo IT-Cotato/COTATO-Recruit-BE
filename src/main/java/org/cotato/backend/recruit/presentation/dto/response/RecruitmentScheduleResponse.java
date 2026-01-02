@@ -3,7 +3,7 @@ package org.cotato.backend.recruit.presentation.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.Map;
-import org.cotato.backend.recruit.domain.recruitment.enums.InformationType;
+import org.cotato.backend.recruit.domain.recruitmentInformation.enums.InformationType;
 
 @Schema(description = "모집 일정 응답")
 public record RecruitmentScheduleResponse(
