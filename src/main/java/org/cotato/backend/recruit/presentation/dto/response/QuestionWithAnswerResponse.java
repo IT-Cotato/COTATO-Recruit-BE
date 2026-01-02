@@ -1,7 +1,6 @@
 package org.cotato.backend.recruit.presentation.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.cotato.backend.recruit.domain.question.entity.Question;
 
 @Schema(description = "질문과 저장된 답변 응답")
 public record QuestionWithAnswerResponse(
@@ -15,16 +14,4 @@ public record QuestionWithAnswerResponse(
 						allowableValues = {"CHECKBOX", "TEXT", "FILE"})
 				String answerType,
 		@Schema(description = "최대 입력 바이트 수", example = "500") Integer maxByte,
-		@Schema(description = "저장된 답변 (없으면 null)") AnswerResponse savedAnswer) {
-
-	public static QuestionWithAnswerResponse of(Question question, AnswerResponse savedAnswer) {
-		return new QuestionWithAnswerResponse(
-				question.getId(),
-				question.getSequence(),
-				question.getContent(),
-				question.getPartType().name(),
-				question.getAnswerType().name(),
-				question.getMaxByte(),
-				savedAnswer);
-	}
-}
+		@Schema(description = "저장된 답변 (없으면 null)") AnswerResponse savedAnswer) {}
