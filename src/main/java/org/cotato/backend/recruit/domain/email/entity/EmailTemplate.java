@@ -11,13 +11,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.cotato.backend.recruit.admin.error.AdminErrorCode;
-import org.cotato.backend.recruit.admin.exception.AdminException;
 import org.cotato.backend.recruit.domain.email.enums.TemplateType;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 
@@ -43,35 +40,10 @@ public class EmailTemplate {
 	@Column(name = "content", nullable = false)
 	private String content;
 
-	@Column(name = "is_sent", nullable = false)
-	private boolean isSent = false;
-
-	@Column(name = "sent_at")
-	private LocalDateTime sentAt;
-
 	@Builder
 	public EmailTemplate(Generation generation, TemplateType templateType, String content) {
 		this.generation = generation;
 		this.templateType = templateType;
 		this.content = content;
-		this.isSent = false;
-	}
-
-	/** 메일 내용 수정 */
-	public void updateContent(String content) {
-		this.content = content;
-	}
-
-	/** 메일 전송 완료 표시 */
-	public void markAsSent() {
-		this.isSent = true;
-		this.sentAt = LocalDateTime.now();
-	}
-
-	/** 이미 전송되었는지 확인 */
-	public void validateNotSent() {
-		if (this.isSent) {
-			throw new AdminException(AdminErrorCode.EMAIL_ALREADY_SENT);
-		}
 	}
 }
