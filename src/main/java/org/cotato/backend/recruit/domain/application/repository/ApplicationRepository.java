@@ -22,42 +22,43 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 	// 서버에서 추가된 기본 조회 메서드 (Service에서 사용됨)
 	// --------------------------------------------------------------------------------
 
-	/**
-	 * 특정 기수의 특정 합격 상태를 가진 지원서 목록 조회
-	 */
+	/** 특정 기수의 특정 합격 상태를 가진 지원서 목록 조회 */
 	List<Application> findByGenerationAndPassStatus(Generation generation, PassStatus passStatus);
 
-	/**
-	 * 특정 기수의 특정 합격 상태를 가진 지원서 개수 조회
-	 */
+	/** 특정 기수의 특정 합격 상태를 가진 지원서 개수 조회 */
 	long countByGenerationAndPassStatus(Generation generation, PassStatus passStatus);
 
 	// 목록 조회 (필터링 + 페이징)
-	@Query(value = """
+	@Query(
+			value =
+					"""
 			SELECT *
 			FROM applications a
 			WHERE
-			    a.generation_id = :generationId
-			    AND (:partViewType = 'ALL' OR a.part_type = :partViewType)
-			    AND (:passViewStatus = 'ALL' OR a.pass_status = :passViewStatus)
-			    AND (
-			        :keyword IS NULL OR :keyword = ''
-			        OR a.name LIKE CONCAT('%', :keyword, '%')
-			        OR a.university LIKE CONCAT('%', :keyword, '%')
-			    )
-			""", countQuery = """
+				a.generation_id = :generationId
+				AND (:partViewType = 'ALL' OR a.part_type = :partViewType)
+				AND (:passViewStatus = 'ALL' OR a.pass_status = :passViewStatus)
+				AND (
+					:keyword IS NULL OR :keyword = ''
+					OR a.name LIKE CONCAT('%', :keyword, '%')
+					OR a.university LIKE CONCAT('%', :keyword, '%')
+				)
+			""",
+			countQuery =
+					"""
 			SELECT COUNT(*)
 			FROM applications a
 			WHERE
-			    a.generation_id = :generationId
-			    AND (:partViewType = 'ALL' OR a.part_type = :partViewType)
-			    AND (:passViewStatus = 'ALL' OR a.pass_status = :passViewStatus)
-			    AND (
-			        :keyword IS NULL OR :keyword = ''
-			        OR a.name LIKE CONCAT('%', :keyword, '%')
-			        OR a.university LIKE CONCAT('%', :keyword, '%')
-			    )
-			""", nativeQuery = true)
+				a.generation_id = :generationId
+				AND (:partViewType = 'ALL' OR a.part_type = :partViewType)
+				AND (:passViewStatus = 'ALL' OR a.pass_status = :passViewStatus)
+				AND (
+					:keyword IS NULL OR :keyword = ''
+					OR a.name LIKE CONCAT('%', :keyword, '%')
+					OR a.university LIKE CONCAT('%', :keyword, '%')
+				)
+			""",
+			nativeQuery = true)
 	Page<Application> findWithFilters(
 			@Param("generationId") Long generationId,
 			@Param("partViewType") String partViewType,
@@ -66,24 +67,27 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 			Pageable pageable);
 
 	// 파트별 통계 조회
-	@Query(value = """
+	@Query(
+			value =
+					"""
 			SELECT
-			    a.part_type,
-			    COUNT(*)
+				a.part_type,
+				COUNT(*)
 			FROM
-			    applications a
+				applications a
 			WHERE
-			    a.generation_id = :generationId
-			    AND (:partViewType = 'ALL' OR a.part_type = :partViewType)
-			    AND (:passViewStatus = 'ALL' OR a.pass_status = :passViewStatus)
-			    AND (
-			        :keyword IS NULL OR :keyword = ''
-			        OR a.name LIKE CONCAT('%', :keyword, '%')
-			        OR a.university LIKE CONCAT('%', :keyword, '%')
-			    )
+				a.generation_id = :generationId
+				AND (:partViewType = 'ALL' OR a.part_type = :partViewType)
+				AND (:passViewStatus = 'ALL' OR a.pass_status = :passViewStatus)
+				AND (
+					:keyword IS NULL OR :keyword = ''
+					OR a.name LIKE CONCAT('%', :keyword, '%')
+					OR a.university LIKE CONCAT('%', :keyword, '%')
+				)
 			GROUP BY
-			    a.part_type
-			""", nativeQuery = true)
+				a.part_type
+			""",
+			nativeQuery = true)
 	List<Object[]> countByFilterGroupByPartType(
 			@Param("generationId") Long generationId,
 			@Param("partViewType") String partViewType,
@@ -91,8 +95,9 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 			@Param("keyword") String keyword);
 
 	// 합격 상태 및 파트별 통계 조회
-	@Query("SELECT a.passStatus, a.partType, COUNT(a) FROM Application a WHERE a.generation.id ="
-			+ " :generationId GROUP BY a.passStatus, a.partType")
+	@Query(
+			"SELECT a.passStatus, a.partType, COUNT(a) FROM Application a WHERE a.generation.id ="
+					+ " :generationId GROUP BY a.passStatus, a.partType")
 	List<Object[]> countByGenerationIdGroupByPassStatusAndPartType(
 			@Param("generationId") Long generationId);
 }
