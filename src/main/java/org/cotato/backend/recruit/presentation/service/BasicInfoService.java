@@ -52,15 +52,6 @@ public class BasicInfoService {
 	public BasicInfoResponse getBasicInfo(Long userId, Long applicationId) {
 		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
 
-		return new BasicInfoResponse(
-				application.getId(),
-				application.getName(),
-				application.getGender(),
-				application.getBirthDate(),
-				application.getPhoneNumber(),
-				application.getUniversity(),
-				application.getMajor(),
-				application.getCompletedSemesters(),
-				application.getIsPrevActivity());
+		return BasicInfoResponse.from(application);
 	}
 }

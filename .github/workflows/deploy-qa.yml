@@ -132,6 +132,10 @@ jobs:
             export GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
             export GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
             export SERVER_URL=${{ secrets.QA_SERVER_URL }}
+            export MAIL_HOST=${{ secrets.MAIL_HOST }}
+            export MAIL_PORT=${{ secrets.MAIL_PORT }}
+            export MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+            export MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
 
             # 환경변수 .env 파일로 저장
             cat > .env << EOF
@@ -144,6 +148,10 @@ jobs:
             GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
             GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
             SERVER_URL=$SERVER_URL
+            MAIL_HOST=$MAIL_HOST
+            MAIL_PORT=$MAIL_PORT
+            MAIL_USERNAME=$MAIL_USERNAME
+            MAIL_PASSWORD=$MAIL_PASSWORD
             EOF
 
             # Docker 로그인
