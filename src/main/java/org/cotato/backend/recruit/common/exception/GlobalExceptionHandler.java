@@ -4,8 +4,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.cotato.backend.recruit.admin.error.ApplicationAdminErrorCode;
-import org.cotato.backend.recruit.admin.exception.ApplicationAdminException;
+import org.cotato.backend.recruit.admin.error.AdminErrorCode;
+import org.cotato.backend.recruit.admin.exception.AdminException;
 import org.cotato.backend.recruit.common.error.ErrorCode;
 import org.cotato.backend.recruit.common.response.ApiResponse;
 import org.cotato.backend.recruit.presentation.error.ApplicationErrorCode;
@@ -32,22 +32,12 @@ public class GlobalExceptionHandler {
 		return ApiResponse.error(errorCode.getCode(), e.getMessage());
 	}
 
-	/** ApplicationAdminException 처리 */
-	@ExceptionHandler(ApplicationAdminException.class)
-	protected ApiResponse<Void> handleApplicationAdminException(
-			ApplicationAdminException e, HttpServletResponse response) {
-		log.error("ApplicationAdminException: {}", e.getMessage());
-		ApplicationAdminErrorCode errorCode = e.getErrorCode();
-		response.setStatus(errorCode.getStatus().value());
-		return ApiResponse.error(errorCode.getCode(), e.getMessage());
-	}
-
-	/** IllegalArgumentException 처리 */
-	@ExceptionHandler(IllegalArgumentException.class)
-	protected ApiResponse<Void> handleIllegalArgumentException(
-			IllegalArgumentException e, HttpServletResponse response) {
-		log.error("IllegalArgumentException: {}", e.getMessage());
-		ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+	/** EmailAdminException 처리 */
+	@ExceptionHandler(AdminException.class)
+	protected ApiResponse<Void> handleEmailAdminException(
+			AdminException e, HttpServletResponse response) {
+		log.error("EmailAdminException: {}", e.getMessage(), e);
+		AdminErrorCode errorCode = e.getErrorCode();
 		response.setStatus(errorCode.getStatus().value());
 		return ApiResponse.error(errorCode.getCode(), e.getMessage());
 	}

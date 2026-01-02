@@ -6,7 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.cotato.backend.recruit.admin.error.ApplicationAdminErrorCode;
 import org.cotato.backend.recruit.admin.exception.ApplicationAdminException;
 import org.cotato.backend.recruit.domain.application.entity.Application;
+import org.cotato.backend.recruit.domain.application.enums.PassStatus;
 import org.cotato.backend.recruit.domain.application.repository.ApplicationRepository;
+import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,18 +17,31 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ApplicationAdminService {
+
 	private final ApplicationRepository applicationRepository;
 
+	// [HEAD] 본인이 작성한 메서드: 지원서 단건 조회
 	public Application getApplication(Long applicationId) {
 		return applicationRepository
 				.findById(applicationId)
 				.orElseThrow(
-						() ->
-								new ApplicationAdminException(
-										ApplicationAdminErrorCode.APPLICATION_NOT_FOUND));
+						() -> new ApplicationAdminException(
+								ApplicationAdminErrorCode.APPLICATION_NOT_FOUND));
 	}
 
+	// [HEAD] 본인이 작성한 메서드: 합격 상태별 통계 조회
 	public List<Object[]> getPassStatusCounts(Long generationId) {
 		return applicationRepository.countByGenerationIdGroupByPassStatusAndPartType(generationId);
+	}
+
+	// [Remote] 서버에서 가져온 메서드: 특정 기수/상태 지원자 수
+	public long countByGenerationAndPassStatus(Generation generation, PassStatus passStatus) {
+		return applicationRepository.countByGenerationAndPassStatus(generation, passStatus);
+	}
+
+	// [Remote] 서버에서 가져온 메서드: 특정 기수/상태 지원자 목록
+	public List<Application> findByGenerationAndPassStatus(
+			Generation generation, PassStatus passStatus) {
+		return applicationRepository.findByGenerationAndPassStatus(generation, passStatus);
 	}
 }
