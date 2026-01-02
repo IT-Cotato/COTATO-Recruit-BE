@@ -1,4 +1,4 @@
-package org.cotato.backend.recruit.admin.service.generationAdmin;
+package org.cotato.backend.recruit.admin.service.generation;
 
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.error.ApplicationAdminErrorCode;

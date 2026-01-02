@@ -1,5 +1,6 @@
-package org.cotato.backend.recruit.admin.service.applicationAdmin;
+package org.cotato.backend.recruit.admin.service.application;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.backend.recruit.admin.error.ApplicationAdminErrorCode;
@@ -23,5 +24,9 @@ public class ApplicationAdminService {
 						() ->
 								new ApplicationAdminException(
 										ApplicationAdminErrorCode.APPLICATION_NOT_FOUND));
+	}
+
+	public List<Object[]> getPassStatusCounts(Long generationId) {
+		return applicationRepository.countByGenerationIdGroupByPassStatusAndPartType(generationId);
 	}
 }

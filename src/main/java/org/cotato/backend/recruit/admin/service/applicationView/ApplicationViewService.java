@@ -7,9 +7,10 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.dto.response.applicationView.AdminApplicationBasicInfoResponse;
 import org.cotato.backend.recruit.admin.dto.response.applicationView.AdminApplicationPartQuestionResponse;
-import org.cotato.backend.recruit.admin.service.applicationAdmin.ApplicationAdminService;
-import org.cotato.backend.recruit.admin.service.applicationAnswerAdmin.ApplicationAnswerAdminService;
-import org.cotato.backend.recruit.admin.service.questionAdmin.QuestionAdminService;
+import org.cotato.backend.recruit.admin.service.application.ApplicationAdminService;
+import org.cotato.backend.recruit.admin.service.applicationAnswer.ApplicationAnswerAdminService;
+import org.cotato.backend.recruit.admin.service.question.QuestionAdminService;
+import org.cotato.backend.recruit.common.util.ByteManager;
 import org.cotato.backend.recruit.domain.application.entity.Application;
 import org.cotato.backend.recruit.domain.application.entity.ApplicationAnswer;
 import org.cotato.backend.recruit.domain.question.entity.Question;
@@ -69,6 +70,7 @@ public class ApplicationViewService {
 				.content(answer != null ? answer.getContent() : null)
 				.fileKey(answer != null ? answer.getFileKey() : null)
 				.fileUrl(answer != null ? answer.getFileUrl() : null)
+				.byteSize(answer != null ? ByteManager.getByteSize(answer.getContent()) : 0)
 				.build();
 	}
 

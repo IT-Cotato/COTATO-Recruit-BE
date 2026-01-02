@@ -3,7 +3,7 @@ package org.cotato.backend.recruit.admin.service.staffEvaluation;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.dto.request.staffEvaluation.CreateStaffEvaluationRequest;
 import org.cotato.backend.recruit.admin.dto.response.staffEvaluation.StaffEvaluationResponse;
-import org.cotato.backend.recruit.admin.service.applicationAdmin.ApplicationAdminService;
+import org.cotato.backend.recruit.admin.service.application.ApplicationAdminService;
 import org.cotato.backend.recruit.domain.application.entity.Application;
 import org.cotato.backend.recruit.domain.evaluation.entity.Evaluation;
 import org.cotato.backend.recruit.domain.evaluation.enums.EvaluatorType;

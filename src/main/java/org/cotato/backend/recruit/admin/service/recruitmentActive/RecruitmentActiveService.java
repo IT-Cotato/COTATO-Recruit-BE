@@ -3,7 +3,7 @@ package org.cotato.backend.recruit.admin.service.recruitmentActive;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
-import org.cotato.backend.recruit.admin.service.generationAdmin.GenerationAdminService;
+import org.cotato.backend.recruit.admin.service.generation.GenerationAdminService;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.recruitmentInformation.entity.RecruitmentInformation;
 import org.cotato.backend.recruit.domain.recruitmentInformation.enums.InformationType;

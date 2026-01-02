@@ -1,4 +1,4 @@
-package org.cotato.backend.recruit.admin.controller.staffEvaluation;
+package org.cotato.backend.recruit.admin.controller.applicationView;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

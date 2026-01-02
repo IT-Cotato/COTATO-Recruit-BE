@@ -22,11 +22,15 @@ public class ApplicationListViewController {
 
 	private final ApplicationViewListService applicationViewListService;
 
-	/*
-	 * @param request(ApplicationListRequest
-	 * name, generation, searchKeyword, viewPartType, passStatus)
+	/**
+	 * 지원서 목록 조회
 	 *
-	 * @return ApiResponse<AdminApplicationsResponse>
+	 * @param request 지원서 목록 조회 요청 정보
+	 * @param generationId 기수 ID - 필수
+	 * @param partViewType (ALL, BE, FE, PM, DE) - 필수
+	 * @param passViewType (ALL, PASS, FAIL, WAITLISTED) - 필수
+	 * @param pageable 페이지네이션 정보
+	 * @return 지원서 목록
 	 */
 	@GetMapping
 	public ApiResponse<AdminApplicationsResponse> getApplications(

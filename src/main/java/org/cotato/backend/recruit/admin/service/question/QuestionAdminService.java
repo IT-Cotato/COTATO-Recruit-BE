@@ -1,4 +1,4 @@
-package org.cotato.backend.recruit.admin.service.questionAdmin;
+package org.cotato.backend.recruit.admin.service.question;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -18,5 +18,21 @@ public class QuestionAdminService {
 	public List<Question> getQuestionsByGenerationAndPartType(
 			Generation generation, PartType partType) {
 		return questionRepository.findByGenerationAndPartType(generation, partType);
+	}
+
+	public List<Question> getQuestionsByGenerationAndPartTypeOrderBySequenceAsc(
+			Generation generation, PartType partType) {
+		return questionRepository.findByGenerationAndPartTypeOrderBySequenceAsc(
+				generation, partType);
+	}
+
+	@Transactional
+	public void deleteAll(List<Question> questions) {
+		questionRepository.deleteAll(questions);
+	}
+
+	@Transactional
+	public void saveAll(List<Question> questions) {
+		questionRepository.saveAll(questions);
 	}
 }

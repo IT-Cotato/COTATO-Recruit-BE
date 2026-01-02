@@ -2,10 +2,11 @@ package org.cotato.backend.recruit.admin.dto.response.applicationView;
 
 import java.util.List;
 import lombok.Builder;
+import org.cotato.backend.recruit.admin.dto.response.recruitmentInformation.RecruitmentPeriodResponse;
 
 @Builder
 public record AdminApplicationsResponse(
-		RecruitmentInformationResponse recruitmentInformationResponse,
+		RecruitmentPeriodResponse recruitmentPeriodResponse,
 		ApplicationSummaryResponse summary,
 		Applicants applicants) {
 	@Builder

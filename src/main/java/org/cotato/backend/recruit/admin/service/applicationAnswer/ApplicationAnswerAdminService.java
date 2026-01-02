@@ -1,4 +1,4 @@
-package org.cotato.backend.recruit.admin.service.applicationAnswerAdmin;
+package org.cotato.backend.recruit.admin.service.applicationAnswer;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
