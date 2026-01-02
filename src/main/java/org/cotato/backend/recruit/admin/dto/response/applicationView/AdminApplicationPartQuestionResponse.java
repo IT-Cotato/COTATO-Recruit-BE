@@ -11,4 +11,5 @@ public record AdminApplicationPartQuestionResponse(
 		Boolean isChecked,
 		String content,
 		String fileKey,
-		String fileUrl) {}
+		String fileUrl,
+		int byteSize) {}
