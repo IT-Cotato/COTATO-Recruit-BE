@@ -1,0 +1,52 @@
+language: "ko"
+early_access: false
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+  auto_review:
+    enabled: true
+    draft: false
+  path_instructions:
+    - path: "src/main/java/**/*.java"
+      instructions: |
+        - 비즈니스 로직의 논리적 오류, 경계값 이슈, 동시성 문제가 없는지 비판적으로 검토한다.
+        - 메서드가 한 가지 일만 하는지, 가독성을 해치는 매직 넘버/스트링이 없는지, 매개변수 개수가 적절한지 확인한다.
+        - 자바 표준 명명 규칙을 준수하며, 클래스/메서드/변수명이 도메인 의미를 명확히 전달하는지 확인한다.
+        - SOLID 원칙과 스프링 어노테이션(DI, Bean 스코프 등)의 적절한 사용, N+1 문제 발생 여부를 검증한다.
+    - path: "src/test/**/*.java"
+      instructions: |
+        - Happy Path뿐만 아니라 실패/예외 케이스를 충분히 검증하는지, Assertion이 누락되지 않았는지 확인한다.
+        - BDD(Given-When-Then) 구조를 따르는지, 테스트 명칭이 검증 내용을 명확히 설명하는지 확인한다.
+        - Mockito 등을 사용한 모킹이 실제 비즈니스 흐름과 일치하는지, 과도한 모킹으로 테스트 신뢰도가 떨어지지 않는지 체크한다.
+    - path: "**/*.{yml,yaml,properties}"
+      instructions: |
+        - 키-값 구조가 일관성 있는지, 명명 규칙(Kebab-case 등)이 프로젝트 전체에서 통일되었는지 확인한다.
+        - 하드코딩된 API Key, 비밀번호 등 민감 정보가 평문으로 노출되었는지 엄격히 검증한다.
+  path_filters:
+    - "!**/build/**"
+    - "!**/.gradle/**"
+    - "!**/gradle/wrapper/**"
+    - "!**/gradlew*"
+    - "!**/out/**"
+    - "!**/*.class"
+    - "!**/*.jar"
+    - "!**/*.war"
+    - "!**/node_modules/**"
+    - "!**/.idea/**"
+    - "!**/.vscode/**"
+    - "!**/test-results/**"
+chat:
+  auto_reply: true
+tone_instructions: |
+  "친절하고 부드러운 톤을 유지하되, 코드 품질(버그, 성능, 컨벤션)에 대해서는 시니어 개발자의 관점에서 명확한 근거를 바탕으로 피드백하세요. 
+  자바 표준 컨벤션을 기준으로 스타일을 점검하고, 추측성 정보 제공은 금지합니다."
+knowledge_base:
+  opt_out: false
+  learnings:
+    scope: auto
+  issues:
+    scope: auto
