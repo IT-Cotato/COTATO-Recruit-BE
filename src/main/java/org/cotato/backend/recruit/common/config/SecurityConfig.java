@@ -58,6 +58,7 @@ public class SecurityConfig {
 												"/api/auth/login/**",
 												"/api/auth/refresh",
 												"/api/test/oauth2/**",
+												"/api/faq/**",
 												"/api/recruitment/**")
 										.permitAll()
 										// admin api는 STAFF 역할만 접근 가능
