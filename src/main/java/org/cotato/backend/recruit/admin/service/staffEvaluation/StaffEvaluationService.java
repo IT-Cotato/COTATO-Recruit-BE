@@ -21,10 +21,9 @@ public class StaffEvaluationService {
 
 	public StaffEvaluationResponse getEvaluation(Long applicationId, EvaluatorType evaluatorType) {
 		Application application = applicationAdminService.getApplication(applicationId);
-		Evaluation evaluation =
-				evaluationRepository
-						.findByApplicationIdAndEvaluatorType(application.getId(), evaluatorType)
-						.orElse(null);
+		Evaluation evaluation = evaluationRepository
+				.findByApplicationAndEvaluatorType(application, evaluatorType)
+				.orElse(null);
 
 		return StaffEvaluationResponse.from(evaluation != null ? evaluation.getComment() : null);
 	}
@@ -33,11 +32,9 @@ public class StaffEvaluationService {
 	public void createEvaluation(Long applicationId, CreateStaffEvaluationRequest request) {
 		Application application = applicationAdminService.getApplication(applicationId);
 
-		Evaluation evaluation =
-				evaluationRepository
-						.findByApplicationIdAndEvaluatorType(
-								application.getId(), request.evaluatorType())
-						.orElse(null);
+		Evaluation evaluation = evaluationRepository
+				.findByApplicationAndEvaluatorType(application, request.evaluatorType())
+				.orElse(null);
 
 		if (evaluation != null) {
 			update(evaluation, request);
