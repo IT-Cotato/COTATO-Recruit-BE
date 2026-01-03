@@ -6,9 +6,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
-import org.cotato.backend.recruit.domain.recruitment.entity.RecruitmentInformation;
-import org.cotato.backend.recruit.domain.recruitment.enums.InformationType;
-import org.cotato.backend.recruit.domain.recruitment.repository.RecruitmentInformationRepository;
+import org.cotato.backend.recruit.domain.recruitmentInformation.entity.RecruitmentInformation;
+import org.cotato.backend.recruit.domain.recruitmentInformation.enums.InformationType;
+import org.cotato.backend.recruit.domain.recruitmentInformation.repository.RecruitmentInformationRepository;
 import org.cotato.backend.recruit.presentation.dto.response.RecruitmentScheduleResponse;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -42,13 +42,6 @@ public class RecruitmentInformationService {
 										RecruitmentInformation::getInformationType,
 										RecruitmentInformation::getEventDatetime));
 
-		return new RecruitmentScheduleResponse(
-				activeGeneration.getId(),
-				scheduleMap.get(InformationType.RECRUITMENT_START),
-				scheduleMap.get(InformationType.RECRUITMENT_END),
-				scheduleMap.get(InformationType.DOCUMENT_ANNOUNCEMENT),
-				scheduleMap.get(InformationType.INTERVIEW_START),
-				scheduleMap.get(InformationType.INTERVIEW_END),
-				scheduleMap.get(InformationType.FINAL_ANNOUNCEMENT));
+		return RecruitmentScheduleResponse.of(activeGeneration.getId(), scheduleMap);
 	}
 }

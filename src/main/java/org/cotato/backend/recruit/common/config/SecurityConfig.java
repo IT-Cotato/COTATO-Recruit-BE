@@ -61,10 +61,14 @@ public class SecurityConfig {
 												"/api/faq/**",
 												"/api/recruitment/**")
 										.permitAll()
+										// admin api는 STAFF 역할만 접근 가능
+										.requestMatchers("/api/admin/**")
+										.hasRole("STAFF")
 										// 그 외 모든 요청은 인증 필요
 										.anyRequest()
 										.authenticated())
 				// JWT 인증 필터 추가 (UsernamePasswordAuthenticationFilter 이전에 실행)
+
 				.addFilterBefore(
 						jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

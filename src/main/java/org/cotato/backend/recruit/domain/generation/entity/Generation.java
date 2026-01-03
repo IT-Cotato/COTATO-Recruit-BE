@@ -23,7 +23,12 @@ public class Generation {
 	private boolean isRecruitingActive;
 
 	@Builder
-	public Generation(boolean isRecruitingActive) {
+	public Generation(Long id, boolean isRecruitingActive) {
+		this.id = id;
+		this.isRecruitingActive = isRecruitingActive;
+	}
+
+	public void updateRecruitmentStatus(boolean isRecruitingActive) {
 		this.isRecruitingActive = isRecruitingActive;
 	}
 }

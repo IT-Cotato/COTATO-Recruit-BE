@@ -119,6 +119,11 @@ jobs:
             export JWT_SECRET=${{ secrets.PROD_JWT_SECRET }}
             export GOOGLE_CLIENT_ID=${{ secrets.PROD_GOOGLE_CLIENT_ID }}
             export GOOGLE_CLIENT_SECRET=${{ secrets.PROD_GOOGLE_CLIENT_SECRET }}
+            export SERVER_URL=${{ secrets.PROD_SERVER_URL }}
+            export MAIL_HOST=${{ secrets.PROD_MAIL_HOST }}
+            export MAIL_PORT=${{ secrets.PROD_MAIL_PORT }}
+            export MAIL_USERNAME=${{ secrets.PROD_MAIL_USERNAME }}
+            export MAIL_PASSWORD=${{ secrets.PROD_MAIL_PASSWORD }}
 
             # 환경변수 .env 파일로 저장
             cat > .env << EOF
@@ -130,31 +135,15 @@ jobs:
             JWT_SECRET=$JWT_SECRET
             GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
             GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
+            SERVER_URL=$SERVER_URL
+            MAIL_HOST=$MAIL_HOST
+            MAIL_PORT=$MAIL_PORT
+            MAIL_USERNAME=$MAIL_USERNAME
+            MAIL_PASSWORD=$MAIL_PASSWORD
             EOF
 
             # Docker 로그인
             echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-
-            # certbot 디렉토리 생성
-            mkdir -p ~/certbot/www
-
-            # SSL 인증서 확인
-            if [ ! -f ~/ssl/fullchain.pem ] || [ ! -f ~/ssl/privkey.pem ]; then
-              echo "❌ SSL 인증서 없음. 서버에서 인증서를 먼저 발급받으세요."
-              exit 1
-            fi
-
-            # Nginx 컨테이너 시작
-            if ! docker ps --format '{{.Names}}' | grep -q "nginx"; then
-              docker compose -f ./docker-compose.prod.yml up -d nginx
-              sleep 5
-            fi
-
-            # default.conf 초기화 (Blue)
-            if ! docker exec nginx test -f /etc/nginx/conf.d/default.conf 2>/dev/null; then
-              docker exec nginx cp /etc/nginx/templates/nginx-blue.conf /etc/nginx/conf.d/default.conf
-              docker exec nginx nginx -s reload
-            fi
 
             # 배포 실행
             chmod +x ./deploy.sh
@@ -163,9 +152,14 @@ jobs:
       - name: Notify deployment success
         if: success()
         run: |
-          echo "✅ Production 배포 성공!"
+          echo "=========================================="
+          echo "Production Deployment Succeeded"
           echo "Tag: ${{ needs.retag-image.outputs.tag }}"
+          echo "=========================================="
 
       - name: Notify deployment failure
         if: failure()
-        run: echo "❌ Production 배포 실패!"
+        run: |
+          echo "=========================================="
+          echo "[ERROR] Production Deployment Failed"
+          echo "=========================================="
