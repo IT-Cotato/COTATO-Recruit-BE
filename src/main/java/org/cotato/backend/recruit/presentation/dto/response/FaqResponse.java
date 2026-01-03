@@ -1,18 +1,11 @@
 package org.cotato.backend.recruit.presentation.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.Builder;
-import lombok.Getter;
+import org.cotato.backend.recruit.domain.faq.entity.Faq;
 
-@Getter
-@Builder
-public class FaqResponse {
-	@Getter
-	@Builder
-	@JsonPropertyOrder({"id", "question", "answer"})
-	public static class FaqItemResponse {
-		private Long id;
-		private String question;
-		private String answer;
+@JsonPropertyOrder({"id", "question", "answer"})
+public record FaqResponse(Long id, String question, String answer) {
+	public static FaqResponse from(Faq faq) {
+		return new FaqResponse(faq.getId(), faq.getQuestion(), faq.getAnswer());
 	}
 }
