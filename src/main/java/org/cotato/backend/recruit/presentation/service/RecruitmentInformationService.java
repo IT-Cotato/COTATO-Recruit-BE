@@ -10,6 +10,8 @@ import org.cotato.backend.recruit.domain.recruitmentInformation.entity.Recruitme
 import org.cotato.backend.recruit.domain.recruitmentInformation.enums.InformationType;
 import org.cotato.backend.recruit.domain.recruitmentInformation.repository.RecruitmentInformationRepository;
 import org.cotato.backend.recruit.presentation.dto.response.RecruitmentScheduleResponse;
+import org.cotato.backend.recruit.presentation.dto.response.RecruitmentStatusResponse;
+import org.cotato.backend.recruit.presentation.exception.ApplicationException;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,5 +45,19 @@ public class RecruitmentInformationService {
 										RecruitmentInformation::getEventDatetime));
 
 		return RecruitmentScheduleResponse.of(activeGeneration.getId(), scheduleMap);
+	}
+
+	/**
+	 * 현재 모집 활성화 여부 조회
+	 *
+	 * @return 모집 활성화 여부 응답
+	 */
+	public RecruitmentStatusResponse checkRecruitmentStatus() {
+		try {
+			generationService.getActiveGeneration();
+			return RecruitmentStatusResponse.of(true);
+		} catch (ApplicationException e) {
+			return RecruitmentStatusResponse.of(false);
+		}
 	}
 }

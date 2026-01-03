@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.common.response.ApiResponse;
 import org.cotato.backend.recruit.presentation.dto.response.RecruitmentScheduleResponse;
+import org.cotato.backend.recruit.presentation.dto.response.RecruitmentStatusResponse;
 import org.cotato.backend.recruit.presentation.service.RecruitmentInformationService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +24,13 @@ public class RecruitmentController {
 	public ApiResponse<RecruitmentScheduleResponse> getRecruitmentSchedule() {
 		RecruitmentScheduleResponse response =
 				recruitmentInformationService.getRecruitmentSchedule();
+		return ApiResponse.success(response);
+	}
+
+	@Operation(summary = "모집 활성화 상태 조회", description = "현재 모집이 활성화되어 있는지 확인합니다. (인증 불필요)")
+	@GetMapping("/status")
+	public ApiResponse<RecruitmentStatusResponse> getRecruitmentStatus() {
+		RecruitmentStatusResponse response = recruitmentInformationService.checkRecruitmentStatus();
 		return ApiResponse.success(response);
 	}
 }
