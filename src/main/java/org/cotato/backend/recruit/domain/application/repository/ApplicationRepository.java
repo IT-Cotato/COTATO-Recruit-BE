@@ -18,10 +18,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
 	Optional<Application> findByUserAndGeneration(User user, Generation generation);
 
-	// --------------------------------------------------------------------------------
-	// 서버에서 추가된 기본 조회 메서드 (Service에서 사용됨)
-	// --------------------------------------------------------------------------------
-
 	/** 특정 기수의 특정 합격 상태를 가진 지원서 목록 조회 */
 	List<Application> findByGenerationAndPassStatus(Generation generation, PassStatus passStatus);
 

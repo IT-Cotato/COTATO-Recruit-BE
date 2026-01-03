@@ -25,7 +25,7 @@ public class RecruitmentInformationAdminService {
 	private final GenerationAdminService generationAdminService;
 
 	public RecruitmentInformationResponse getRecruitmentInformation(Long generationId) {
-		Generation generation = generationAdminService.findGeneration(generationId);
+		Generation generation = generationAdminService.getGenerationById(generationId);
 
 		List<RecruitmentInformation> informations =
 				recruitmentInformationRepository.findByGeneration(generation);
@@ -58,7 +58,7 @@ public class RecruitmentInformationAdminService {
 	public void updateRecruitmentInformation(RecruitmentInformationUpdateRequest request) {
 		validate(request);
 
-		Generation generation = generationAdminService.findGeneration(request.generation());
+		Generation generation = generationAdminService.getGenerationById(request.generation());
 
 		upsertInformation(
 				generation, InformationType.RECRUITMENT_START, request.recruitmentStart());

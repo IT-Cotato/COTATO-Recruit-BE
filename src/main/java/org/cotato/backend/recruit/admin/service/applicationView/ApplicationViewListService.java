@@ -100,7 +100,7 @@ public class ApplicationViewListService {
 						.map(this::toApplicationElementResponse)
 						.toList();
 
-		Generation generation = generationAdminService.findGeneration(request.generation());
+		Generation generation = generationAdminService.getGenerationById(request.generation());
 		RecruitmentPeriodResponse recruitmentPeriodResponse =
 				getRecruitmentPeriodResponse(generation);
 

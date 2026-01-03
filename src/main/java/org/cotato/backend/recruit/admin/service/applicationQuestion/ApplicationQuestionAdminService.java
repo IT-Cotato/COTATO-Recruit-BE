@@ -23,7 +23,7 @@ public class ApplicationQuestionAdminService {
 
 	public List<ApplicationQuestionResponse> getApplicationQuestions(
 			Long generationId, String partType) {
-		Generation generation = generationAdminService.findGeneration(generationId);
+		Generation generation = generationAdminService.getGenerationById(generationId);
 		PartType type = PartType.fromString(partType);
 
 		List<Question> questions =
@@ -36,7 +36,7 @@ public class ApplicationQuestionAdminService {
 	@Transactional
 	public void updateApplicationQuestions(ApplicationQuestionUpdateRequest request) {
 		validate(request);
-		Generation generation = generationAdminService.findGeneration(request.generation());
+		Generation generation = generationAdminService.getGenerationById(request.generation());
 		PartType partType = PartType.fromString(request.partType());
 
 		List<Question> existingQuestions =

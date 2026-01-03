@@ -24,7 +24,7 @@ public class RecruitmentActiveService {
 		validate(generationId, startDate, endDate);
 
 		// 기존 Generation인지 확인
-		Generation generation = generationAdminService.findGeneration(generationId);
+		Generation generation = generationAdminService.getGenerationById(generationId);
 		if (generation != null) {
 			throw new IllegalArgumentException("이미 생성된 기수입니다.");
 		}
