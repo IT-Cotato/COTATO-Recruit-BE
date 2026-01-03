@@ -1,5 +1,7 @@
 package org.cotato.backend.recruit.admin.dto.request.recruitmentActive;
 
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-public record ActivationRequest(Long generation, LocalDate startDate, LocalDate endDate) {}
+public record ActivationRequest(
+		@NotNull Long generation, @NotNull LocalDate startDate, @NotNull LocalDate endDate) {}

@@ -19,15 +19,7 @@ public class StaffEvaluationService {
 	private final EvaluationRepository evaluationRepository;
 	private final ApplicationAdminService applicationAdminService;
 
-	private void validate(EvaluatorType evaluatorType) {
-		if (evaluatorType == null) {
-			throw new IllegalArgumentException("EvaluatorType is required");
-		}
-	}
-
 	public StaffEvaluationResponse getEvaluation(Long applicationId, EvaluatorType evaluatorType) {
-		validate(evaluatorType);
-
 		Application application = applicationAdminService.getApplication(applicationId);
 		Evaluation evaluation =
 				evaluationRepository
@@ -39,12 +31,6 @@ public class StaffEvaluationService {
 
 	@Transactional
 	public void createEvaluation(Long applicationId, CreateStaffEvaluationRequest request) {
-		validate(request.evaluatorType());
-
-		if (request.comment() == null) {
-			throw new IllegalArgumentException("필수 값이 누락되었습니다.");
-		}
-
 		Application application = applicationAdminService.getApplication(applicationId);
 
 		Evaluation evaluation =
