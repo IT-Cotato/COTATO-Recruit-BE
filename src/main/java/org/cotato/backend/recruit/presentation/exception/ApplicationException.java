@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.cotato.backend.recruit.presentation.error.ApplicationErrorCode;
 
 @Getter
-public class ApplicationException extends RuntimeException {
+public class ApplicationException extends RuntimeException { // 추후에 PresentationException으로 수정 필요
 
 	private final ApplicationErrorCode errorCode;
 
