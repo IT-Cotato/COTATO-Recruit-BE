@@ -1,5 +1,6 @@
 package org.cotato.backend.recruit.admin.service.generationAdmin;
 
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.error.ApplicationAdminErrorCode;
 import org.cotato.backend.recruit.admin.exception.ApplicationAdminException;
@@ -23,7 +24,12 @@ public class GenerationAdminService {
 										ApplicationAdminErrorCode.GENERATION_NOT_FOUND));
 	}
 
+	public Optional<Generation> findGenerationOptional(Long generation) {
+		return generationRepository.findById(generation);
+	}
+
 	public Generation saveGeneration(Long generation) {
-		return generationRepository.save(Generation.builder().id(generation).build());
+		return generationRepository.save(
+				Generation.builder().id(generation).isRecruitingActive(true).build());
 	}
 }
