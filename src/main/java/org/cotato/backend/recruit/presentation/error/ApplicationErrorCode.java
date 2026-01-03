@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 public enum ApplicationErrorCode { // 추후에 PresentationErrorCode로 수정 필요
 
 	// Recruitment
-	RECRUITMENT_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "RE001", "현재 모집이 활성화되어 있지 않습니다."),
+	RECRUITMENT_NOT_ACTIVE(HttpStatus.FORBIDDEN, "RE001", "현재 모집이 활성화되어 있지 않습니다."),
 
 	// Application
 	APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "AP001", "지원서를 찾을 수 없습니다."),
