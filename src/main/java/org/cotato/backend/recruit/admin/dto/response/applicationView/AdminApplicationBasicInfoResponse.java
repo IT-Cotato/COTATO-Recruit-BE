@@ -16,7 +16,7 @@ public record AdminApplicationBasicInfoResponse(
 		String major,
 		EnrollmentStatus enrollmentStatus,
 		Integer completedSemesters,
-		Boolean isMemberBefore) {
+		Boolean isPrevActivity) {
 	public static AdminApplicationBasicInfoResponse from(Application application) {
 		return AdminApplicationBasicInfoResponse.builder()
 				.applicationId(application.getId())
@@ -31,7 +31,7 @@ public record AdminApplicationBasicInfoResponse(
 								? EnrollmentStatus.ENROLLED
 								: EnrollmentStatus.NOT_ENROLLED)
 				.completedSemesters(application.getCompletedSemesters())
-				.isMemberBefore(application.getIsPrevActivity())
+				.isPrevActivity(application.getIsPrevActivity())
 				.build();
 	}
 }
