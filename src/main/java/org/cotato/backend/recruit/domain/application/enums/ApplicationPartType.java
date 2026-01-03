@@ -1,21 +1,20 @@
-package org.cotato.backend.recruit.domain.question.enums;
+package org.cotato.backend.recruit.domain.application.enums;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@AllArgsConstructor
-public enum PartType {
+@RequiredArgsConstructor
+public enum ApplicationPartType {
 	PM("기획"),
 	DE("디자이너"),
 	FE("프론트엔드"),
-	BE("백엔드"),
-	ETC("기타");
+	BE("백엔드");
 
 	private final String description;
 
 	// from String
-	public static PartType fromString(String name) {
+	public static ApplicationPartType fromString(String name) {
 		isValidPartType(name);
 		return valueOf(name);
 	}
@@ -30,12 +29,8 @@ public enum PartType {
 			throw new IllegalArgumentException("PartType은 대문자로 입력해야 합니다.");
 		}
 
-		// BE,FE,DE,PM,ETC
-		if (!name.equals("BE")
-				&& !name.equals("FE")
-				&& !name.equals("DE")
-				&& !name.equals("PM")
-				&& !name.equals("ETC")) {
+		// BE,FE,DE,PM
+		if (!name.equals("BE") && !name.equals("FE") && !name.equals("DE") && !name.equals("PM")) {
 			throw new IllegalArgumentException("유효하지 않은 파트 타입입니다.");
 		}
 	}

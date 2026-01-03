@@ -1,6 +1,5 @@
 package org.cotato.backend.recruit.presentation.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -77,7 +76,7 @@ public class ApplicationAnswerService {
 	}
 
 	/**
-	 * 파트별 질문 조회 (공통 + 선택한 파트만) + 저장된 답변 포함 - 페이지 2용
+	 * 파트별 질문 조회 (선택한 파트만) + 저장된 답변 포함 - 페이지 2용
 	 *
 	 * @param userId 사용자 ID
 	 * @param applicationId 지원서 ID
@@ -90,25 +89,15 @@ public class ApplicationAnswerService {
 		Generation activeGeneration = generationService.getActiveGeneration();
 		PartType selectedPart = PartType.valueOf(partType.toUpperCase());
 
-		// 공통 질문 조회
-		List<Question> commonQuestions =
-				questionService.getQuestionsByGenerationAndPartType(
-						activeGeneration, PartType.COMMON);
-
 		// 선택한 파트 질문 조회
 		List<Question> partQuestions =
 				questionService.getQuestionsByGenerationAndPartType(activeGeneration, selectedPart);
-
-		// 공통 + 파트별 질문 합치기
-		List<Question> allQuestions = new ArrayList<>();
-		allQuestions.addAll(commonQuestions);
-		allQuestions.addAll(partQuestions);
 
 		// 저장된 답변 조회 및 매핑
 		List<ApplicationAnswer> savedAnswers =
 				applicationAnswerRepository.findByApplication(application);
 
-		return mapQuestionsWithAnswers(allQuestions, savedAnswers);
+		return mapQuestionsWithAnswers(partQuestions, savedAnswers);
 	}
 
 	/**
@@ -148,7 +137,7 @@ public class ApplicationAnswerService {
 		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
 
 		// 지원서에 선택한 파트 저장 (ETC가 아닌 경우에만)
-		if (!partType.equalsIgnoreCase("ETC") && !partType.equalsIgnoreCase("COMMON")) {
+		if (!partType.equalsIgnoreCase("ETC")) {
 			PartType selectedPart = PartType.valueOf(partType.toUpperCase());
 			application.updatePartType(selectedPart);
 		}
