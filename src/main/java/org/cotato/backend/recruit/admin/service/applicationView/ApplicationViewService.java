@@ -32,7 +32,7 @@ public class ApplicationViewService {
 	}
 
 	public List<AdminApplicationPartQuestionResponse> getPartQuestionsWithAnswers(
-			Long applicationId, org.cotato.backend.recruit.domain.question.enums.PartType part) {
+			Long applicationId, PartType part) {
 		return getQuestionsWithAnswers(applicationId, part);
 	}
 
@@ -42,8 +42,7 @@ public class ApplicationViewService {
 	}
 
 	private List<AdminApplicationPartQuestionResponse> getQuestionsWithAnswers(
-			Long applicationId,
-			org.cotato.backend.recruit.domain.question.enums.PartType partType) {
+			Long applicationId, PartType partType) {
 		Application application = applicationAdminService.getApplication(applicationId);
 
 		List<Question> questions =
@@ -61,15 +60,7 @@ public class ApplicationViewService {
 
 	private AdminApplicationPartQuestionResponse createResponse(
 			Question question, ApplicationAnswer answer) {
-		return AdminApplicationPartQuestionResponse.builder()
-				.sequence(question.getSequence())
-				.questionContent(question.getContent())
-				.answerType(answer != null ? answer.getAnswerType() : question.getAnswerType())
-				.isChecked(answer != null ? answer.getIsChecked() : null)
-				.content(answer != null ? answer.getContent() : null)
-				.fileKey(answer != null ? answer.getFileKey() : null)
-				.fileUrl(answer != null ? answer.getFileUrl() : null)
-				.build();
+		return AdminApplicationPartQuestionResponse.from(question, answer);
 	}
 
 	private Map<Long, ApplicationAnswer> createAnswerMap(List<ApplicationAnswer> answers) {

@@ -31,8 +31,8 @@ public class ApplicationViewPageInfoManager {
 	private long countApplicationsWithFilter(ApplicationListRequest request) {
 		return applicationRepository.countApplicationsWithFilter(
 				request.generation(),
-				request.partViewType(),
-				request.passViewStatus(),
+				request.partViewType().name(),
+				request.passViewStatus().name(),
 				request.searchKeyword());
 	}
 
