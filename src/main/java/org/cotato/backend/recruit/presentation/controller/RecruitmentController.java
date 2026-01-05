@@ -27,7 +27,12 @@ public class RecruitmentController {
 		return ApiResponse.success(response);
 	}
 
-	@Operation(summary = "모집 활성화 상태 조회", description = "현재 모집이 활성화되어 있는지 확인합니다. (인증 불필요)")
+	@Operation(
+			summary = "모집 활성화 상태 조회",
+			description =
+					"현재 모집이 활성화되어 있는지 확인합니다. (인증 불필요)\n\n"
+							+ "- isActive: true인 경우 모집 진행 중, false인 경우 모집 미진행\n"
+							+ "- generationId: 모집 중인 기수 번호 (모집 미진행 시 null)")
 	@GetMapping("/status")
 	public ApiResponse<RecruitmentStatusResponse> getRecruitmentStatus() {
 		RecruitmentStatusResponse response = recruitmentInformationService.checkRecruitmentStatus();
