@@ -17,7 +17,7 @@ public class GenerationService {
 	private final GenerationRepository generationRepository;
 
 	/**
-	 * 현재 모집 중인 기수 조회 (캐시 적용)
+	 * 현재 모집 중인 기수 조회 (캐시 적용) admin 서비스에서 모집 비활성화 시 캐시 만료 처리 필요
 	 *
 	 * @return 활성화된 기수
 	 */
@@ -28,6 +28,19 @@ public class GenerationService {
 				.findByIsRecruitingActive(true)
 				.orElseThrow(
 						() -> new ApplicationException(ApplicationErrorCode.GENERATION_NOT_FOUND));
+	}
+
+	/**
+	 * 현재 활성화된 모집 기수 ID 조회 admin 서비스에서 모집 비활성화 시 캐시 만료 처리 필요
+	 *
+	 * @return 활성화된 기수 ID (활성화된 기수가 없으면 null)
+	 */
+	@Cacheable(value = "activeGeneration", key = "'generationId'")
+	public Long getActiveGenerationId() {
+		return generationRepository
+				.findByIsRecruitingActive(true)
+				.map(Generation::getId)
+				.orElse(null);
 	}
 
 	// Generation find
