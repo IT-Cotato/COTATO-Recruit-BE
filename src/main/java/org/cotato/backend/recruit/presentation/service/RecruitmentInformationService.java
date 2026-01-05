@@ -11,7 +11,6 @@ import org.cotato.backend.recruit.domain.recruitmentInformation.enums.Informatio
 import org.cotato.backend.recruit.domain.recruitmentInformation.repository.RecruitmentInformationRepository;
 import org.cotato.backend.recruit.presentation.dto.response.RecruitmentScheduleResponse;
 import org.cotato.backend.recruit.presentation.dto.response.RecruitmentStatusResponse;
-import org.cotato.backend.recruit.presentation.exception.ApplicationException;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,11 +52,8 @@ public class RecruitmentInformationService {
 	 * @return 모집 활성화 여부 응답
 	 */
 	public RecruitmentStatusResponse checkRecruitmentStatus() {
-		try {
-			generationService.getActiveGeneration();
-			return RecruitmentStatusResponse.of(true);
-		} catch (ApplicationException e) {
-			return RecruitmentStatusResponse.of(false);
-		}
+		Long generationId = generationService.getActiveGenerationId();
+		boolean isActive = generationId != null;
+		return RecruitmentStatusResponse.of(isActive, generationId);
 	}
 }
