@@ -35,21 +35,8 @@ public class ApplicationViewListService {
 	private final ApplicationViewPageInfoManager applicationViewPageInfoManager;
 	private final GenerationAdminService generationAdminService;
 
-	private void validateRequest(ApplicationListRequest request) {
-		// ALL이 아닐때만 유효성 검사
-		if (request.partViewType() != PartViewType.ALL) {
-			PartType.isValidPartType(request.partViewType().name());
-		}
-
-		// ALL이 아닐때만 유효성 검사
-		if (request.passViewStatus() != PassViewStatus.ALL) {
-			PassStatus.isValidPassStatus(request.passViewStatus().name());
-		}
-	}
-
 	public AdminApplicationsResponse getApplications(
 			ApplicationListRequest request, Pageable pageable) {
-		validateRequest(request);
 
 		// 지원자 적은 학교순이 기본값
 		String universityDir = "DESC";
@@ -60,30 +47,26 @@ public class ApplicationViewListService {
 			}
 		}
 
-		List<Application> applications =
-				applicationRepository.findApplicationsWithUniversitySort(
-						request.generation(),
-						request.partViewType().name(),
-						request.passViewStatus().name(),
-						request.searchKeyword(),
-						universityDir,
-						pageable.getPageSize(),
-						pageable.getOffset());
+		List<Application> applications = applicationRepository.findApplicationsWithUniversitySort(
+				request.generation(),
+				request.partViewType().name(),
+				request.passViewStatus().name(),
+				request.searchKeyword(),
+				universityDir,
+				pageable.getPageSize(),
+				pageable.getOffset());
 
-		List<ApplicationElementResponse> content =
-				applications.stream().map(ApplicationElementResponse::from).toList();
+		List<ApplicationElementResponse> content = applications.stream().map(ApplicationElementResponse::from).toList();
 
 		Generation generation = generationAdminService.findGeneration(request.generation());
-		RecruitmentInformationResponse recruitmentInformationResponse =
-				getRecruitmentInformationResponse(generation);
+		RecruitmentInformationResponse recruitmentInformationResponse = getRecruitmentInformationResponse(generation);
 
 		// 파트별 지원자수 통계
 		ApplicationSummaryResponse summary = getSummaryResponse(request);
 
 		// 필터링된 지원서 총 개수 - 페이징 계산용
 		// 필터링된 지원서 총 개수 및 페이징 정보 조회
-		PageInfoResponse pageInfo =
-				applicationViewPageInfoManager.getApplicationPageInfo(request, pageable);
+		PageInfoResponse pageInfo = applicationViewPageInfoManager.getApplicationPageInfo(request, pageable);
 
 		return AdminApplicationsResponse.of(
 				recruitmentInformationResponse, summary, Applicants.of(content, pageInfo));
@@ -91,24 +74,21 @@ public class ApplicationViewListService {
 
 	private RecruitmentInformationResponse getRecruitmentInformationResponse(
 			Generation generation) {
-		RecruitmentInformation recruitmentStart =
-				recruitmentInformationAdminService.getRecruitmentInformation(
-						generation, InformationType.RECRUITMENT_START);
-		RecruitmentInformation recruitmentEnd =
-				recruitmentInformationAdminService.getRecruitmentInformation(
-						generation, InformationType.RECRUITMENT_END);
+		RecruitmentInformation recruitmentStart = recruitmentInformationAdminService.getRecruitmentInformation(
+				generation, InformationType.RECRUITMENT_START);
+		RecruitmentInformation recruitmentEnd = recruitmentInformationAdminService.getRecruitmentInformation(
+				generation, InformationType.RECRUITMENT_END);
 
 		return RecruitmentInformationResponse.of(
 				recruitmentStart.getEventDatetime(), recruitmentEnd.getEventDatetime());
 	}
 
 	private ApplicationSummaryResponse getSummaryResponse(ApplicationListRequest request) {
-		List<Object[]> counts =
-				applicationRepository.countByFilterGroupByPartType(
-						request.generation(),
-						request.partViewType().name(),
-						request.passViewStatus().name(),
-						request.searchKeyword());
+		List<Object[]> counts = applicationRepository.countByFilterGroupByPartType(
+				request.generation(),
+				request.partViewType().name(),
+				request.passViewStatus().name(),
+				request.searchKeyword());
 
 		return ApplicationSummaryResponse.from(counts);
 	}
