@@ -4,10 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.backend.recruit.auth.dto.CustomUserDetails;
 import org.cotato.backend.recruit.auth.dto.TokenResponse;
+import org.cotato.backend.recruit.auth.dto.UserInfoResponse;
 import org.cotato.backend.recruit.auth.jwt.JwtTokenProvider;
 import org.cotato.backend.recruit.auth.repository.RefreshTokenRepository;
 import org.cotato.backend.recruit.common.error.ErrorCode;
 import org.cotato.backend.recruit.common.exception.GlobalException;
+import org.cotato.backend.recruit.domain.user.entity.User;
+import org.cotato.backend.recruit.domain.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -17,6 +20,7 @@ public class AuthService {
 
 	private final JwtTokenProvider jwtTokenProvider;
 	private final RefreshTokenRepository refreshTokenRepository;
+	private final UserRepository userRepository;
 
 	/**
 	 * Refresh Token을 사용하여 새로운 Access Token 발급
@@ -70,5 +74,20 @@ public class AuthService {
 
 		// Redis에서 Refresh Token 삭제
 		refreshTokenRepository.deleteByUserId(userId);
+	}
+
+	/**
+	 * 현재 로그인한 사용자 정보 조회
+	 *
+	 * @param userDetails 인증된 사용자 정보
+	 * @return 사용자 정보 (userId, email, name, role)
+	 */
+	public UserInfoResponse getCurrentUserInfo(CustomUserDetails userDetails) {
+		User user =
+				userRepository
+						.findById(userDetails.getUserId())
+						.orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+
+		return UserInfoResponse.from(user);
 	}
 }

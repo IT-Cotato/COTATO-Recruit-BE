@@ -1,4 +1,4 @@
-package org.cotato.backend.recruit.domain.recruitment.repository;
+package org.cotato.backend.recruit.domain.recruitmentNotice.repository;
 
 import java.util.List;
 import org.cotato.backend.recruit.domain.recruitmentNotice.entity.RecruitmentNotice;

@@ -5,17 +5,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.List;
 import org.cotato.backend.recruit.domain.recruitmentNotice.entity.RecruitmentNotice;
 
-@JsonPropertyOrder({
-	"isActive",
-	"generation",
-	"startDate",
-	"endDate",
-	"schedule",
-	"parts",
-	"activities"
-})
+@JsonPropertyOrder({"generation", "startDate", "endDate", "schedule", "parts", "activities"})
 public record RecruitmentResponse(
-		boolean isActive,
 		int generation,
 		String startDate,
 		String endDate,
