@@ -16,6 +16,6 @@ public class RecruitmentInformationAdminService {
 			Generation generation, InformationType informationType) {
 		return recruitmentInformationRepository
 				.findByGenerationAndInformationType(generation, informationType)
-				.orElseThrow(() -> new RuntimeException("RecruitmentInformation not found"));
+				.orElseThrow(() -> new IllegalArgumentException("RecruitmentInformation not found"));
 	}
 }
