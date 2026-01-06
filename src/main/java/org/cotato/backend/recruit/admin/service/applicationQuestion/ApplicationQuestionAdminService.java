@@ -35,7 +35,6 @@ public class ApplicationQuestionAdminService {
 
 	@Transactional
 	public void updateApplicationQuestions(ApplicationQuestionUpdateRequest request) {
-		validate(request);
 		Generation generation = generationAdminService.getGenerationById(request.generation());
 		PartType partType = PartType.fromString(request.partType());
 
@@ -63,17 +62,5 @@ public class ApplicationQuestionAdminService {
 												.build())
 						.toList();
 		return newQuestions;
-	}
-
-	private void validate(ApplicationQuestionUpdateRequest request) {
-		if (request.generation() == null) {
-			throw new IllegalArgumentException("기수 정보는 필수 입력 항목입니다.");
-		}
-		if (request.partType() == null) {
-			throw new IllegalArgumentException("파트 타입은 필수 입력 항목입니다.");
-		}
-		if (request.questions() == null) {
-			throw new IllegalArgumentException("질문 목록은 필수 입력 항목입니다.");
-		}
 	}
 }

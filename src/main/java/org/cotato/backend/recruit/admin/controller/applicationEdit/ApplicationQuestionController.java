@@ -2,6 +2,7 @@ package org.cotato.backend.recruit.admin.controller.applicationEdit;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.dto.request.applicationQuestion.ApplicationQuestionUpdateRequest;
@@ -33,7 +34,7 @@ public class ApplicationQuestionController {
 	@Operation(summary = "지원서 질문 조회", description = "해당 기수 및 파트의 지원서 질문을 조회합니다.")
 	@GetMapping
 	public ApiResponse<List<ApplicationQuestionResponse>> getQuestions(
-			@RequestParam Long generation, @RequestParam String partType) {
+			@NotNull @RequestParam Long generation, @NotNull @RequestParam String partType) {
 		List<ApplicationQuestionResponse> response =
 				applicationQuestionAdminService.getApplicationQuestions(generation, partType);
 		return ApiResponse.success(response);
