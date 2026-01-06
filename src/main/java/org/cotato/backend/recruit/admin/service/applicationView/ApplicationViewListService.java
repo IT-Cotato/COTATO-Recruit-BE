@@ -2,7 +2,7 @@ package org.cotato.backend.recruit.admin.service.applicationView;
 
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.dto.response.applicationView.RecruitmentInformationResponse;
-import org.cotato.backend.recruit.admin.service.generationAdmin.GenerationAdminService;
+import org.cotato.backend.recruit.admin.service.generation.GenerationAdminService;
 import org.cotato.backend.recruit.admin.service.recruitmentInformationAdmin.RecruitmentInformationAdminService;
 import org.cotato.backend.recruit.domain.application.repository.ApplicationRepository;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;

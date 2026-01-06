@@ -1,10 +1,6 @@
 package org.cotato.backend.recruit.admin.service.applicationView;
 
 import lombok.RequiredArgsConstructor;
-import org.cotato.backend.recruit.admin.dto.request.applicationView.ApplicationListRequest;
-import org.cotato.backend.recruit.admin.dto.response.applicationView.PageInfoResponse;
-import org.cotato.backend.recruit.domain.application.repository.ApplicationRepository;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 @Component

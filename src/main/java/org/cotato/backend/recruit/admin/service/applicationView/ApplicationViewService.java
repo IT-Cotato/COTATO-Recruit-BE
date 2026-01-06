@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.dto.response.applicationView.AdminApplicationBasicInfoResponse;
 import org.cotato.backend.recruit.admin.dto.response.applicationView.AdminApplicationPartQuestionResponse;
-import org.cotato.backend.recruit.admin.service.applicationAdmin.ApplicationAdminService;
+import org.cotato.backend.recruit.admin.service.application.ApplicationAdminService;
 import org.cotato.backend.recruit.admin.service.applicationAnswerAdmin.ApplicationAnswerAdminService;
 import org.cotato.backend.recruit.admin.service.questionAdmin.QuestionAdminService;
 import org.cotato.backend.recruit.domain.application.entity.Application;
