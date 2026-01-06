@@ -136,6 +136,10 @@ jobs:
             export MAIL_PORT=${{ secrets.MAIL_PORT }}
             export MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
             export MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+            export AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
+            export AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
+            export AWS_REGION=${{ secrets.AWS_REGION }}
+            export AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}
 
             # 환경변수 .env 파일로 저장
             cat > .env << EOF
@@ -152,6 +156,10 @@ jobs:
             MAIL_PORT=$MAIL_PORT
             MAIL_USERNAME=$MAIL_USERNAME
             MAIL_PASSWORD=$MAIL_PASSWORD
+            AWS_ACCESS_KEY=$AWS_ACCESS_KEY
+            AWS_SECRET_KEY=$AWS_SECRET_KEY
+            AWS_REGION=$AWS_REGION
+            AWS_S3_BUCKET=$AWS_S3_BUCKET
             EOF
 
             # Docker 로그인
