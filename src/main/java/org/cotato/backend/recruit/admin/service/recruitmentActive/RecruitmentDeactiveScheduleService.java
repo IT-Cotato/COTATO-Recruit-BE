@@ -1,4 +1,4 @@
-package org.cotato.backend.recruit.admin.service;
+package org.cotato.backend.recruit.admin.service.recruitmentActive;
 
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
