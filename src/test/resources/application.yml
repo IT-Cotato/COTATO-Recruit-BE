@@ -67,6 +67,24 @@ jwt:
   access-token-expiration: 3600000
   refresh-token-expiration: 604800000
 
+# AWS S3 Configuration (Test values)
+cloud:
+  aws:
+    credentials:
+      access-key: test-access-key
+      secret-key: test-secret-key
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: test-bucket
+
+# File Upload Configuration
+file:
+  upload:
+    max-size: 52428800
+  pre-signed-url:
+    expiration: 3600
+
 # Logging
 logging:
   level:
