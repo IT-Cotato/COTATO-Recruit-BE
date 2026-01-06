@@ -8,7 +8,7 @@ import org.cotato.backend.recruit.admin.dto.response.recruitmentInformation.Recr
 import org.cotato.backend.recruit.admin.service.recruitmentInformation.RecruitmentInformationAdminService;
 import org.cotato.backend.recruit.common.response.ApiResponse;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,7 +44,7 @@ public class RecruitmentInformationController {
 	 * @return 성공 응답
 	 */
 	@Operation(summary = "모집 일정 수정", description = "해당 기수의 모집 일정을 수정합니다. (입력된 값만 수정)")
-	@PutMapping
+	@PostMapping
 	public ApiResponse<Void> updateRecruitmentInformation(
 			@RequestBody RecruitmentInformationUpdateRequest request) {
 		recruitmentInformationAdminService.updateRecruitmentInformation(request);
