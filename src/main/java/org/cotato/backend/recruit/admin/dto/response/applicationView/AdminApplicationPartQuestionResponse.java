@@ -17,7 +17,8 @@ public record AdminApplicationPartQuestionResponse(
 		String fileUrl,
 		int byteSize) {
 
-	public static AdminApplicationPartQuestionResponse from(Question question, ApplicationAnswer answer) {
+	public static AdminApplicationPartQuestionResponse from(
+			Question question, ApplicationAnswer answer) {
 		String content = (answer != null ? answer.getContent() : null);
 
 		return AdminApplicationPartQuestionResponse.builder()

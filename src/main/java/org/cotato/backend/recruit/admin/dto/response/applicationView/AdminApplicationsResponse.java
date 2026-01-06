@@ -11,11 +11,11 @@ public record AdminApplicationsResponse(
 		Applicants applicants) {
 
 	public static AdminApplicationsResponse of(
-			RecruitmentInformationResponse recruitmentInformationResponse,
+			RecruitmentPeriodResponse recruitmentPeriodResponse,
 			ApplicationSummaryResponse summary,
 			Applicants applicants) {
 		return AdminApplicationsResponse.builder()
-				.recruitmentInformationResponse(recruitmentInformationResponse)
+				.recruitmentPeriodResponse(recruitmentPeriodResponse)
 				.summary(summary)
 				.applicants(applicants)
 				.build();

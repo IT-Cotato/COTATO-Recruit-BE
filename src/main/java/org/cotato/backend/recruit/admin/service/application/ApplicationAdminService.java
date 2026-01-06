@@ -45,13 +45,4 @@ public class ApplicationAdminService {
 			Generation generation, PassStatus passStatus) {
 		return applicationRepository.findByGenerationAndPassStatus(generation, passStatus);
 	}
-
-	public Application getApplication(Long applicationId) {
-		return applicationRepository
-				.findById(applicationId)
-				.orElseThrow(
-						() ->
-								new ApplicationAdminException(
-										ApplicationAdminErrorCode.APPLICATION_NOT_FOUND));
-	}
 }

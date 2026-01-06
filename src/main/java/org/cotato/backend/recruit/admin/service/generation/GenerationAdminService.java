@@ -24,11 +24,6 @@ public class GenerationAdminService {
 				.orElseThrow(() -> new AdminException(AdminErrorCode.GENERATION_NOT_FOUND));
 	}
 
-	@Transactional
-	public Generation saveGeneration(Long generation) {
-		return generationRepository.save(Generation.builder().id(generation).build());
-	}
-
 	// -------------------------------------------------------------------------
 	// 현재 활동 기수 관련 로직
 	// -------------------------------------------------------------------------
@@ -65,6 +60,7 @@ public class GenerationAdminService {
 		return generationRepository.findById(generation);
 	}
 
+	@Transactional
 	public Generation saveGeneration(Long generation) {
 		return generationRepository.save(
 				Generation.builder().id(generation).isRecruitingActive(true).build());
