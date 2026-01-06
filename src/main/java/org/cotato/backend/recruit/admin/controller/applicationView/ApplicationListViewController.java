@@ -23,19 +23,4 @@ public class ApplicationListViewController {
 
 	private final ApplicationViewListService applicationViewListService;
 
-	/*
-	 * @param request(ApplicationListRequest
-	 * name, generation, searchKeyword, partViewType, passViewStatus)
-	 *
-	 * @return ApiResponse<AdminApplicationsResponse>
-	 */
-	@GetMapping
-	public ApiResponse<AdminApplicationsResponse> getApplications(
-			@ParameterObject @ModelAttribute @Valid ApplicationListRequest request,
-			@ParameterObject @PageableDefault(size = 10) Pageable pageable) {
-
-		AdminApplicationsResponse response =
-				applicationViewListService.getApplications(request, pageable);
-		return ApiResponse.success(response);
-	}
 }
