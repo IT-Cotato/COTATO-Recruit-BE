@@ -43,6 +43,19 @@ public class GenerationService {
 				.orElse(null);
 	}
 
+	/**
+	 * 최신 기수 조회 (활성화 여부와 관계없이 id 기준으로 가장 최근 기수)
+	 *
+	 * @return 최신 기수
+	 */
+	@Cacheable(value = "latestGeneration", key = "'current'")
+	public Generation getLatestGeneration() {
+		return generationRepository
+				.findFirstByOrderByIdDesc()
+				.orElseThrow(
+						() -> new ApplicationException(ApplicationErrorCode.GENERATION_NOT_FOUND));
+	}
+
 	// Generation find
 	/**
 	 * @param generationId

@@ -15,4 +15,11 @@ public interface GenerationRepository extends JpaRepository<Generation, Long> {
 	 * @return 모집 중인 기수 (Optional)
 	 */
 	Optional<Generation> findByIsRecruitingActive(boolean isRecruitingActive);
+
+	/**
+	 * 최신 기수 조회 (id 내림차순 정렬)
+	 *
+	 * @return 최신 기수 (Optional)
+	 */
+	Optional<Generation> findFirstByOrderByIdDesc();
 }
