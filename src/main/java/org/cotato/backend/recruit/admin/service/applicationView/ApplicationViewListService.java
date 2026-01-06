@@ -18,6 +18,8 @@ import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.question.enums.PartType;
 import org.cotato.backend.recruit.domain.recruitmentInformation.entity.RecruitmentInformation;
 import org.cotato.backend.recruit.domain.recruitmentInformation.enums.InformationType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -84,10 +86,9 @@ public class ApplicationViewListService {
 		}
 
 		Pageable newPageable =
-				org.springframework.data.domain.PageRequest.of(
-						pageable.getPageNumber(), pageable.getPageSize(), newSort);
+				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), newSort);
 
-		org.springframework.data.domain.Page<Application> applicationsPage =
+		Page<Application> applicationsPage =
 				applicationRepository.findWithFilters(
 						request.generation(),
 						request.partViewType(),
