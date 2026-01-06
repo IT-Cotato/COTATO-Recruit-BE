@@ -24,7 +24,7 @@ public class PasserController {
 	 */
 	@GetMapping("/api/admin/pass-status")
 	public ResponseEntity<ApiResponse<List<PassStatusSummaryResponse>>> getPassStatus(
-			@RequestParam(name = "generation") Long generationId) {
+			@RequestParam(name = "generation", required = true) Long generationId) {
 		List<PassStatusSummaryResponse> response = passerService.getPasserSummary(generationId);
 		return ResponseEntity.ok(ApiResponse.success(response));
 	}

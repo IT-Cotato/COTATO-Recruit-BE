@@ -2,6 +2,7 @@ package org.cotato.backend.recruit.admin.controller.applicationEdit;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.dto.request.recruitmentInformation.RecruitmentInformationUpdateRequest;
 import org.cotato.backend.recruit.admin.dto.response.recruitmentInformation.RecruitmentInformationResponse;
@@ -31,7 +32,7 @@ public class RecruitmentInformationController {
 	@Operation(summary = "모집 일정 조회", description = "해당 기수의 모집 일정을 조회합니다.")
 	@GetMapping
 	public ApiResponse<RecruitmentInformationResponse> getRecruitmentInformation(
-			@RequestParam Long generation) {
+			@RequestParam(required = true) Long generation) {
 		RecruitmentInformationResponse response =
 				recruitmentInformationAdminService.getRecruitmentInformation(generation);
 		return ApiResponse.success(response);
@@ -43,11 +44,11 @@ public class RecruitmentInformationController {
 	 * @param request 모집 일정 수정 요청 정보
 	 * @return 성공 응답
 	 */
-	@Operation(summary = "모집 일정 수정", description = "해당 기수의 모집 일정을 수정합니다. (입력된 값만 수정)")
+	@Operation(summary = "모집 일정 수정", description = "해당 기수의 모집 일정을 수정합니다.")
 	@PostMapping
 	public ApiResponse<Void> updateRecruitmentInformation(
-			@RequestBody RecruitmentInformationUpdateRequest request) {
+			@Valid @RequestBody RecruitmentInformationUpdateRequest request) {
 		recruitmentInformationAdminService.updateRecruitmentInformation(request);
-		return new ApiResponse<>("SUCCESS", "모집이 성공적으로 활성화되었습니다.", null);
+		return ApiResponse.success();
 	}
 }

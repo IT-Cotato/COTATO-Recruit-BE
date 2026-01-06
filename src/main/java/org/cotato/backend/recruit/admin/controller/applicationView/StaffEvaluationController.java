@@ -2,7 +2,6 @@ package org.cotato.backend.recruit.admin.controller.applicationView;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.dto.request.staffEvaluation.CreateStaffEvaluationRequest;
 import org.cotato.backend.recruit.admin.dto.response.staffEvaluation.StaffEvaluationResponse;
@@ -34,7 +33,8 @@ public class StaffEvaluationController {
 	 */
 	@GetMapping
 	public ApiResponse<StaffEvaluationResponse> getEvaluation(
-			@PathVariable Long applicationId, @RequestParam @NotNull EvaluatorType evaluatorType) {
+			@PathVariable Long applicationId,
+			@RequestParam(required = true) EvaluatorType evaluatorType) {
 		StaffEvaluationResponse response =
 				staffEvaluationService.getEvaluation(applicationId, evaluatorType);
 		return ApiResponse.success(response);

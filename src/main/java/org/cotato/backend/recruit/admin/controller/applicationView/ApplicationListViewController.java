@@ -1,6 +1,7 @@
 package org.cotato.backend.recruit.admin.controller.applicationView;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.dto.request.applicationView.ApplicationListRequest;
 import org.cotato.backend.recruit.admin.dto.response.applicationView.AdminApplicationsResponse;
@@ -34,7 +35,7 @@ public class ApplicationListViewController {
 	 */
 	@GetMapping
 	public ApiResponse<AdminApplicationsResponse> getApplications(
-			@ParameterObject @ModelAttribute ApplicationListRequest request,
+			@Valid @ParameterObject @ModelAttribute ApplicationListRequest request,
 			@ParameterObject @PageableDefault(size = 10) Pageable pageable) {
 
 		AdminApplicationsResponse response =
