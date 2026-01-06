@@ -3,6 +3,8 @@ package org.cotato.backend.recruit.admin.service.application;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cotato.backend.recruit.admin.error.ApplicationAdminErrorCode;
+import org.cotato.backend.recruit.admin.exception.ApplicationAdminException;
 import org.cotato.backend.recruit.domain.application.entity.Application;
 import org.cotato.backend.recruit.domain.application.enums.PassStatus;
 import org.cotato.backend.recruit.domain.application.repository.ApplicationRepository;
@@ -27,5 +29,14 @@ public class ApplicationAdminService {
 	public List<Application> findByGenerationAndPassStatus(
 			Generation generation, PassStatus passStatus) {
 		return applicationRepository.findByGenerationAndPassStatus(generation, passStatus);
+	}
+
+	public Application getApplication(Long applicationId) {
+		return applicationRepository
+				.findById(applicationId)
+				.orElseThrow(
+						() ->
+								new ApplicationAdminException(
+										ApplicationAdminErrorCode.APPLICATION_NOT_FOUND));
 	}
 }
