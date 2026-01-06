@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
@@ -95,8 +96,12 @@ public class RecruitmentService {
 		// 3. 응답
 		return new RecruitmentResponse(
 				latestGeneration.getId().intValue(),
-				String.valueOf(scheduleMap.get(InformationType.RECRUITMENT_START)),
-				String.valueOf(scheduleMap.get(InformationType.RECRUITMENT_END)),
+				Optional.ofNullable(scheduleMap.get(InformationType.RECRUITMENT_START))
+						.map(LocalDateTime::toString)
+						.orElse(null),
+				Optional.ofNullable(scheduleMap.get(InformationType.RECRUITMENT_END))
+						.map(LocalDateTime::toString)
+						.orElse(null),
 				grouped.getOrDefault(NoticeType.RECRUITMENT_SCHEDULE, List.of()).stream()
 						.map(RecruitmentResponse.ScheduleResponse::from)
 						.toList(),
