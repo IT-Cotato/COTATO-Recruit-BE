@@ -13,7 +13,6 @@ import org.cotato.backend.recruit.presentation.dto.response.ApplicationStartResp
 import org.cotato.backend.recruit.presentation.dto.response.QuestionWithAnswerResponse;
 import org.cotato.backend.recruit.presentation.service.ApplicationAnswerService;
 import org.cotato.backend.recruit.presentation.service.ApplicationService;
-import org.cotato.backend.recruit.presentation.service.RecruitmentInformationService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +24,6 @@ public class ApplicationController {
 
 	private final ApplicationService applicationService;
 	private final ApplicationAnswerService applicationAnswerService;
-	private final RecruitmentInformationService recruitmentInformationService;
 
 	@Operation(
 			summary = "지원서 시작 (지원하기 버튼)",
