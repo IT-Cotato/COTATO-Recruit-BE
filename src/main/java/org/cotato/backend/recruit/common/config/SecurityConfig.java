@@ -28,8 +28,8 @@ public class SecurityConfig {
 		http
 				// CSRF 비활성화 (JWT 사용으로 불필요)
 				.csrf(AbstractHttpConfigurer::disable)
-				// CORS 설정 (필요시 별도 설정)
-				.cors(AbstractHttpConfigurer::disable)
+				// CORS 설정 (WebConfig에서 설정)
+				.cors(cors -> {})
 				// Form 로그인 비활성화
 				.formLogin(AbstractHttpConfigurer::disable)
 				// HTTP Basic 인증 비활성화
