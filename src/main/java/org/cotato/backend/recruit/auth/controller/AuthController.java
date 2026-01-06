@@ -9,6 +9,7 @@ import org.cotato.backend.recruit.auth.dto.CustomUserDetails;
 import org.cotato.backend.recruit.auth.dto.GoogleLoginRequest;
 import org.cotato.backend.recruit.auth.dto.TokenRefreshRequest;
 import org.cotato.backend.recruit.auth.dto.TokenResponse;
+import org.cotato.backend.recruit.auth.dto.UserInfoResponse;
 import org.cotato.backend.recruit.auth.service.AuthService;
 import org.cotato.backend.recruit.auth.service.GoogleOAuth2Service;
 import org.cotato.backend.recruit.common.response.ApiResponse;
@@ -53,5 +54,15 @@ public class AuthController {
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails) {
 		authService.logout(userDetails);
 		return ApiResponse.success();
+	}
+
+	@Operation(
+			summary = "현재 사용자 정보 조회",
+			description = "현재 로그인한 사용자의 정보를 조회합니다. role 필드를 통해 운영진 여부를 확인할 수 있습니다.")
+	@GetMapping("/me")
+	public ApiResponse<UserInfoResponse> getCurrentUser(
+			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails) {
+		UserInfoResponse response = authService.getCurrentUserInfo(userDetails);
+		return ApiResponse.success(response);
 	}
 }

@@ -52,25 +52,9 @@ public class ApplicationAnswerService {
 						q -> {
 							ApplicationAnswer savedAnswer = answerMap.get(q.getId());
 							AnswerResponse answerResponse =
-									savedAnswer != null
-											? new AnswerResponse(
-													savedAnswer.getId(),
-													savedAnswer.getQuestion().getId(),
-													savedAnswer.getAnswerType().name(),
-													savedAnswer.getIsChecked(),
-													savedAnswer.getContent(),
-													savedAnswer.getFileKey(),
-													savedAnswer.getFileUrl())
-											: null;
+									savedAnswer != null ? AnswerResponse.from(savedAnswer) : null;
 
-							return new QuestionWithAnswerResponse(
-									q.getId(),
-									q.getSequence(),
-									q.getContent(),
-									q.getPartType().name(),
-									q.getAnswerType().name(),
-									q.getMaxByte(),
-									answerResponse);
+							return QuestionWithAnswerResponse.of(q, answerResponse);
 						})
 				.collect(Collectors.toList());
 	}
