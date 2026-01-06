@@ -1,4 +1,11 @@
 package org.cotato.backend.recruit.admin.dto.request.applicationView;
 
+import jakarta.validation.constraints.NotNull;
+import org.cotato.backend.recruit.admin.enums.PartViewType;
+import org.cotato.backend.recruit.admin.enums.PassViewStatus;
+
 public record ApplicationListRequest(
-		Long generation, String searchKeyword, String partViewType, String passViewStatus) {}
+		@NotNull Long generation,
+		String searchKeyword,
+		@NotNull PartViewType partViewType,
+		@NotNull PassViewStatus passViewStatus) {}

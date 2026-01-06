@@ -2,6 +2,7 @@ package org.cotato.backend.recruit.admin.controller.recruitmentActive;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.dto.request.recruitmentActive.ActivationRequest;
 import org.cotato.backend.recruit.admin.service.recruitmentActive.RecruitmentActiveService;
@@ -27,7 +28,7 @@ public class RecruitmentActiveController {
 	 */
 	@Operation(summary = "모집 활성화", description = "해당 기수의 모집을 활성화하고 시작/종료일을 설정합니다.")
 	@PostMapping("/recruitment-activation")
-	public ApiResponse<Void> activateRecruitment(@RequestBody ActivationRequest request) {
+	public ApiResponse<Void> activateRecruitment(@Valid @RequestBody ActivationRequest request) {
 		recruitmentActiveService.activateRecruitment(
 				request.generation(), request.startDate(), request.endDate());
 		return ApiResponse.success();

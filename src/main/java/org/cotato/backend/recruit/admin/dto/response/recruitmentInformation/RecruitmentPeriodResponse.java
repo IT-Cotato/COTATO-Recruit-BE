@@ -5,4 +5,13 @@ import lombok.Builder;
 
 @Builder
 public record RecruitmentPeriodResponse(
-		LocalDateTime recruitmentStart, LocalDateTime recruitmentEnd) {}
+		LocalDateTime recruitmentStart, LocalDateTime recruitmentEnd) {
+
+	public static RecruitmentPeriodResponse of(
+			LocalDateTime recruitmentStart, LocalDateTime recruitmentEnd) {
+		return RecruitmentPeriodResponse.builder()
+				.recruitmentStart(recruitmentStart)
+				.recruitmentEnd(recruitmentEnd)
+				.build();
+	}
+}
