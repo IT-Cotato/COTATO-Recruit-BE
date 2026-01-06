@@ -10,7 +10,7 @@ import org.cotato.backend.recruit.admin.dto.response.applicationQuestion.Applica
 import org.cotato.backend.recruit.admin.service.applicationQuestion.ApplicationQuestionAdminService;
 import org.cotato.backend.recruit.common.response.ApiResponse;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,7 +28,7 @@ public class ApplicationQuestionController {
 	 * 지원서 질문 조회
 	 *
 	 * @param generation 기수
-	 * @param partType 파트
+	 * @param partType   파트
 	 * @return 지원서 질문 목록
 	 */
 	@Operation(summary = "지원서 질문 조회", description = "해당 기수 및 파트의 지원서 질문을 조회합니다.")
@@ -36,8 +36,8 @@ public class ApplicationQuestionController {
 	public ApiResponse<List<ApplicationQuestionResponse>> getQuestions(
 			@RequestParam(required = true) Long generation,
 			@RequestParam(required = true) String partType) {
-		List<ApplicationQuestionResponse> response =
-				applicationQuestionAdminService.getApplicationQuestions(generation, partType);
+		List<ApplicationQuestionResponse> response = applicationQuestionAdminService.getApplicationQuestions(generation,
+				partType);
 		return ApiResponse.success(response);
 	}
 
@@ -48,7 +48,7 @@ public class ApplicationQuestionController {
 	 * @return 성공 응답
 	 */
 	@Operation(summary = "지원서 질문 수정", description = "해당 기수의 지원서 공통 질문을 수정합니다. (기존 질문 삭제 후 재등록)")
-	@PutMapping
+	@PostMapping
 	public ApiResponse<Void> updateQuestions(
 			@Valid @RequestBody ApplicationQuestionUpdateRequest request) {
 		applicationQuestionAdminService.updateApplicationQuestions(request);
