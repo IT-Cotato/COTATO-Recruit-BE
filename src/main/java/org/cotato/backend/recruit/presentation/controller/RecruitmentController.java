@@ -4,9 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.common.response.ApiResponse;
+import org.cotato.backend.recruit.presentation.dto.response.RecruitmentResponse;
 import org.cotato.backend.recruit.presentation.dto.response.RecruitmentScheduleResponse;
 import org.cotato.backend.recruit.presentation.dto.response.RecruitmentStatusResponse;
 import org.cotato.backend.recruit.presentation.service.RecruitmentInformationService;
+import org.cotato.backend.recruit.presentation.service.RecruitmentService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class RecruitmentController {
 
 	private final RecruitmentInformationService recruitmentInformationService;
+	private final RecruitmentService recruitmentService;
 
 	@Operation(summary = "모집 일정 조회", description = "현재 모집 중인 기수의 일정 정보를 조회합니다. (인증 불필요)")
 	@GetMapping("/schedule")
@@ -25,6 +28,14 @@ public class RecruitmentController {
 		RecruitmentScheduleResponse response =
 				recruitmentInformationService.getRecruitmentSchedule();
 		return ApiResponse.success(response);
+	}
+
+	@Operation(
+			summary = "모집 공고 조회",
+			description = "모집 공고 페이지의 기수 일정 정보, 파트별 정보, 모집 일정 등을 조회합니다. (인증 불필요)")
+	@GetMapping
+	public ApiResponse<RecruitmentResponse> getRecruitment() {
+		return ApiResponse.success(recruitmentService.getRecruitmentData());
 	}
 
 	@Operation(
