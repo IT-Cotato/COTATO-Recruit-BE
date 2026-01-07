@@ -15,7 +15,8 @@ public enum AdminErrorCode {
 
 	// Generation
 	NO_ACTIVE_GENERATION(HttpStatus.BAD_REQUEST, "GE004", "현재 모집 중인 기수가 없습니다."),
-	GENERATION_NOT_FOUND(HttpStatus.NOT_FOUND, "GE005", "해당 기수를 찾을 수 없습니다.");
+	GENERATION_NOT_FOUND(HttpStatus.NOT_FOUND, "GE005", "해당 기수를 찾을 수 없습니다."),
+	RECRUITMENT_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "GE006", "모집이 활성화되지 않았습니다.");
 
 	private final HttpStatus status;
 	private final String code;
