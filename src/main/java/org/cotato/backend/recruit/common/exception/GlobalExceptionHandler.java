@@ -10,8 +10,8 @@ import org.cotato.backend.recruit.admin.exception.AdminException;
 import org.cotato.backend.recruit.admin.exception.ApplicationAdminException;
 import org.cotato.backend.recruit.common.error.ErrorCode;
 import org.cotato.backend.recruit.common.response.ApiResponse;
-import org.cotato.backend.recruit.presentation.error.ApplicationErrorCode;
-import org.cotato.backend.recruit.presentation.exception.ApplicationException;
+import org.cotato.backend.recruit.presentation.error.PresentationErrorCode;
+import org.cotato.backend.recruit.presentation.exception.PresentationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -24,12 +24,12 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-	/** ApplicationException 처리 */
-	@ExceptionHandler(ApplicationException.class)
-	protected ApiResponse<Void> handleApplicationException(
-			ApplicationException e, HttpServletResponse response) {
-		log.error("ApplicationException: {}", e.getMessage());
-		ApplicationErrorCode errorCode = e.getErrorCode();
+	/** PresentationException 처리 */
+	@ExceptionHandler(PresentationException.class)
+	protected ApiResponse<Void> handlePresentationException(
+			PresentationException e, HttpServletResponse response) {
+		log.error("PresentationException: {}", e.getMessage());
+		PresentationErrorCode errorCode = e.getErrorCode();
 		response.setStatus(errorCode.getStatus().value());
 		return ApiResponse.error(errorCode.getCode(), e.getMessage());
 	}

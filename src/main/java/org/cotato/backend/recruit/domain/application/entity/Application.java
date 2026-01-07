@@ -20,8 +20,8 @@ import org.cotato.backend.recruit.domain.application.enums.PassStatus;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.question.enums.PartType;
 import org.cotato.backend.recruit.domain.user.entity.User;
-import org.cotato.backend.recruit.presentation.error.ApplicationErrorCode;
-import org.cotato.backend.recruit.presentation.exception.ApplicationException;
+import org.cotato.backend.recruit.presentation.error.PresentationErrorCode;
+import org.cotato.backend.recruit.presentation.exception.PresentationException;
 
 @Entity
 @Getter
@@ -97,7 +97,7 @@ public class Application {
 	// 권한 검증
 	public void validateUser(Long userId) {
 		if (!this.user.getId().equals(userId)) {
-			throw new ApplicationException(ApplicationErrorCode.APPLICATION_FORBIDDEN);
+			throw new PresentationException(PresentationErrorCode.APPLICATION_FORBIDDEN);
 		}
 	}
 
@@ -113,7 +113,7 @@ public class Application {
 			Boolean isPrevActivity) {
 		// 이미 제출된 지원서인지 확인
 		if (this.isSubmitted) {
-			throw new ApplicationException(ApplicationErrorCode.ALREADY_SUBMITTED);
+			throw new PresentationException(PresentationErrorCode.ALREADY_SUBMITTED);
 		}
 
 		this.name = name;
@@ -130,7 +130,7 @@ public class Application {
 	public void updatePartType(PartType partType) {
 		// 이미 제출된 지원서인지 확인
 		if (this.isSubmitted) {
-			throw new ApplicationException(ApplicationErrorCode.ALREADY_SUBMITTED);
+			throw new PresentationException(PresentationErrorCode.ALREADY_SUBMITTED);
 		}
 
 		this.partType = partType;
@@ -140,7 +140,7 @@ public class Application {
 	public void submit() {
 		// 이미 제출된 지원서인지 확인
 		if (this.isSubmitted) {
-			throw new ApplicationException(ApplicationErrorCode.ALREADY_SUBMITTED);
+			throw new PresentationException(PresentationErrorCode.ALREADY_SUBMITTED);
 		}
 
 		this.isSubmitted = true;
