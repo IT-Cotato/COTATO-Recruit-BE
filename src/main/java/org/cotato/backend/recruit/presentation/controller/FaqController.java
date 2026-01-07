@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "FAQ API", description = "FAQ 조회 API")
+@Tag(name = "모집 정보 API", description = "모집 일정, FAQ 등 공개 정보 조회 및 알림 구독 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/faq")
