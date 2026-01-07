@@ -1,6 +1,7 @@
 package org.cotato.backend.recruit.presentation.service;
 
 import java.time.Duration;
+import java.util.Locale;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -122,8 +123,13 @@ public class S3FileService implements FileService {
 			throw new GlobalException(ErrorCode.INVALID_FILE_TYPE, "파일명이 비어있습니다.");
 		}
 
+		// Path Traversal 공격 방지
+		if (fileName.contains("..")) {
+			throw new GlobalException(ErrorCode.INVALID_FILE_TYPE, "유효하지 않은 파일명입니다.");
+		}
+
 		// PDF 확장자 검증
-		if (!fileName.toLowerCase().endsWith(".pdf")) {
+		if (!fileName.toLowerCase(Locale.ROOT).endsWith(".pdf")) {
 			throw new GlobalException(ErrorCode.INVALID_FILE_TYPE, "PDF 파일만 업로드 가능합니다.");
 		}
 	}
