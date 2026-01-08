@@ -5,6 +5,7 @@ import org.cotato.backend.recruit.domain.subscriber.entity.RecruitmentSubscriber
 import org.cotato.backend.recruit.domain.subscriber.repository.RecruitmentSubscriberRepository;
 import org.cotato.backend.recruit.presentation.error.PresentationErrorCode;
 import org.cotato.backend.recruit.presentation.exception.PresentationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,9 +23,13 @@ public class RecruitmentSubscriberService {
 			throw new PresentationException(PresentationErrorCode.ALREADY_SUBSCRIBED);
 		}
 
-		// 구독자 생성 및 저장
-		RecruitmentSubscriber subscriber = RecruitmentSubscriber.builder().email(email).build();
-
-		recruitmentSubscriberRepository.save(subscriber);
+		try {
+			// 구독자 생성 및 저장
+			RecruitmentSubscriber subscriber = RecruitmentSubscriber.builder().email(email).build();
+			recruitmentSubscriberRepository.save(subscriber);
+		} catch (DataIntegrityViolationException e) {
+			// 동시성 문제로 인한 중복 이메일 삽입 시도 처리
+			throw new PresentationException(PresentationErrorCode.ALREADY_SUBSCRIBED);
+		}
 	}
 }
