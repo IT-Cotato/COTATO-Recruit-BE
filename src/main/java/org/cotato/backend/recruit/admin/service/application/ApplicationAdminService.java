@@ -32,7 +32,8 @@ public class ApplicationAdminService {
 
 	// 합격 상태별 통계 조회
 	public List<Object[]> getPassStatusCounts(Long generationId) {
-		return applicationRepository.countByGenerationIdGroupByPassStatusAndPartType(generationId);
+		return applicationRepository.countByGenerationIdGroupByPassStatusAndApplicationPartType(
+				generationId);
 	}
 
 	// 특정 기수/상태 지원자 수
