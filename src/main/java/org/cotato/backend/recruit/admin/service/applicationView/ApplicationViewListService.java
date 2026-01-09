@@ -4,7 +4,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.dto.request.applicationView.ApplicationListRequest;
 import org.cotato.backend.recruit.admin.dto.response.applicationView.AdminApplicationsResponse;
-import org.cotato.backend.recruit.admin.dto.response.applicationView.AdminApplicationsResponse.Applicants;
 import org.cotato.backend.recruit.admin.dto.response.applicationView.ApplicationElementResponse;
 import org.cotato.backend.recruit.admin.dto.response.applicationView.ApplicationSummaryResponse;
 import org.cotato.backend.recruit.admin.dto.response.applicationView.PageInfoResponse;
@@ -81,11 +80,7 @@ public class ApplicationViewListService {
 		// 페이징 정보
 		PageInfoResponse pageInfo = applicationViewPageInfoManager.getPageInfo(applicationsPage);
 
-		return AdminApplicationsResponse.builder()
-				.recruitmentPeriodResponse(recruitmentPeriodResponse)
-				.summary(summary)
-				.applicants(Applicants.builder().content(content).pageInfo(pageInfo).build())
-				.build();
+		return AdminApplicationsResponse.of(recruitmentPeriodResponse, summary, content, pageInfo);
 	}
 
 	private RecruitmentPeriodResponse getRecruitmentPeriodResponse(Generation generation) {
@@ -96,15 +91,13 @@ public class ApplicationViewListService {
 				recruitmentInformationAdminService.getRecruitmentInformation(
 						generation, InformationType.RECRUITMENT_END);
 
-		return RecruitmentPeriodResponse.builder()
-				.recruitmentStart(recruitmentStart.getEventDatetime())
-				.recruitmentEnd(recruitmentEnd.getEventDatetime())
-				.build();
+		return RecruitmentPeriodResponse.of(
+				recruitmentStart.getEventDatetime(), recruitmentEnd.getEventDatetime());
 	}
 
 	private ApplicationSummaryResponse getSummaryResponse(ApplicationListRequest request) {
 		List<Object[]> counts =
-				applicationRepository.countByFilterGroupByPartType(
+				applicationRepository.countByFilterGroupByApplicationPartType(
 						request.generation(),
 						request.partViewType().name(),
 						request.passViewStatus().name(),

@@ -9,6 +9,7 @@ import org.cotato.backend.recruit.admin.dto.request.applicationQuestion.Applicat
 import org.cotato.backend.recruit.admin.dto.response.applicationQuestion.ApplicationQuestionResponse;
 import org.cotato.backend.recruit.admin.service.applicationQuestion.ApplicationQuestionAdminService;
 import org.cotato.backend.recruit.common.response.ApiResponse;
+import org.cotato.backend.recruit.domain.question.enums.QuestionType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,16 +29,15 @@ public class ApplicationQuestionController {
 	 * 지원서 질문 조회
 	 *
 	 * @param generation 기수
-	 * @param partType   파트
+	 * @param partType 파트
 	 * @return 지원서 질문 목록
 	 */
 	@Operation(summary = "지원서 질문 조회", description = "해당 기수 및 파트의 지원서 질문을 조회합니다.")
 	@GetMapping
 	public ApiResponse<List<ApplicationQuestionResponse>> getQuestions(
-			@RequestParam(required = true) Long generation,
-			@RequestParam(required = true) String partType) {
-		List<ApplicationQuestionResponse> response = applicationQuestionAdminService.getApplicationQuestions(generation,
-				partType);
+			@RequestParam Long generation, @RequestParam QuestionType questionType) {
+		List<ApplicationQuestionResponse> response =
+				applicationQuestionAdminService.getApplicationQuestions(generation, questionType);
 		return ApiResponse.success(response);
 	}
 
