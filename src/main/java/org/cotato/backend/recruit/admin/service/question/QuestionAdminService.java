@@ -4,7 +4,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.question.entity.Question;
-import org.cotato.backend.recruit.domain.question.enums.PartType;
+import org.cotato.backend.recruit.domain.question.enums.QuestionType;
 import org.cotato.backend.recruit.domain.question.repository.QuestionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,15 +15,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class QuestionAdminService {
 	private final QuestionRepository questionRepository;
 
-	public List<Question> getQuestionsByGenerationAndPartType(
-			Generation generation, PartType partType) {
-		return questionRepository.findByGenerationAndPartType(generation, partType);
+	public List<Question> getQuestionsByGenerationAndQuestionType(
+			Generation generation, QuestionType questionType) {
+		return questionRepository.findByGenerationAndQuestionType(generation, questionType);
 	}
 
-	public List<Question> getQuestionsByGenerationAndPartTypeOrderBySequenceAsc(
-			Generation generation, PartType partType) {
-		return questionRepository.findByGenerationAndPartTypeOrderBySequenceAsc(
-				generation, partType);
+	public List<Question> getQuestionsByGenerationAndQuestionTypeOrderBySequenceAsc(
+			Generation generation, QuestionType questionType) {
+		return questionRepository.findByGenerationAndQuestionTypeOrderBySequenceAsc(
+				generation, questionType);
 	}
 
 	@Transactional

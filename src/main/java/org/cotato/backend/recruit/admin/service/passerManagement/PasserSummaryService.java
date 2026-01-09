@@ -8,8 +8,8 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.dto.response.passer.PassStatusSummaryResponse;
 import org.cotato.backend.recruit.admin.service.application.ApplicationAdminService;
+import org.cotato.backend.recruit.domain.application.enums.ApplicationPartType;
 import org.cotato.backend.recruit.domain.application.enums.PassStatus;
-import org.cotato.backend.recruit.domain.question.enums.PartType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,7 +79,7 @@ public class PasserSummaryService {
 		// [WAITLISTED, FE, 60].....
 		for (Object[] row : results) {
 			PassStatus status = (PassStatus) row[0];
-			PartType part = (PartType) row[1];
+			ApplicationPartType part = (ApplicationPartType) row[1];
 			Long count = (Long) row[2];
 
 			if (status != null && part != null && targetStatuses.contains(status)) {
@@ -96,10 +96,10 @@ public class PasserSummaryService {
 		for (PassStatus status : targetStatuses) {
 			Map<String, Long> countMap = new LinkedHashMap<>();
 			// 파트별 초기화
-			countMap.put(PartType.BE.name(), 0L);
-			countMap.put(PartType.FE.name(), 0L);
-			countMap.put(PartType.PM.name(), 0L);
-			countMap.put(PartType.DE.name(), 0L);
+			countMap.put(ApplicationPartType.BE.name(), 0L);
+			countMap.put(ApplicationPartType.FE.name(), 0L);
+			countMap.put(ApplicationPartType.PM.name(), 0L);
+			countMap.put(ApplicationPartType.DE.name(), 0L);
 
 			// 합격 상태별 초기화
 			// 초기화 예시

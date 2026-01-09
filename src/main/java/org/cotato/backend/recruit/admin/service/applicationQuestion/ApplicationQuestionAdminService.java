@@ -9,7 +9,7 @@ import org.cotato.backend.recruit.admin.service.question.QuestionAdminService;
 import org.cotato.backend.recruit.domain.application.enums.AnswerType;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.question.entity.Question;
-import org.cotato.backend.recruit.domain.question.enums.PartType;
+import org.cotato.backend.recruit.domain.question.enums.QuestionType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,13 +22,12 @@ public class ApplicationQuestionAdminService {
 	private final QuestionAdminService questionAdminService;
 
 	public List<ApplicationQuestionResponse> getApplicationQuestions(
-			Long generationId, String partType) {
+			Long generationId, QuestionType questionType) {
 		Generation generation = generationAdminService.getGenerationById(generationId);
-		PartType type = PartType.fromString(partType);
 
 		List<Question> questions =
-				questionAdminService.getQuestionsByGenerationAndPartTypeOrderBySequenceAsc(
-						generation, type);
+				questionAdminService.getQuestionsByGenerationAndQuestionTypeOrderBySequenceAsc(
+						generation, questionType);
 
 		return questions.stream().map(ApplicationQuestionResponse::from).toList();
 	}
@@ -36,18 +35,21 @@ public class ApplicationQuestionAdminService {
 	@Transactional
 	public void updateApplicationQuestions(ApplicationQuestionUpdateRequest request) {
 		Generation generation = generationAdminService.getGenerationById(request.generation());
-		PartType partType = PartType.fromString(request.partType());
+		QuestionType questionType = request.questionType();
 
 		List<Question> existingQuestions =
-				questionAdminService.getQuestionsByGenerationAndPartType(generation, partType);
+				questionAdminService.getQuestionsByGenerationAndQuestionType(
+						generation, questionType);
 		questionAdminService.deleteAll(existingQuestions);
 
-		List<Question> newQuestions = getNewQuestions(request, generation, partType);
+		List<Question> newQuestions = getNewQuestions(request, generation, questionType);
 		questionAdminService.saveAll(newQuestions);
 	}
 
 	private List<Question> getNewQuestions(
-			ApplicationQuestionUpdateRequest request, Generation generation, PartType partType) {
+			ApplicationQuestionUpdateRequest request,
+			Generation generation,
+			QuestionType questionType) {
 		List<Question> newQuestions =
 				request.questions().stream()
 						.map(
@@ -57,7 +59,7 @@ public class ApplicationQuestionAdminService {
 												.sequence(element.sequence())
 												.content(element.content())
 												.maxByte(element.maxByte())
-												.partType(partType)
+												.questionType(questionType)
 												.answerType(AnswerType.TEXT)
 												.build())
 						.toList();

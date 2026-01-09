@@ -39,7 +39,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 			FROM applications a
 			WHERE
 				a.generation_id = :generationId
-				AND (:partViewType = 'ALL' OR a.part_type = :partViewType)
+				AND (:partViewType = 'ALL' OR a.application_part_type = :partViewType)
 				AND (:passViewStatus = 'ALL' OR a.pass_status = :passViewStatus)
 				AND (
 					:keyword IS NULL OR :keyword = ''
@@ -53,7 +53,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 			FROM applications a
 			WHERE
 				a.generation_id = :generationId
-				AND (:partViewType = 'ALL' OR a.part_type = :partViewType)
+				AND (:partViewType = 'ALL' OR a.application_part_type = :partViewType)
 				AND (:passViewStatus = 'ALL' OR a.pass_status = :passViewStatus)
 				AND (
 					:keyword IS NULL OR :keyword = ''
@@ -74,13 +74,13 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 			value =
 					"""
 			SELECT
-				a.part_type,
+				a.application_part_type,
 				COUNT(*)
 			FROM
 				applications a
 			WHERE
 				a.generation_id = :generationId
-				AND (:partViewType = 'ALL' OR a.part_type = :partViewType)
+				AND (:partViewType = 'ALL' OR a.application_part_type = :partViewType)
 				AND (:passViewStatus = 'ALL' OR a.pass_status = :passViewStatus)
 				AND (
 					:keyword IS NULL OR :keyword = ''
@@ -88,10 +88,10 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 					OR a.university LIKE CONCAT('%', :keyword, '%')
 				)
 			GROUP BY
-				a.part_type
+				a.application_part_type
 			""",
 			nativeQuery = true)
-	List<Object[]> countByFilterGroupByPartType(
+	List<Object[]> countByFilterGroupByApplicationPartType(
 			@Param("generationId") Long generationId,
 			@Param("partViewType") String partViewType,
 			@Param("passViewStatus") String passViewStatus,
@@ -99,8 +99,8 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
 	// 합격 상태 및 파트별 통계 조회
 	@Query(
-			"SELECT a.passStatus, a.partType, COUNT(a) FROM Application a WHERE a.generation.id ="
-					+ " :generationId GROUP BY a.passStatus, a.partType")
-	List<Object[]> countByGenerationIdGroupByPassStatusAndPartType(
+			"SELECT a.passStatus, a.applicationPartType, COUNT(a) FROM Application a WHERE"
+				+ " a.generation.id = :generationId GROUP BY a.passStatus, a.applicationPartType")
+	List<Object[]> countByGenerationIdGroupByPassStatusAndApplicationPartType(
 			@Param("generationId") Long generationId);
 }
