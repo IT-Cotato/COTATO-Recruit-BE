@@ -4,8 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.dto.request.recruitmentInformation.RecruitmentInformationUpdateRequest;
 import org.cotato.backend.recruit.admin.dto.response.recruitmentInformation.RecruitmentInformationResponse;
@@ -29,29 +27,16 @@ public class RecruitmentInformationAdminService {
 
 		List<RecruitmentInformation> informations =
 				recruitmentInformationRepository.findByGeneration(generation);
-		Map<InformationType, RecruitmentInformation> infoMap =
-				informations.stream()
-						.collect(
-								Collectors.toMap(
-										RecruitmentInformation::getInformationType,
-										Function.identity()));
 
-		return RecruitmentInformationResponse.builder()
-				.recruitmentStart(getDateTime(infoMap, InformationType.RECRUITMENT_START))
-				.recruitmentEnd(getDateTime(infoMap, InformationType.RECRUITMENT_END))
-				.documentAnnouncement(getDate(infoMap, InformationType.DOCUMENT_ANNOUNCEMENT))
-				.interviewStart(getDate(infoMap, InformationType.INTERVIEW_START))
-				.interviewEnd(getDate(infoMap, InformationType.INTERVIEW_END))
-				.finalAnnouncement(getDate(infoMap, InformationType.FINAL_ANNOUNCEMENT))
-				.ot(getDate(infoMap, InformationType.OT))
-				.build();
+		return RecruitmentInformationResponse.of(informations);
 	}
 
 	public RecruitmentInformation getRecruitmentInformation(
 			Generation generation, InformationType informationType) {
 		return recruitmentInformationRepository
 				.findByGenerationAndInformationType(generation, informationType)
-				.orElseThrow(() -> new RuntimeException("RecruitmentInformation not found"));
+				.orElseThrow(
+						() -> new IllegalArgumentException("RecruitmentInformation not found"));
 	}
 
 	@Transactional

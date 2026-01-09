@@ -13,11 +13,12 @@ public record AdminApplicationsResponse(
 	public static AdminApplicationsResponse of(
 			RecruitmentPeriodResponse recruitmentPeriodResponse,
 			ApplicationSummaryResponse summary,
-			Applicants applicants) {
+			List<ApplicationElementResponse> content,
+			PageInfoResponse pageInfo) {
 		return AdminApplicationsResponse.builder()
 				.recruitmentPeriodResponse(recruitmentPeriodResponse)
 				.summary(summary)
-				.applicants(applicants)
+				.applicants(Applicants.of(content, pageInfo))
 				.build();
 	}
 
