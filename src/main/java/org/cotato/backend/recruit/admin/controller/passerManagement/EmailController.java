@@ -1,4 +1,4 @@
-package org.cotato.backend.recruit.admin.controller.passManagement;
+package org.cotato.backend.recruit.admin.controller.passerManagement;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
