@@ -6,8 +6,8 @@ import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.question.entity.Question;
 import org.cotato.backend.recruit.domain.question.enums.PartType;
 import org.cotato.backend.recruit.domain.question.repository.QuestionRepository;
-import org.cotato.backend.recruit.presentation.error.ApplicationErrorCode;
-import org.cotato.backend.recruit.presentation.exception.ApplicationException;
+import org.cotato.backend.recruit.presentation.error.PresentationErrorCode;
+import org.cotato.backend.recruit.presentation.exception.PresentationException;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +45,6 @@ public class QuestionService {
 		return questionRepository
 				.findById(questionId)
 				.orElseThrow(
-						() -> new ApplicationException(ApplicationErrorCode.QUESTION_NOT_FOUND));
+						() -> new PresentationException(PresentationErrorCode.QUESTION_NOT_FOUND));
 	}
 }

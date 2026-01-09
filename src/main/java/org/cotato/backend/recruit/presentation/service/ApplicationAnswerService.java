@@ -15,8 +15,8 @@ import org.cotato.backend.recruit.domain.question.enums.PartType;
 import org.cotato.backend.recruit.presentation.dto.request.AnswerRequest;
 import org.cotato.backend.recruit.presentation.dto.response.AnswerResponse;
 import org.cotato.backend.recruit.presentation.dto.response.QuestionWithAnswerResponse;
-import org.cotato.backend.recruit.presentation.error.ApplicationErrorCode;
-import org.cotato.backend.recruit.presentation.exception.ApplicationException;
+import org.cotato.backend.recruit.presentation.error.PresentationErrorCode;
+import org.cotato.backend.recruit.presentation.exception.PresentationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -133,7 +133,7 @@ public class ApplicationAnswerService {
 
 			// 질문의 answerType과 요청의 answerType이 일치하는지 검증
 			if (!question.getAnswerType().equals(answerType)) {
-				throw new ApplicationException(ApplicationErrorCode.ANSWER_TYPE_MISMATCH);
+				throw new PresentationException(PresentationErrorCode.ANSWER_TYPE_MISMATCH);
 			}
 
 			// 기존 답변이 있으면 업데이트, 없으면 새로 생성

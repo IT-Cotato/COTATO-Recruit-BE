@@ -13,7 +13,7 @@ import org.cotato.backend.recruit.presentation.service.BasicInfoService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "기본 인적사항 API", description = "지원자의 기본 인적사항 조회 및 작성 API")
+@Tag(name = "지원서 화면 API", description = "사용자 지원서 작성 화면 API")
 @RestController
 @RequestMapping("/api/applications")
 @RequiredArgsConstructor

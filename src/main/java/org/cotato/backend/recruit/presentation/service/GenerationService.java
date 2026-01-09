@@ -3,8 +3,8 @@ package org.cotato.backend.recruit.presentation.service;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.generation.repository.GenerationRepository;
-import org.cotato.backend.recruit.presentation.error.ApplicationErrorCode;
-import org.cotato.backend.recruit.presentation.exception.ApplicationException;
+import org.cotato.backend.recruit.presentation.error.PresentationErrorCode;
+import org.cotato.backend.recruit.presentation.exception.PresentationException;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +27,9 @@ public class GenerationService {
 		return generationRepository
 				.findByIsRecruitingActive(true)
 				.orElseThrow(
-						() -> new ApplicationException(ApplicationErrorCode.GENERATION_NOT_FOUND));
+						() ->
+								new PresentationException(
+										PresentationErrorCode.GENERATION_NOT_FOUND));
 	}
 
 	/**
@@ -53,7 +55,9 @@ public class GenerationService {
 		return generationRepository
 				.findFirstByOrderByIdDesc()
 				.orElseThrow(
-						() -> new ApplicationException(ApplicationErrorCode.GENERATION_NOT_FOUND));
+						() ->
+								new PresentationException(
+										PresentationErrorCode.GENERATION_NOT_FOUND));
 	}
 
 	// Generation find
@@ -65,7 +69,9 @@ public class GenerationService {
 		return generationRepository
 				.findById(generationId)
 				.orElseThrow(
-						() -> new ApplicationException(ApplicationErrorCode.GENERATION_NOT_FOUND));
+						() ->
+								new PresentationException(
+										PresentationErrorCode.GENERATION_NOT_FOUND));
 	}
 
 	// Generation save

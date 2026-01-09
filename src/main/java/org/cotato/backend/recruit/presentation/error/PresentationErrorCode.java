@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
-public enum ApplicationErrorCode { // 추후에 PresentationErrorCode로 수정 필요
+public enum PresentationErrorCode {
 
 	// Recruitment
 	RECRUITMENT_NOT_ACTIVE(HttpStatus.FORBIDDEN, "RE001", "현재 모집이 활성화되어 있지 않습니다."),
@@ -23,7 +23,10 @@ public enum ApplicationErrorCode { // 추후에 PresentationErrorCode로 수정 
 	QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "QU001", "질문을 찾을 수 없습니다."),
 
 	// Answer
-	ANSWER_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "AN001", "질문의 답변 타입과 제출한 답변 타입이 일치하지 않습니다.");
+	ANSWER_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "AN001", "질문의 답변 타입과 제출한 답변 타입이 일치하지 않습니다."),
+
+	// Subscription
+	ALREADY_SUBSCRIBED(HttpStatus.BAD_REQUEST, "SU001", "이미 구독 신청된 이메일입니다.");
 
 	private final HttpStatus status;
 	private final String code;

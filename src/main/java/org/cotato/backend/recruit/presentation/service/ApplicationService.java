@@ -11,8 +11,8 @@ import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.user.entity.User;
 import org.cotato.backend.recruit.domain.user.repository.UserRepository;
 import org.cotato.backend.recruit.presentation.dto.response.ApplicationStartResponse;
-import org.cotato.backend.recruit.presentation.error.ApplicationErrorCode;
-import org.cotato.backend.recruit.presentation.exception.ApplicationException;
+import org.cotato.backend.recruit.presentation.error.PresentationErrorCode;
+import org.cotato.backend.recruit.presentation.exception.PresentationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,8 +39,8 @@ public class ApplicationService {
 						.findById(applicationId)
 						.orElseThrow(
 								() ->
-										new ApplicationException(
-												ApplicationErrorCode.APPLICATION_NOT_FOUND));
+										new PresentationException(
+												PresentationErrorCode.APPLICATION_NOT_FOUND));
 
 		application.validateUser(userId);
 

@@ -20,11 +20,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "이메일 관리 API", description = "합격/불합격/예비합격 메일 관리 API")
+@Tag(name = "합격 관리 메일 API", description = "합격/불합격/예비합격 메일 관리 API")
 @RestController
 @RequestMapping("/api/admin/recruitment-mails")
 @RequiredArgsConstructor
-public class EmailController {
+public class PassManagementEmailController {
 
 	private final EmailTemplateService emailTemplateService;
 	private final EmailSendService emailSendService;
