@@ -42,12 +42,10 @@ public class ApplicationController {
 	@GetMapping("/{applicationId}/part-questions")
 	public ApiResponse<List<QuestionWithAnswerResponse>> getQuestionsWithAnswers(
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
-			@Parameter(description = "지원서 ID", required = true) @PathVariable Long applicationId,
-			@Parameter(description = "파트 타입 (PM, DE, FE, BE)", required = true) @RequestParam
-					String partType) {
+			@Parameter(description = "지원서 ID", required = true) @PathVariable Long applicationId) {
 		List<QuestionWithAnswerResponse> response =
 				applicationAnswerService.getQuestionsWithAnswers(
-						userDetails.getUserId(), applicationId, partType);
+						userDetails.getUserId(), applicationId);
 		return ApiResponse.success(response);
 	}
 
@@ -73,12 +71,9 @@ public class ApplicationController {
 	public ApiResponse<Void> saveAnswers(
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
 			@Parameter(description = "지원서 ID", required = true) @PathVariable Long applicationId,
-			@Parameter(description = "파트 타입 (PM, DE, FE, BE, ETC)", required = true) @RequestParam
-					String partType,
 			@Parameter(description = "질문 응답 목록", required = true) @Valid @RequestBody
 					List<AnswerRequest> requests) {
-		applicationAnswerService.saveAnswers(
-				userDetails.getUserId(), applicationId, partType, requests);
+		applicationAnswerService.saveAnswers(userDetails.getUserId(), applicationId, requests);
 		return ApiResponse.success();
 	}
 

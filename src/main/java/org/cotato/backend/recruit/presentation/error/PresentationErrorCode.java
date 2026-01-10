@@ -10,11 +10,14 @@ public enum PresentationErrorCode {
 
 	// Recruitment
 	RECRUITMENT_NOT_ACTIVE(HttpStatus.FORBIDDEN, "RE001", "현재 모집이 활성화되어 있지 않습니다."),
+	RECRUITMENT_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "RE002", "모집 정보를 찾을 수 없습니다."),
 
 	// Application
 	APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "AP001", "지원서를 찾을 수 없습니다."),
 	ALREADY_SUBMITTED(HttpStatus.BAD_REQUEST, "AP002", "이미 제출된 지원서입니다."),
 	APPLICATION_FORBIDDEN(HttpStatus.FORBIDDEN, "AP003", "해당 지원서에 접근할 권한이 없습니다."),
+	PART_TYPE_NOT_SELECTED(HttpStatus.BAD_REQUEST, "AP004", "지원 파트가 선택되지 않았습니다."),
+	RECRUITMENT_PERIOD_ENDED(HttpStatus.BAD_REQUEST, "AP005", "지원 기간이 종료되었습니다."),
 
 	// Generation
 	GENERATION_NOT_FOUND(HttpStatus.NOT_FOUND, "GE001", "모집 중인 기수를 찾을 수 없습니다."),

@@ -2,6 +2,7 @@ package org.cotato.backend.recruit.presentation.dto.response;
 
 import java.time.LocalDate;
 import org.cotato.backend.recruit.domain.application.entity.Application;
+import org.cotato.backend.recruit.domain.application.enums.ApplicationPartType;
 
 public record BasicInfoResponse(
 		Long applicationId,
@@ -12,7 +13,8 @@ public record BasicInfoResponse(
 		String university,
 		String major,
 		Integer completedSemesters,
-		Boolean isPrevActivity) {
+		Boolean isPrevActivity,
+		ApplicationPartType applicationPartType) {
 
 	public static BasicInfoResponse from(Application application) {
 		return new BasicInfoResponse(
@@ -24,6 +26,7 @@ public record BasicInfoResponse(
 				application.getUniversity(),
 				application.getMajor(),
 				application.getCompletedSemesters(),
-				application.getIsPrevActivity());
+				application.getIsPrevActivity(),
+				application.getApplicationPartType());
 	}
 }

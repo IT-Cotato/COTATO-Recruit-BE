@@ -1,4 +1,4 @@
-package org.cotato.backend.recruit.admin.dto.request.recruitmentNotification;
+package org.cotato.backend.recruit.admin.dto.request.email;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

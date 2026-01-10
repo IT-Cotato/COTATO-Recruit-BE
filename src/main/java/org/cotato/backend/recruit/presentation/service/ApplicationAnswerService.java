@@ -7,10 +7,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.domain.application.entity.Application;
 import org.cotato.backend.recruit.domain.application.entity.ApplicationAnswer;
-import org.cotato.backend.recruit.domain.application.enums.AnswerType;
-import org.cotato.backend.recruit.domain.application.enums.ApplicationPartType;
 import org.cotato.backend.recruit.domain.application.repository.ApplicationAnswerRepository;
-import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.question.entity.Question;
 import org.cotato.backend.recruit.domain.question.enums.QuestionType;
 import org.cotato.backend.recruit.presentation.dto.request.AnswerRequest;
@@ -28,7 +25,6 @@ public class ApplicationAnswerService {
 
 	private final ApplicationAnswerRepository applicationAnswerRepository;
 	private final QuestionService questionService;
-	private final GenerationService generationService;
 	private final ApplicationService applicationService;
 
 	/**
@@ -65,19 +61,24 @@ public class ApplicationAnswerService {
 	 *
 	 * @param userId 사용자 ID
 	 * @param applicationId 지원서 ID
-	 * @param partType 파트 타입 (PM, DE, FE, BE)
 	 * @return 질문 및 저장된 답변 목록
 	 */
 	public List<QuestionWithAnswerResponse> getQuestionsWithAnswers(
-			Long userId, Long applicationId, String questionType) {
+			Long userId, Long applicationId) {
 		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
-		Generation activeGeneration = generationService.getActiveGeneration();
-		QuestionType selectedPart = QuestionType.valueOf(questionType.toUpperCase());
+
+		// Application에서 선택한 파트 가져오기
+		if (application.getApplicationPartType() == null) {
+			throw new PresentationException(PresentationErrorCode.PART_TYPE_NOT_SELECTED);
+		}
+
+		// ApplicationPartType을 QuestionType으로 변환
+		QuestionType questionType = application.getApplicationPartType().toQuestionType();
 
 		// 선택한 파트 질문 조회
 		List<Question> partQuestions =
 				questionService.getQuestionsByGenerationAndQuestionType(
-						activeGeneration, selectedPart);
+						application.getGeneration(), questionType);
 
 		// 저장된 답변 조회 및 매핑
 		List<ApplicationAnswer> savedAnswers =
@@ -96,12 +97,11 @@ public class ApplicationAnswerService {
 	public List<QuestionWithAnswerResponse> getEtcQuestionsWithAnswers(
 			Long userId, Long applicationId) {
 		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
-		Generation activeGeneration = generationService.getActiveGeneration();
 
 		// 기타 질문 조회
 		List<Question> etcQuestions =
 				questionService.getQuestionsByGenerationAndQuestionType(
-						activeGeneration, QuestionType.ETC);
+						application.getGeneration(), QuestionType.ETC);
 
 		// 저장된 답변 조회 및 매핑
 		List<ApplicationAnswer> savedAnswers =
@@ -115,28 +115,18 @@ public class ApplicationAnswerService {
 	 *
 	 * @param userId 사용자 ID
 	 * @param applicationId 지원서 ID
-	 * @param partType 파트 타입 (PM, DE, FE, BE, ETC)
 	 * @param requests 질문 응답 요청 목록
 	 */
 	@Transactional
-	public void saveAnswers(
-			Long userId, Long applicationId, String questionType, List<AnswerRequest> requests) {
+	public void saveAnswers(Long userId, Long applicationId, List<AnswerRequest> requests) {
 		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
-
-		// 지원서에 선택한 파트 저장 (ETC가 아닌 경우에만)
-		if (!questionType.equalsIgnoreCase("ETC")) {
-			ApplicationPartType selectedPart =
-					ApplicationPartType.valueOf(questionType.toUpperCase());
-			application.updateApplicationPartType(selectedPart);
-		}
 
 		// 각 질문에 대한 답변 저장
 		for (AnswerRequest request : requests) {
 			Question question = questionService.getQuestionById(request.questionId());
-			AnswerType answerType = AnswerType.valueOf(request.answerType().toUpperCase());
 
 			// 질문의 answerType과 요청의 answerType이 일치하는지 검증
-			if (!question.getAnswerType().equals(answerType)) {
+			if (!question.getAnswerType().equals(request.answerType())) {
 				throw new PresentationException(PresentationErrorCode.ANSWER_TYPE_MISMATCH);
 			}
 
@@ -149,7 +139,7 @@ public class ApplicationAnswerService {
 				existingAnswer
 						.get()
 						.update(
-								answerType,
+								request.answerType(),
 								request.isChecked(),
 								request.content(),
 								request.fileKey(),
@@ -160,7 +150,7 @@ public class ApplicationAnswerService {
 						ApplicationAnswer.of(
 								application,
 								question,
-								answerType,
+								request.answerType(),
 								request.isChecked(),
 								request.content(),
 								request.fileKey(),

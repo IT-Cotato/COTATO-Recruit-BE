@@ -1,6 +1,7 @@
 package org.cotato.backend.recruit.presentation.dto.request;
 
 import java.time.LocalDate;
+import org.cotato.backend.recruit.domain.application.enums.ApplicationPartType;
 
 public record BasicInfoRequest(
 		String name,
@@ -10,4 +11,5 @@ public record BasicInfoRequest(
 		String university,
 		String major,
 		Integer completedSemesters,
-		Boolean isPrevActivity) {}
+		Boolean isPrevActivity,
+		ApplicationPartType applicationPartType) {}
