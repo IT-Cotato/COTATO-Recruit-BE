@@ -3,8 +3,8 @@ package org.cotato.backend.recruit.admin.service.application;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cotato.backend.recruit.admin.error.ApplicationAdminErrorCode;
-import org.cotato.backend.recruit.admin.exception.ApplicationAdminException;
+import org.cotato.backend.recruit.admin.error.AdminErrorCode;
+import org.cotato.backend.recruit.admin.exception.AdminException;
 import org.cotato.backend.recruit.domain.application.entity.Application;
 import org.cotato.backend.recruit.domain.application.enums.PassStatus;
 import org.cotato.backend.recruit.domain.application.repository.ApplicationRepository;
@@ -24,10 +24,7 @@ public class ApplicationAdminService {
 	public Application getApplication(Long applicationId) {
 		return applicationRepository
 				.findById(applicationId)
-				.orElseThrow(
-						() ->
-								new ApplicationAdminException(
-										ApplicationAdminErrorCode.APPLICATION_NOT_FOUND));
+				.orElseThrow(() -> new AdminException(AdminErrorCode.APPLICATION_NOT_FOUND));
 	}
 
 	// 합격 상태별 통계 조회
