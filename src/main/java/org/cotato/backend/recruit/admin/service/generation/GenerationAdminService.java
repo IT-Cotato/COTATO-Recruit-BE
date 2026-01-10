@@ -3,7 +3,6 @@ package org.cotato.backend.recruit.admin.service.generation;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-
 import org.cotato.backend.recruit.admin.dto.response.applicationView.GenerationElementResponse;
 import org.cotato.backend.recruit.admin.error.AdminErrorCode;
 import org.cotato.backend.recruit.admin.error.ApplicationAdminErrorCode;
@@ -55,8 +54,9 @@ public class GenerationAdminService {
 		return generationRepository
 				.findById(generation)
 				.orElseThrow(
-						() -> new ApplicationAdminException(
-								ApplicationAdminErrorCode.GENERATION_NOT_FOUND));
+						() ->
+								new ApplicationAdminException(
+										ApplicationAdminErrorCode.GENERATION_NOT_FOUND));
 	}
 
 	public Optional<Generation> findGenerationOptional(Long generation) {
