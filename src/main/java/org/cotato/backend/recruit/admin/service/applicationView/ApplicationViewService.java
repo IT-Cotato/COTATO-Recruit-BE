@@ -8,12 +8,12 @@ import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.dto.response.applicationView.AdminApplicationBasicInfoResponse;
 import org.cotato.backend.recruit.admin.dto.response.applicationView.AdminApplicationPartQuestionResponse;
 import org.cotato.backend.recruit.admin.service.application.ApplicationAdminService;
-import org.cotato.backend.recruit.admin.service.applicationAnswerAdmin.ApplicationAnswerAdminService;
-import org.cotato.backend.recruit.admin.service.questionAdmin.QuestionAdminService;
+import org.cotato.backend.recruit.admin.service.applicationAnswer.ApplicationAnswerAdminService;
+import org.cotato.backend.recruit.admin.service.question.QuestionAdminService;
 import org.cotato.backend.recruit.domain.application.entity.Application;
 import org.cotato.backend.recruit.domain.application.entity.ApplicationAnswer;
 import org.cotato.backend.recruit.domain.question.entity.Question;
-import org.cotato.backend.recruit.domain.question.enums.PartType;
+import org.cotato.backend.recruit.domain.question.enums.QuestionType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,25 +32,24 @@ public class ApplicationViewService {
 	}
 
 	public List<AdminApplicationPartQuestionResponse> getPartQuestionsWithAnswers(
-			Long applicationId, PartType part) {
-		return getQuestionsWithAnswers(applicationId, part);
+			Long applicationId, QuestionType questionType) {
+		return getQuestionsWithAnswers(applicationId, questionType);
 	}
 
 	public List<AdminApplicationPartQuestionResponse> getEtcQuestionsWithAnswers(
 			Long applicationId) {
-		return getQuestionsWithAnswers(applicationId, PartType.ETC);
+		return getQuestionsWithAnswers(applicationId, QuestionType.ETC);
 	}
 
 	private List<AdminApplicationPartQuestionResponse> getQuestionsWithAnswers(
-			Long applicationId, PartType partType) {
+			Long applicationId, QuestionType questionType) {
 		Application application = applicationAdminService.getApplication(applicationId);
 
 		List<Question> questions =
-				questionAdminService.getQuestionsByGenerationAndPartType(
-						application.getGeneration(), partType);
+				questionAdminService.getQuestionsByGenerationAndQuestionType(
+						application.getGeneration(), questionType);
 
 		List<ApplicationAnswer> answers = applicationAnswerAdminService.getAnswers(application);
-
 		Map<Long, ApplicationAnswer> answerMap = createAnswerMap(answers);
 
 		return questions.stream()
@@ -67,8 +66,8 @@ public class ApplicationViewService {
 		return answers.stream()
 				.collect(
 						Collectors.toMap(
-								answer -> answer.getQuestion().getId(), // Key: 질문 ID
-								Function.identity() // Value: 답변 객체 그 자체
+								a -> a.getQuestion().getId(), // Key: 질문 ID
+								Function.identity() // Value: 답변 객체
 								));
 	}
 }

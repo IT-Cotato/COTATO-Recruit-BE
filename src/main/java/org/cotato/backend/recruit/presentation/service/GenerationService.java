@@ -23,7 +23,6 @@ public class GenerationService {
 	 */
 	@Cacheable(value = "activeGeneration", key = "'current'")
 	public Generation getActiveGeneration() {
-
 		return generationRepository
 				.findByIsRecruitingActive(true)
 				.orElseThrow(

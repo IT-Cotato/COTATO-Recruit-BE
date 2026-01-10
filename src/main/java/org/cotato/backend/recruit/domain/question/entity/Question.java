@@ -17,7 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.backend.recruit.domain.application.enums.AnswerType;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
-import org.cotato.backend.recruit.domain.question.enums.PartType;
+import org.cotato.backend.recruit.domain.question.enums.QuestionType;
 
 @Entity
 @Getter
@@ -41,8 +41,8 @@ public class Question {
 	private String content;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "part_type", nullable = false)
-	private PartType partType;
+	@Column(name = "question_type", nullable = false)
+	private QuestionType questionType;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "answer_type", nullable = false)
@@ -56,13 +56,13 @@ public class Question {
 			Generation generation,
 			Integer sequence,
 			String content,
-			PartType partType,
+			QuestionType questionType,
 			AnswerType answerType,
 			Integer maxByte) {
 		this.generation = generation;
 		this.sequence = sequence;
 		this.content = content;
-		this.partType = partType;
+		this.questionType = questionType;
 		this.answerType = answerType;
 		this.maxByte = maxByte;
 	}

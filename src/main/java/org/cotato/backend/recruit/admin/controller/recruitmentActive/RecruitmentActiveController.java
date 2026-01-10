@@ -20,6 +20,12 @@ public class RecruitmentActiveController {
 
 	private final RecruitmentActiveService recruitmentActiveService;
 
+	/**
+	 * 모집 활성화
+	 *
+	 * @param request 모집 활성화 요청 정보
+	 * @return 성공 응답
+	 */
 	@Operation(summary = "모집 활성화", description = "해당 기수의 모집을 활성화하고 시작/종료일을 설정합니다.")
 	@PostMapping("/recruitment-activation")
 	public ApiResponse<Void> activateRecruitment(@Valid @RequestBody ActivationRequest request) {

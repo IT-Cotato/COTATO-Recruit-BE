@@ -18,6 +18,16 @@ public class GenerationAdminService {
 
 	private final GenerationRepository generationRepository;
 
+	public Generation getGenerationById(Long generationId) {
+		return generationRepository
+				.findById(generationId)
+				.orElseThrow(() -> new AdminException(AdminErrorCode.GENERATION_NOT_FOUND));
+	}
+
+	// -------------------------------------------------------------------------
+	// 현재 활동 기수 관련 로직
+	// -------------------------------------------------------------------------
+
 	/** 현재 모집 중인 기수 조회 */
 	public Optional<Generation> findActiveGeneration() {
 		return generationRepository.findByIsRecruitingActive(true);
@@ -28,13 +38,6 @@ public class GenerationAdminService {
 		return generationRepository
 				.findByIsRecruitingActive(true)
 				.orElseThrow(() -> new AdminException(AdminErrorCode.NO_ACTIVE_GENERATION));
-	}
-
-	/** 특정 기수 조회 (없으면 예외 발생) */
-	public Generation getGenerationById(Long generationId) {
-		return generationRepository
-				.findById(generationId)
-				.orElseThrow(() -> new AdminException(AdminErrorCode.GENERATION_NOT_FOUND));
 	}
 
 	/** 기수 조회 (generationId가 null이면 현재 활성화된 기수 반환) */
@@ -57,6 +60,7 @@ public class GenerationAdminService {
 		return generationRepository.findById(generation);
 	}
 
+	@Transactional
 	public Generation saveGeneration(Long generation) {
 		return generationRepository.save(
 				Generation.builder().id(generation).isRecruitingActive(true).build());

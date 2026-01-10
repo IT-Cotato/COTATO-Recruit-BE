@@ -10,7 +10,7 @@ public record ApplicationElementResponse(
 		Long applicationId,
 		String name,
 		String gender,
-		ApplicationPartType part,
+		ApplicationPartType applicationPartType,
 		String university,
 		String phoneNumber,
 		PassStatus passStatus) {
@@ -19,7 +19,7 @@ public record ApplicationElementResponse(
 				.applicationId(app.getId())
 				.name(app.getName())
 				.gender(app.getGender())
-				.part(app.getApplicationPartType())
+				.applicationPartType(app.getApplicationPartType())
 				.university(app.getUniversity())
 				.phoneNumber(app.getPhoneNumber())
 				.passStatus(app.getPassStatus())

@@ -7,10 +7,11 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.domain.application.entity.Application;
 import org.cotato.backend.recruit.domain.application.entity.ApplicationAnswer;
+import org.cotato.backend.recruit.domain.application.enums.AnswerType;
 import org.cotato.backend.recruit.domain.application.enums.ApplicationPartType;
 import org.cotato.backend.recruit.domain.application.repository.ApplicationAnswerRepository;
 import org.cotato.backend.recruit.domain.question.entity.Question;
-import org.cotato.backend.recruit.domain.question.enums.PartType;
+import org.cotato.backend.recruit.domain.question.enums.QuestionType;
 import org.cotato.backend.recruit.presentation.dto.request.AnswerRequest;
 import org.cotato.backend.recruit.presentation.dto.response.AnswerResponse;
 import org.cotato.backend.recruit.presentation.dto.response.QuestionWithAnswerResponse;
@@ -119,6 +120,7 @@ public class ApplicationAnswerService {
 	 * @param requests 질문 응답 요청 목록
 	 */
 	@Transactional
+
 	public void saveAnswers(Long userId, Long applicationId, List<AnswerRequest> requests) {
 		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
 

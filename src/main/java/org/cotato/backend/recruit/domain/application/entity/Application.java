@@ -47,7 +47,7 @@ public class Application {
 	private PassStatus passStatus;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "application_part_type")
+	@Column(name = "part_type")
 	private ApplicationPartType applicationPartType;
 
 	@Column(name = "completed_semesters")
@@ -129,7 +129,7 @@ public class Application {
 	}
 
 	// 지원 파트 업데이트
-	public void updatePartType(ApplicationPartType applicationPartType) {
+	public void updateApplicationPartType(ApplicationPartType applicationPartType) {
 		// 이미 제출된 지원서인지 확인
 		if (this.isSubmitted) {
 			throw new PresentationException(PresentationErrorCode.ALREADY_SUBMITTED);
