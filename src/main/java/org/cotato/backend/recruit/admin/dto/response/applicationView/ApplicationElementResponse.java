@@ -1,5 +1,6 @@
 package org.cotato.backend.recruit.admin.dto.response.applicationView;
 
+import java.time.LocalDateTime;
 import lombok.Builder;
 import org.cotato.backend.recruit.domain.application.entity.Application;
 import org.cotato.backend.recruit.domain.application.enums.ApplicationPartType;
@@ -13,7 +14,8 @@ public record ApplicationElementResponse(
 		ApplicationPartType applicationPartType,
 		String university,
 		String phoneNumber,
-		PassStatus passStatus) {
+		PassStatus passStatus,
+		LocalDateTime submittedAt) {
 	public static ApplicationElementResponse from(Application app) {
 		return ApplicationElementResponse.builder()
 				.applicationId(app.getId())
@@ -23,6 +25,7 @@ public record ApplicationElementResponse(
 				.university(app.getUniversity())
 				.phoneNumber(app.getPhoneNumber())
 				.passStatus(app.getPassStatus())
+				.submittedAt(app.getSubmittedAt())
 				.build();
 	}
 }

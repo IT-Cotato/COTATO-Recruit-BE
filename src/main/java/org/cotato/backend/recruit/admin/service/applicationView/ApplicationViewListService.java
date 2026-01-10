@@ -36,23 +36,16 @@ public class ApplicationViewListService {
 			ApplicationListRequest request, Pageable pageable) {
 
 		// 정렬 로직 처리
-		// 1. 기본값: 지원제출최신순(submitted_at DESC) -> 이름 오름차순 고정
-		// 2. 이름 정렬시: 지원제출최신순 풀림
+		// 정렬 기준: 지원제출최신순(submitted_at) -> 이름 오름차순 고정
 		Sort sort = pageable.getSort();
-		Sort.Order nameOrder = sort.getOrderFor("name");
+		Sort.Order submittedAtOrder = sort.getOrderFor("submittedAt");
 
-		Sort newSort;
-		if (nameOrder == null) {
-			// 이름 정렬이 없으면 (기본값 or submittedAt) -> submitted_at DESC, name ASC 고정
-			// Native Query이므로 DB 컬럼명 사용 (submitted_at)
-			newSort =
-					Sort.by(Sort.Direction.DESC, "submitted_at")
-							.and(Sort.by(Sort.Direction.ASC, "name"));
-		} else {
-			// 이름 정렬이 있으면 해당 정렬 유지.
-			// Pageable의 name property는 DB 컬럼 name과 동일하므로 그대로 사용 가능.
-			newSort = sort;
+		Sort.Direction direction = Sort.Direction.DESC;
+		if (submittedAtOrder != null) {
+			direction = submittedAtOrder.getDirection();
 		}
+
+		Sort newSort = Sort.by(direction, "submitted_at").and(Sort.by(Sort.Direction.ASC, "name"));
 
 		Pageable newPageable =
 				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), newSort);
