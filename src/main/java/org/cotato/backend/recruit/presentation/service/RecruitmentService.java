@@ -59,9 +59,8 @@ public class RecruitmentService {
 	 * @return 모집 활성화 여부 응답
 	 */
 	public RecruitmentStatusResponse checkRecruitmentStatus() {
-		Long generationId = generationService.getActiveGenerationId();
-		boolean isActive = generationId != null;
-		return RecruitmentStatusResponse.of(isActive, generationId);
+		Optional<Generation> generation = generationService.getActiveGenerationOptional();
+		return RecruitmentStatusResponse.of(generation);
 	}
 
 	/**
