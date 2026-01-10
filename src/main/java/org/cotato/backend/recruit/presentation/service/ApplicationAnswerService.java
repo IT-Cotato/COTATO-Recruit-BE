@@ -73,8 +73,7 @@ public class ApplicationAnswerService {
 		}
 
 		// ApplicationPartType을 QuestionType으로 변환
-		QuestionType questionType =
-				QuestionType.fromString(application.getApplicationPartType().name());
+		QuestionType questionType = application.getApplicationPartType().toQuestionType();
 
 		// 선택한 파트 질문 조회
 		List<Question> partQuestions =

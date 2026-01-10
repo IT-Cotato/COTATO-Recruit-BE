@@ -2,6 +2,7 @@ package org.cotato.backend.recruit.domain.application.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.cotato.backend.recruit.domain.question.enums.QuestionType;
 
 @Getter
 @RequiredArgsConstructor
@@ -12,6 +13,16 @@ public enum ApplicationPartType {
 	BE("백엔드");
 
 	private final String description;
+
+	// ApplicationPartType을 QuestionType으로 변환
+	public QuestionType toQuestionType() {
+		return switch (this) {
+			case PM -> QuestionType.PM;
+			case DE -> QuestionType.DE;
+			case FE -> QuestionType.FE;
+			case BE -> QuestionType.BE;
+		};
+	}
 
 	// from String
 	public static ApplicationPartType fromString(String name) {
