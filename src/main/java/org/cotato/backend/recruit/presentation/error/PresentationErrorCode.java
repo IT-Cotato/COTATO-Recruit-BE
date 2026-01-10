@@ -17,7 +17,6 @@ public enum PresentationErrorCode {
 	APPLICATION_FORBIDDEN(HttpStatus.FORBIDDEN, "AP003", "해당 지원서에 접근할 권한이 없습니다."),
 	PART_TYPE_NOT_SELECTED(HttpStatus.BAD_REQUEST, "AP004", "지원 파트가 선택되지 않았습니다."),
 	RECRUITMENT_PERIOD_ENDED(HttpStatus.BAD_REQUEST, "AP005", "지원 기간이 종료되었습니다."),
-	APPLICATION_ALREADY_SUBMITTED(HttpStatus.BAD_REQUEST, "AP006", "이미 제출된 지원서가 있습니다."),
 
 	// Generation
 	GENERATION_NOT_FOUND(HttpStatus.NOT_FOUND, "GE001", "모집 중인 기수를 찾을 수 없습니다."),
