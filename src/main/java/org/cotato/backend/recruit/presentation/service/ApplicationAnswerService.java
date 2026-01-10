@@ -7,8 +7,6 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.domain.application.entity.Application;
 import org.cotato.backend.recruit.domain.application.entity.ApplicationAnswer;
-import org.cotato.backend.recruit.domain.application.enums.AnswerType;
-import org.cotato.backend.recruit.domain.application.enums.ApplicationPartType;
 import org.cotato.backend.recruit.domain.application.repository.ApplicationAnswerRepository;
 import org.cotato.backend.recruit.domain.question.entity.Question;
 import org.cotato.backend.recruit.domain.question.enums.QuestionType;
@@ -74,13 +72,14 @@ public class ApplicationAnswerService {
 			throw new PresentationException(PresentationErrorCode.PART_TYPE_NOT_SELECTED);
 		}
 
-		// ApplicationPartType을 PartType으로 변환
-		PartType partType = PartType.fromString(application.getApplicationPartType().name());
+		// ApplicationPartType을 QuestionType으로 변환
+		QuestionType questionType =
+				QuestionType.fromString(application.getApplicationPartType().name());
 
 		// 선택한 파트 질문 조회
 		List<Question> partQuestions =
-				questionService.getQuestionsByGenerationAndPartType(
-						application.getGeneration(), partType);
+				questionService.getQuestionsByGenerationAndQuestionType(
+						application.getGeneration(), questionType);
 
 		// 저장된 답변 조회 및 매핑
 		List<ApplicationAnswer> savedAnswers =
@@ -102,8 +101,8 @@ public class ApplicationAnswerService {
 
 		// 기타 질문 조회
 		List<Question> etcQuestions =
-				questionService.getQuestionsByGenerationAndPartType(
-						application.getGeneration(), PartType.ETC);
+				questionService.getQuestionsByGenerationAndQuestionType(
+						application.getGeneration(), QuestionType.ETC);
 
 		// 저장된 답변 조회 및 매핑
 		List<ApplicationAnswer> savedAnswers =
@@ -120,7 +119,6 @@ public class ApplicationAnswerService {
 	 * @param requests 질문 응답 요청 목록
 	 */
 	@Transactional
-
 	public void saveAnswers(Long userId, Long applicationId, List<AnswerRequest> requests) {
 		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
 
@@ -159,33 +157,6 @@ public class ApplicationAnswerService {
 								request.fileKey(),
 								request.fileUrl());
 				applicationAnswerRepository.save(newAnswer);
-			}
-		}
-	}
-
-	/**
-	 * 파트 변경 시 이전 파트의 답변 삭제
-	 *
-	 * @param application 지원서
-	 * @param newPartType 새로운 파트 타입
-	 */
-	@Transactional
-	public void deleteOldPartAnswersIfPartChanged(
-			Application application, ApplicationPartType newPartType) {
-		ApplicationPartType currentPartType = application.getApplicationPartType();
-
-		if (currentPartType != null
-				&& newPartType != null
-				&& !currentPartType.equals(newPartType)) {
-			PartType oldPartType = PartType.fromString(currentPartType.name());
-
-			List<Question> oldPartQuestions =
-					questionService.getQuestionsByGenerationAndPartType(
-							application.getGeneration(), oldPartType);
-
-			if (!oldPartQuestions.isEmpty()) {
-				applicationAnswerRepository.deleteByApplicationAndQuestionIn(
-						application, oldPartQuestions);
 			}
 		}
 	}
