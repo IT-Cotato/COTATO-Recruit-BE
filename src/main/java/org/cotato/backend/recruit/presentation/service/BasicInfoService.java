@@ -17,7 +17,6 @@ public class BasicInfoService {
 
 	private final ApplicationRepository applicationRepository;
 	private final ApplicationService applicationService;
-	private final ApplicationAnswerService applicationAnswerService;
 
 	/**
 	 * 기본 인적사항 작성(임시저장)
@@ -29,10 +28,6 @@ public class BasicInfoService {
 	@Transactional
 	public void saveBasicInfo(Long userId, Long applicationId, BasicInfoRequest request) {
 		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
-
-		// 파트 변경 시 이전 파트의 답변 삭제
-		applicationAnswerService.deleteOldPartAnswersIfPartChanged(
-				application, request.applicationPartType());
 
 		application.updateBasicInfo(
 				request.name(),
