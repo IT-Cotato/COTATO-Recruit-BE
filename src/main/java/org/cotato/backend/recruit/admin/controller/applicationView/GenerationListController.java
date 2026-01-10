@@ -16,16 +16,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/admin/generations")
 public class GenerationListController {
 
-    private final GenerationAdminService generationAdminService;
+	private final GenerationAdminService generationAdminService;
 
-    /**
-     * 기수 목록 조회
-     *
-     * @return 기수 목록 (내림차순)
-     */
-    @GetMapping
-    public ApiResponse<List<GenerationElementResponse>> getGenerations() {
-        List<GenerationElementResponse> generations = generationAdminService.getAllGenerations();
-        return ApiResponse.success(generations);
-    }
+	/**
+	 * 기수 목록 조회
+	 *
+	 * @return 기수 목록 (내림차순)
+	 */
+	@GetMapping
+	public ApiResponse<List<GenerationElementResponse>> getGenerations() {
+		List<GenerationElementResponse> generations = generationAdminService.getAllGenerations();
+		return ApiResponse.success(generations);
+	}
 }
