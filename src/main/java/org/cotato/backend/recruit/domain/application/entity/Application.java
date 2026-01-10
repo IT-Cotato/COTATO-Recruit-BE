@@ -16,9 +16,9 @@ import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.cotato.backend.recruit.domain.application.enums.ApplicationPartType;
 import org.cotato.backend.recruit.domain.application.enums.PassStatus;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
-import org.cotato.backend.recruit.domain.question.enums.PartType;
 import org.cotato.backend.recruit.domain.user.entity.User;
 import org.cotato.backend.recruit.presentation.error.PresentationErrorCode;
 import org.cotato.backend.recruit.presentation.exception.PresentationException;
@@ -47,8 +47,8 @@ public class Application {
 	private PassStatus passStatus;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "part_type")
-	private PartType partType;
+	@Column(name = "application_part_type")
+	private ApplicationPartType applicationPartType;
 
 	@Column(name = "completed_semesters")
 	private Integer completedSemesters;
@@ -110,7 +110,8 @@ public class Application {
 			String university,
 			String major,
 			Integer completedSemesters,
-			Boolean isPrevActivity) {
+			Boolean isPrevActivity,
+			ApplicationPartType applicationPartType) {
 		// 이미 제출된 지원서인지 확인
 		if (this.isSubmitted) {
 			throw new PresentationException(PresentationErrorCode.ALREADY_SUBMITTED);
@@ -124,16 +125,17 @@ public class Application {
 		this.major = major;
 		this.completedSemesters = completedSemesters;
 		this.isPrevActivity = isPrevActivity;
+		this.applicationPartType = applicationPartType;
 	}
 
 	// 지원 파트 업데이트
-	public void updatePartType(PartType partType) {
+	public void updatePartType(ApplicationPartType applicationPartType) {
 		// 이미 제출된 지원서인지 확인
 		if (this.isSubmitted) {
 			throw new PresentationException(PresentationErrorCode.ALREADY_SUBMITTED);
 		}
 
-		this.partType = partType;
+		this.applicationPartType = applicationPartType;
 	}
 
 	// 제출 처리

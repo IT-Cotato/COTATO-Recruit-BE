@@ -7,9 +7,8 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.domain.application.entity.Application;
 import org.cotato.backend.recruit.domain.application.entity.ApplicationAnswer;
-import org.cotato.backend.recruit.domain.application.enums.AnswerType;
+import org.cotato.backend.recruit.domain.application.enums.ApplicationPartType;
 import org.cotato.backend.recruit.domain.application.repository.ApplicationAnswerRepository;
-import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.question.entity.Question;
 import org.cotato.backend.recruit.domain.question.enums.PartType;
 import org.cotato.backend.recruit.presentation.dto.request.AnswerRequest;
@@ -27,7 +26,6 @@ public class ApplicationAnswerService {
 
 	private final ApplicationAnswerRepository applicationAnswerRepository;
 	private final QuestionService questionService;
-	private final GenerationService generationService;
 	private final ApplicationService applicationService;
 
 	/**
@@ -64,18 +62,24 @@ public class ApplicationAnswerService {
 	 *
 	 * @param userId 사용자 ID
 	 * @param applicationId 지원서 ID
-	 * @param partType 파트 타입 (PM, DE, FE, BE)
 	 * @return 질문 및 저장된 답변 목록
 	 */
 	public List<QuestionWithAnswerResponse> getQuestionsWithAnswers(
-			Long userId, Long applicationId, String partType) {
+			Long userId, Long applicationId) {
 		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
-		Generation activeGeneration = generationService.getActiveGeneration();
-		PartType selectedPart = PartType.valueOf(partType.toUpperCase());
+
+		// Application에서 선택한 파트 가져오기
+		if (application.getApplicationPartType() == null) {
+			throw new PresentationException(PresentationErrorCode.PART_TYPE_NOT_SELECTED);
+		}
+
+		// ApplicationPartType을 PartType으로 변환
+		PartType partType = PartType.fromString(application.getApplicationPartType().name());
 
 		// 선택한 파트 질문 조회
 		List<Question> partQuestions =
-				questionService.getQuestionsByGenerationAndPartType(activeGeneration, selectedPart);
+				questionService.getQuestionsByGenerationAndPartType(
+						application.getGeneration(), partType);
 
 		// 저장된 답변 조회 및 매핑
 		List<ApplicationAnswer> savedAnswers =
@@ -94,11 +98,11 @@ public class ApplicationAnswerService {
 	public List<QuestionWithAnswerResponse> getEtcQuestionsWithAnswers(
 			Long userId, Long applicationId) {
 		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
-		Generation activeGeneration = generationService.getActiveGeneration();
 
 		// 기타 질문 조회
 		List<Question> etcQuestions =
-				questionService.getQuestionsByGenerationAndPartType(activeGeneration, PartType.ETC);
+				questionService.getQuestionsByGenerationAndPartType(
+						application.getGeneration(), PartType.ETC);
 
 		// 저장된 답변 조회 및 매핑
 		List<ApplicationAnswer> savedAnswers =
@@ -112,27 +116,18 @@ public class ApplicationAnswerService {
 	 *
 	 * @param userId 사용자 ID
 	 * @param applicationId 지원서 ID
-	 * @param partType 파트 타입 (PM, DE, FE, BE, ETC)
 	 * @param requests 질문 응답 요청 목록
 	 */
 	@Transactional
-	public void saveAnswers(
-			Long userId, Long applicationId, String partType, List<AnswerRequest> requests) {
+	public void saveAnswers(Long userId, Long applicationId, List<AnswerRequest> requests) {
 		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
-
-		// 지원서에 선택한 파트 저장 (ETC가 아닌 경우에만)
-		if (!partType.equalsIgnoreCase("ETC")) {
-			PartType selectedPart = PartType.valueOf(partType.toUpperCase());
-			application.updatePartType(selectedPart);
-		}
 
 		// 각 질문에 대한 답변 저장
 		for (AnswerRequest request : requests) {
 			Question question = questionService.getQuestionById(request.questionId());
-			AnswerType answerType = AnswerType.valueOf(request.answerType().toUpperCase());
 
 			// 질문의 answerType과 요청의 answerType이 일치하는지 검증
-			if (!question.getAnswerType().equals(answerType)) {
+			if (!question.getAnswerType().equals(request.answerType())) {
 				throw new PresentationException(PresentationErrorCode.ANSWER_TYPE_MISMATCH);
 			}
 
@@ -145,7 +140,7 @@ public class ApplicationAnswerService {
 				existingAnswer
 						.get()
 						.update(
-								answerType,
+								request.answerType(),
 								request.isChecked(),
 								request.content(),
 								request.fileKey(),
@@ -156,12 +151,39 @@ public class ApplicationAnswerService {
 						ApplicationAnswer.of(
 								application,
 								question,
-								answerType,
+								request.answerType(),
 								request.isChecked(),
 								request.content(),
 								request.fileKey(),
 								request.fileUrl());
 				applicationAnswerRepository.save(newAnswer);
+			}
+		}
+	}
+
+	/**
+	 * 파트 변경 시 이전 파트의 답변 삭제
+	 *
+	 * @param application 지원서
+	 * @param newPartType 새로운 파트 타입
+	 */
+	@Transactional
+	public void deleteOldPartAnswersIfPartChanged(
+			Application application, ApplicationPartType newPartType) {
+		ApplicationPartType currentPartType = application.getApplicationPartType();
+
+		if (currentPartType != null
+				&& newPartType != null
+				&& !currentPartType.equals(newPartType)) {
+			PartType oldPartType = PartType.fromString(currentPartType.name());
+
+			List<Question> oldPartQuestions =
+					questionService.getQuestionsByGenerationAndPartType(
+							application.getGeneration(), oldPartType);
+
+			if (!oldPartQuestions.isEmpty()) {
+				applicationAnswerRepository.deleteByApplicationAndQuestionIn(
+						application, oldPartQuestions);
 			}
 		}
 	}
