@@ -110,7 +110,8 @@ public class Application {
 			String university,
 			String major,
 			Integer completedSemesters,
-			Boolean isPrevActivity) {
+			Boolean isPrevActivity,
+			ApplicationPartType applicationPartType) {
 		// 이미 제출된 지원서인지 확인
 		if (this.isSubmitted) {
 			throw new PresentationException(PresentationErrorCode.ALREADY_SUBMITTED);
@@ -124,6 +125,7 @@ public class Application {
 		this.major = major;
 		this.completedSemesters = completedSemesters;
 		this.isPrevActivity = isPrevActivity;
+		this.applicationPartType = applicationPartType;
 	}
 
 	// 지원 파트 업데이트

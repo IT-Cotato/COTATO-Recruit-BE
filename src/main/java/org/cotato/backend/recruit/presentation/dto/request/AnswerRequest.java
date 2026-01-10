@@ -2,6 +2,7 @@ package org.cotato.backend.recruit.presentation.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import org.cotato.backend.recruit.domain.application.enums.AnswerType;
 
 @Schema(description = "질문 응답 요청")
 public record AnswerRequest(
@@ -17,7 +18,7 @@ public record AnswerRequest(
 						allowableValues = {"CHECKBOX", "TEXT", "FILE"},
 						requiredMode = Schema.RequiredMode.REQUIRED)
 				@NotNull(message = "답변 타입은 필수입니다.")
-				String answerType,
+				AnswerType answerType,
 		@Schema(description = "체크박스 선택 여부 (answerType이 CHECKBOX일 때만 사용)", example = "true")
 				Boolean isChecked,
 		@Schema(

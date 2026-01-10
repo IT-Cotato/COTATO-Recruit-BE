@@ -37,7 +37,8 @@ public class BasicInfoService {
 				request.university(),
 				request.major(),
 				request.completedSemesters(),
-				request.isPrevActivity());
+				request.isPrevActivity(),
+				request.applicationPartType());
 
 		applicationRepository.save(application);
 	}

@@ -3,9 +3,7 @@ package org.cotato.backend.recruit.admin.service.generation;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.error.AdminErrorCode;
-import org.cotato.backend.recruit.admin.error.ApplicationAdminErrorCode;
 import org.cotato.backend.recruit.admin.exception.AdminException;
-import org.cotato.backend.recruit.admin.exception.ApplicationAdminException;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.generation.repository.GenerationRepository;
 import org.springframework.stereotype.Service;
@@ -50,10 +48,7 @@ public class GenerationAdminService {
 	public Generation findGeneration(Long generation) {
 		return generationRepository
 				.findById(generation)
-				.orElseThrow(
-						() ->
-								new ApplicationAdminException(
-										ApplicationAdminErrorCode.GENERATION_NOT_FOUND));
+				.orElseThrow(() -> new AdminException(AdminErrorCode.GENERATION_NOT_FOUND));
 	}
 
 	public Optional<Generation> findGenerationOptional(Long generation) {

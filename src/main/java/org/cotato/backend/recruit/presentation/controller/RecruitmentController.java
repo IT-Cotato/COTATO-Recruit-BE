@@ -26,7 +26,9 @@ public class RecruitmentController {
 	private final RecruitmentService recruitmentService;
 	private final RecruitmentSubscriberService recruitmentSubscriberService;
 
-	@Operation(summary = "모집 일정 조회", description = "현재 모집 중인 기수의 일정 정보를 조회합니다. (인증 불필요)")
+	@Operation(
+			summary = "모집 일정 조회",
+			description = "현재 모집 중인 기수의 일정 정보를 조회합니다. 지원서 화면에 노출됩니다. (인증 불필요)")
 	@GetMapping("/schedule")
 	public ApiResponse<RecruitmentScheduleResponse> getRecruitmentSchedule() {
 		RecruitmentScheduleResponse response = recruitmentService.getRecruitmentSchedule();
