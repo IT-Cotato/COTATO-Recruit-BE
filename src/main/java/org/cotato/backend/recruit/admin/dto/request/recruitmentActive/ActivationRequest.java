@@ -4,4 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 public record ActivationRequest(
-		@NotNull Long generation, @NotNull LocalDate startDate, @NotNull LocalDate endDate) {}
+		@NotNull Long generation,
+		@NotNull boolean isAdditionalRecruitmentActive,
+		@NotNull LocalDate startDate,
+		@NotNull LocalDate endDate) {}

@@ -22,13 +22,23 @@ public class Generation {
 	@Column(name = "is_recruiting_active", nullable = false)
 	private boolean isRecruitingActive;
 
+	@Column(name = "is_additional_recruitment_active", nullable = false)
+	private boolean isAdditionalRecruitmentActive;
+
 	@Builder
-	public Generation(Long id, boolean isRecruitingActive) {
+	public Generation(Long id, boolean isRecruitingActive, boolean isAdditionalRecruitmentActive) {
 		this.id = id;
 		this.isRecruitingActive = isRecruitingActive;
+		this.isAdditionalRecruitmentActive = isAdditionalRecruitmentActive;
 	}
 
-	public void updateRecruitmentStatus(boolean isRecruitingActive) {
-		this.isRecruitingActive = isRecruitingActive;
+	public void endRecruitment() {
+		this.isRecruitingActive = false;
+		this.isAdditionalRecruitmentActive = false;
+	}
+
+	public void startRecruitment(boolean isAdditionalRecruitmentActive) {
+		this.isRecruitingActive = true;
+		this.isAdditionalRecruitmentActive = isAdditionalRecruitmentActive;
 	}
 }

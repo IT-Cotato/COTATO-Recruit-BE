@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.dto.request.recruitmentActive.ActivationRequest;
+import org.cotato.backend.recruit.admin.dto.request.recruitmentActive.DeactivationReqeust;
 import org.cotato.backend.recruit.admin.service.recruitmentActive.RecruitmentActiveService;
 import org.cotato.backend.recruit.common.response.ApiResponse;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,7 +31,18 @@ public class RecruitmentActiveController {
 	@PostMapping("/recruitment-activation")
 	public ApiResponse<Void> activateRecruitment(@Valid @RequestBody ActivationRequest request) {
 		recruitmentActiveService.activateRecruitment(
-				request.generation(), request.startDate(), request.endDate());
+				request.generation(),
+				request.isAdditionalRecruitmentActive(),
+				request.startDate(),
+				request.endDate());
+		return ApiResponse.success();
+	}
+
+	@Operation(summary = "모집 종료", description = "해당 기수의 모집을 종료합니다.")
+	@PostMapping("/recruitment-deactivation")
+	public ApiResponse<Void> deactivateRecruitment(
+			@Valid @RequestBody DeactivationReqeust request) {
+		recruitmentActiveService.deactivateRecruitment(request.generation());
 		return ApiResponse.success();
 	}
 }
