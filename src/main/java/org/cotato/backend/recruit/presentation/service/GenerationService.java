@@ -26,8 +26,9 @@ public class GenerationService {
 		return generationRepository
 				.findByIsRecruitingActive(true)
 				.orElseThrow(
-						() -> new PresentationException(
-								PresentationErrorCode.GENERATION_NOT_FOUND));
+						() ->
+								new PresentationException(
+										PresentationErrorCode.GENERATION_NOT_FOUND));
 	}
 
 	/**
@@ -53,8 +54,9 @@ public class GenerationService {
 		return generationRepository
 				.findFirstByOrderByIdDesc()
 				.orElseThrow(
-						() -> new PresentationException(
-								PresentationErrorCode.GENERATION_NOT_FOUND));
+						() ->
+								new PresentationException(
+										PresentationErrorCode.GENERATION_NOT_FOUND));
 	}
 
 	// Generation find
@@ -66,8 +68,9 @@ public class GenerationService {
 		return generationRepository
 				.findById(generationId)
 				.orElseThrow(
-						() -> new PresentationException(
-								PresentationErrorCode.GENERATION_NOT_FOUND));
+						() ->
+								new PresentationException(
+										PresentationErrorCode.GENERATION_NOT_FOUND));
 	}
 
 	// Generation save
