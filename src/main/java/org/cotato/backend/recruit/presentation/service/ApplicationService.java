@@ -121,7 +121,7 @@ public class ApplicationService {
 						.orElseThrow(
 								() ->
 										new PresentationException(
-												PresentationErrorCode.GENERATION_NOT_FOUND));
+												PresentationErrorCode.RECRUITMENT_INFO_NOT_FOUND));
 
 		LocalDateTime now = LocalDateTime.now();
 		if (now.isAfter(recruitmentEnd.getEventDatetime())) {
