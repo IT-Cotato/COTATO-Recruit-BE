@@ -22,7 +22,7 @@ public record QuestionWithAnswerResponse(
 				question.getId(),
 				question.getSequence(),
 				question.getContent(),
-				question.getPartType().name(),
+				question.getQuestionType().name(),
 				question.getAnswerType().name(),
 				question.getMaxByte(),
 				savedAnswer);

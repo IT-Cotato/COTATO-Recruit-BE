@@ -16,9 +16,9 @@ import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.cotato.backend.recruit.domain.application.enums.ApplicationPartType;
 import org.cotato.backend.recruit.domain.application.enums.PassStatus;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
-import org.cotato.backend.recruit.domain.question.enums.PartType;
 import org.cotato.backend.recruit.domain.user.entity.User;
 import org.cotato.backend.recruit.presentation.error.PresentationErrorCode;
 import org.cotato.backend.recruit.presentation.exception.PresentationException;
@@ -48,7 +48,7 @@ public class Application {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "part_type")
-	private PartType partType;
+	private ApplicationPartType applicationPartType;
 
 	@Column(name = "completed_semesters")
 	private Integer completedSemesters;
@@ -127,13 +127,13 @@ public class Application {
 	}
 
 	// 지원 파트 업데이트
-	public void updatePartType(PartType partType) {
+	public void updateApplicationPartType(ApplicationPartType applicationPartType) {
 		// 이미 제출된 지원서인지 확인
 		if (this.isSubmitted) {
 			throw new PresentationException(PresentationErrorCode.ALREADY_SUBMITTED);
 		}
 
-		this.partType = partType;
+		this.applicationPartType = applicationPartType;
 	}
 
 	// 제출 처리

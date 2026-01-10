@@ -8,10 +8,11 @@ import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.domain.application.entity.Application;
 import org.cotato.backend.recruit.domain.application.entity.ApplicationAnswer;
 import org.cotato.backend.recruit.domain.application.enums.AnswerType;
+import org.cotato.backend.recruit.domain.application.enums.ApplicationPartType;
 import org.cotato.backend.recruit.domain.application.repository.ApplicationAnswerRepository;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.question.entity.Question;
-import org.cotato.backend.recruit.domain.question.enums.PartType;
+import org.cotato.backend.recruit.domain.question.enums.QuestionType;
 import org.cotato.backend.recruit.presentation.dto.request.AnswerRequest;
 import org.cotato.backend.recruit.presentation.dto.response.AnswerResponse;
 import org.cotato.backend.recruit.presentation.dto.response.QuestionWithAnswerResponse;
@@ -68,14 +69,15 @@ public class ApplicationAnswerService {
 	 * @return 질문 및 저장된 답변 목록
 	 */
 	public List<QuestionWithAnswerResponse> getQuestionsWithAnswers(
-			Long userId, Long applicationId, String partType) {
+			Long userId, Long applicationId, String questionType) {
 		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
 		Generation activeGeneration = generationService.getActiveGeneration();
-		PartType selectedPart = PartType.valueOf(partType.toUpperCase());
+		QuestionType selectedPart = QuestionType.valueOf(questionType.toUpperCase());
 
 		// 선택한 파트 질문 조회
 		List<Question> partQuestions =
-				questionService.getQuestionsByGenerationAndPartType(activeGeneration, selectedPart);
+				questionService.getQuestionsByGenerationAndQuestionType(
+						activeGeneration, selectedPart);
 
 		// 저장된 답변 조회 및 매핑
 		List<ApplicationAnswer> savedAnswers =
@@ -98,7 +100,8 @@ public class ApplicationAnswerService {
 
 		// 기타 질문 조회
 		List<Question> etcQuestions =
-				questionService.getQuestionsByGenerationAndPartType(activeGeneration, PartType.ETC);
+				questionService.getQuestionsByGenerationAndQuestionType(
+						activeGeneration, QuestionType.ETC);
 
 		// 저장된 답변 조회 및 매핑
 		List<ApplicationAnswer> savedAnswers =
@@ -117,13 +120,14 @@ public class ApplicationAnswerService {
 	 */
 	@Transactional
 	public void saveAnswers(
-			Long userId, Long applicationId, String partType, List<AnswerRequest> requests) {
+			Long userId, Long applicationId, String questionType, List<AnswerRequest> requests) {
 		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
 
 		// 지원서에 선택한 파트 저장 (ETC가 아닌 경우에만)
-		if (!partType.equalsIgnoreCase("ETC")) {
-			PartType selectedPart = PartType.valueOf(partType.toUpperCase());
-			application.updatePartType(selectedPart);
+		if (!questionType.equalsIgnoreCase("ETC")) {
+			ApplicationPartType selectedPart =
+					ApplicationPartType.valueOf(questionType.toUpperCase());
+			application.updateApplicationPartType(selectedPart);
 		}
 
 		// 각 질문에 대한 답변 저장

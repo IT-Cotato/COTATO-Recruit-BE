@@ -20,17 +20,7 @@ public class ApplicationAdminService {
 
 	private final ApplicationRepository applicationRepository;
 
-	/** 특정 기수와 합격 상태에 해당하는 지원자 수 조회 */
-	public long countByGenerationAndPassStatus(Generation generation, PassStatus passStatus) {
-		return applicationRepository.countByGenerationAndPassStatus(generation, passStatus);
-	}
-
-	/** 특정 기수와 합격 상태에 해당하는 지원자 목록 조회 */
-	public List<Application> findByGenerationAndPassStatus(
-			Generation generation, PassStatus passStatus) {
-		return applicationRepository.findByGenerationAndPassStatus(generation, passStatus);
-	}
-
+	// 지원서 단건 조회
 	public Application getApplication(Long applicationId) {
 		return applicationRepository
 				.findById(applicationId)
@@ -38,5 +28,22 @@ public class ApplicationAdminService {
 						() ->
 								new ApplicationAdminException(
 										ApplicationAdminErrorCode.APPLICATION_NOT_FOUND));
+	}
+
+	// 합격 상태별 통계 조회
+	public List<Object[]> getPassStatusCounts(Long generationId) {
+		return applicationRepository.countByGenerationIdGroupByPassStatusAndApplicationPartType(
+				generationId);
+	}
+
+	// 특정 기수/상태 지원자 수
+	public long countByGenerationAndPassStatus(Generation generation, PassStatus passStatus) {
+		return applicationRepository.countByGenerationAndPassStatus(generation, passStatus);
+	}
+
+	// 특정 기수/상태 지원자 목록
+	public List<Application> findByGenerationAndPassStatus(
+			Generation generation, PassStatus passStatus) {
+		return applicationRepository.findByGenerationAndPassStatus(generation, passStatus);
 	}
 }

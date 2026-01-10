@@ -7,7 +7,7 @@ import org.cotato.backend.recruit.admin.dto.response.applicationView.AdminApplic
 import org.cotato.backend.recruit.admin.dto.response.applicationView.AdminApplicationPartQuestionResponse;
 import org.cotato.backend.recruit.admin.service.applicationView.ApplicationViewService;
 import org.cotato.backend.recruit.common.response.ApiResponse;
-import org.cotato.backend.recruit.domain.question.enums.PartType;
+import org.cotato.backend.recruit.domain.question.enums.QuestionType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,9 +45,9 @@ public class ApplicationViewController {
 	 */
 	@GetMapping("/{applicationId}/part-questions")
 	public ApiResponse<List<AdminApplicationPartQuestionResponse>> getPartQuestions(
-			@PathVariable Long applicationId, @RequestParam PartType part) {
+			@PathVariable Long applicationId, @RequestParam QuestionType questionType) {
 		List<AdminApplicationPartQuestionResponse> responses =
-				applicationViewService.getPartQuestionsWithAnswers(applicationId, part);
+				applicationViewService.getPartQuestionsWithAnswers(applicationId, questionType);
 		return ApiResponse.success(responses);
 	}
 

@@ -3,7 +3,7 @@ package org.cotato.backend.recruit.domain.question.repository;
 import java.util.List;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.question.entity.Question;
-import org.cotato.backend.recruit.domain.question.enums.PartType;
+import org.cotato.backend.recruit.domain.question.enums.QuestionType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,8 +17,8 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 	 * @param partType 파트 타입
 	 * @return 질문 목록
 	 */
-	List<Question> findByGenerationAndPartTypeOrderBySequenceAsc(
-			Generation generation, PartType partType);
+	List<Question> findByGenerationAndQuestionTypeOrderBySequenceAsc(
+			Generation generation, QuestionType questionType);
 
 	/**
 	 * 기수와 파트 타입으로 질문 조회 (정렬X)
@@ -27,5 +27,6 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 	 * @param partType
 	 * @return
 	 */
-	List<Question> findByGenerationAndPartType(Generation generation, PartType partType);
+	List<Question> findByGenerationAndQuestionType(
+			Generation generation, QuestionType questionType);
 }

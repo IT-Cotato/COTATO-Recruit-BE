@@ -1,13 +1,24 @@
 package org.cotato.backend.recruit.admin.service.applicationView;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.cotato.backend.recruit.admin.dto.response.applicationView.RecruitmentInformationResponse;
+import org.cotato.backend.recruit.admin.dto.request.applicationView.ApplicationListRequest;
+import org.cotato.backend.recruit.admin.dto.response.applicationView.AdminApplicationsResponse;
+import org.cotato.backend.recruit.admin.dto.response.applicationView.ApplicationElementResponse;
+import org.cotato.backend.recruit.admin.dto.response.applicationView.ApplicationSummaryResponse;
+import org.cotato.backend.recruit.admin.dto.response.applicationView.PageInfoResponse;
+import org.cotato.backend.recruit.admin.dto.response.recruitmentInformation.RecruitmentPeriodResponse;
 import org.cotato.backend.recruit.admin.service.generation.GenerationAdminService;
-import org.cotato.backend.recruit.admin.service.recruitmentInformationAdmin.RecruitmentInformationAdminService;
+import org.cotato.backend.recruit.admin.service.recruitmentInformation.RecruitmentInformationAdminService;
+import org.cotato.backend.recruit.domain.application.entity.Application;
 import org.cotato.backend.recruit.domain.application.repository.ApplicationRepository;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.recruitmentInformation.entity.RecruitmentInformation;
 import org.cotato.backend.recruit.domain.recruitmentInformation.enums.InformationType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,50 +32,58 @@ public class ApplicationViewListService {
 	private final ApplicationViewPageInfoManager applicationViewPageInfoManager;
 	private final GenerationAdminService generationAdminService;
 
-	// public AdminApplicationsResponse getApplications(
-	// ApplicationListRequest request, Pageable pageable) {
+	public AdminApplicationsResponse getApplications(
+			ApplicationListRequest request, Pageable pageable) {
 
-	// // 지원자 적은 학교순이 기본값
-	// String universityDir = "DESC";
+		// 정렬 로직 처리
+		// 1. 기본값: 지원제출최신순(submitted_at DESC) -> 이름 오름차순 고정
+		// 2. 이름 정렬시: 지원제출최신순 풀림
+		Sort sort = pageable.getSort();
+		Sort.Order nameOrder = sort.getOrderFor("name");
 
-	// for (Sort.Order oder : pageable.getSort()) {
-	// if (oder.getProperty().equals("university")) {
-	// universityDir = oder.getDirection().name();
-	// }
-	// }
+		Sort newSort;
+		if (nameOrder == null) {
+			// 이름 정렬이 없으면 (기본값 or submittedAt) -> submitted_at DESC, name ASC 고정
+			// Native Query이므로 DB 컬럼명 사용 (submitted_at)
+			newSort =
+					Sort.by(Sort.Direction.DESC, "submitted_at")
+							.and(Sort.by(Sort.Direction.ASC, "name"));
+		} else {
+			// 이름 정렬이 있으면 해당 정렬 유지.
+			// Pageable의 name property는 DB 컬럼 name과 동일하므로 그대로 사용 가능.
+			newSort = sort;
+		}
 
-	// List<Application> applications =
-	// applicationRepository.findApplicationsWithUniversitySort(
-	// request.generation(),
-	// request.partViewType().name(),
-	// request.passViewStatus().name(),
-	// request.searchKeyword(),
-	// universityDir,
-	// pageable.getPageSize(),
-	// pageable.getOffset());
+		Pageable newPageable =
+				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), newSort);
 
-	// List<ApplicationElementResponse> content =
-	// applications.stream().map(ApplicationElementResponse::from).toList();
+		Page<Application> applicationsPage =
+				applicationRepository.findWithFilters(
+						request.generation(),
+						request.partViewType().name(),
+						request.passViewStatus().name(),
+						request.searchKeyword(),
+						newPageable);
 
-	// Generation generation =
-	// generationAdminService.findGeneration(request.generation());
-	// RecruitmentInformationResponse recruitmentInformationResponse =
-	// getRecruitmentInformationResponse(generation);
+		List<ApplicationElementResponse> content =
+				applicationsPage.getContent().stream()
+						.map(this::toApplicationElementResponse)
+						.toList();
 
-	// // 파트별 지원자수 통계
-	// ApplicationSummaryResponse summary = getSummaryResponse(request);
+		Generation generation = generationAdminService.getGenerationById(request.generation());
+		RecruitmentPeriodResponse recruitmentPeriodResponse =
+				getRecruitmentPeriodResponse(generation);
 
-	// // 필터링된 지원서 총 개수 - 페이징 계산용
-	// // 필터링된 지원서 총 개수 및 페이징 정보 조회
-	// PageInfoResponse pageInfo =
-	// applicationViewPageInfoManager.getApplicationPageInfo(request, pageable);
+		// 파트별 지원자수 통계
+		ApplicationSummaryResponse summary = getSummaryResponse(request);
 
-	// return AdminApplicationsResponse.of(
-	// recruitmentInformationResponse, summary, Applicants.of(content, pageInfo));
-	// }
+		// 페이징 정보
+		PageInfoResponse pageInfo = applicationViewPageInfoManager.getPageInfo(applicationsPage);
 
-	private RecruitmentInformationResponse getRecruitmentInformationResponse(
-			Generation generation) {
+		return AdminApplicationsResponse.of(recruitmentPeriodResponse, summary, content, pageInfo);
+	}
+
+	private RecruitmentPeriodResponse getRecruitmentPeriodResponse(Generation generation) {
 		RecruitmentInformation recruitmentStart =
 				recruitmentInformationAdminService.getRecruitmentInformation(
 						generation, InformationType.RECRUITMENT_START);
@@ -72,18 +91,22 @@ public class ApplicationViewListService {
 				recruitmentInformationAdminService.getRecruitmentInformation(
 						generation, InformationType.RECRUITMENT_END);
 
-		return RecruitmentInformationResponse.of(
+		return RecruitmentPeriodResponse.of(
 				recruitmentStart.getEventDatetime(), recruitmentEnd.getEventDatetime());
 	}
 
-	// private ApplicationSummaryResponse getSummaryResponse(ApplicationListRequest
-	// request) {
-	// List<Object[]> counts = applicationRepository.countByFilterGroupByPartType(
-	// request.generation(),
-	// request.partViewType().name(),
-	// request.passViewStatus().name(),
-	// request.searchKeyword());
+	private ApplicationSummaryResponse getSummaryResponse(ApplicationListRequest request) {
+		List<Object[]> counts =
+				applicationRepository.countByFilterGroupByApplicationPartType(
+						request.generation(),
+						request.partViewType().name(),
+						request.passViewStatus().name(),
+						request.searchKeyword());
 
-	// return ApplicationSummaryResponse.from(counts);
-	// }
+		return ApplicationSummaryResponse.from(counts);
+	}
+
+	private ApplicationElementResponse toApplicationElementResponse(Application application) {
+		return ApplicationElementResponse.from(application);
+	}
 }

@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum PartType {
+public enum QuestionType {
 	PM("기획"),
 	DE("디자이너"),
 	FE("프론트엔드"),
@@ -15,19 +15,19 @@ public enum PartType {
 	private final String description;
 
 	// from String
-	public static PartType fromString(String name) {
-		isValidPartType(name);
+	public static QuestionType fromString(String name) {
+		isValidQuestionType(name);
 		return valueOf(name);
 	}
 
 	// validate
-	public static void isValidPartType(String name) {
+	public static void isValidQuestionType(String name) {
 		if (name == null) {
-			throw new IllegalArgumentException("PartType은 null일 수 없습니다.");
+			throw new IllegalArgumentException("QuestionType은 null일 수 없습니다.");
 		}
 
 		if (!name.equals(name.toUpperCase())) {
-			throw new IllegalArgumentException("PartType은 대문자로 입력해야 합니다.");
+			throw new IllegalArgumentException("QuestionType은 대문자로 입력해야 합니다.");
 		}
 
 		// BE,FE,DE,PM,ETC

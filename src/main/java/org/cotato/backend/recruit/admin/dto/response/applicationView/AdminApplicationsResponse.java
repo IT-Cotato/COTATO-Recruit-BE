@@ -2,21 +2,23 @@ package org.cotato.backend.recruit.admin.dto.response.applicationView;
 
 import java.util.List;
 import lombok.Builder;
+import org.cotato.backend.recruit.admin.dto.response.recruitmentInformation.RecruitmentPeriodResponse;
 
 @Builder
 public record AdminApplicationsResponse(
-		RecruitmentInformationResponse recruitmentInformationResponse,
+		RecruitmentPeriodResponse recruitmentPeriodResponse,
 		ApplicationSummaryResponse summary,
 		Applicants applicants) {
 
 	public static AdminApplicationsResponse of(
-			RecruitmentInformationResponse recruitmentInformationResponse,
+			RecruitmentPeriodResponse recruitmentPeriodResponse,
 			ApplicationSummaryResponse summary,
-			Applicants applicants) {
+			List<ApplicationElementResponse> content,
+			PageInfoResponse pageInfo) {
 		return AdminApplicationsResponse.builder()
-				.recruitmentInformationResponse(recruitmentInformationResponse)
+				.recruitmentPeriodResponse(recruitmentPeriodResponse)
 				.summary(summary)
-				.applicants(applicants)
+				.applicants(Applicants.of(content, pageInfo))
 				.build();
 	}
 
