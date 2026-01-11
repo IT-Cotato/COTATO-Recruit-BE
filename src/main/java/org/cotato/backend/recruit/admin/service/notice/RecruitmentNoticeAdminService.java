@@ -51,9 +51,10 @@ public class RecruitmentNoticeAdminService {
 					RecruitmentNotice.builder()
 							.generation(generation)
 							.noticeType(NoticeType.RECRUITMENT_PART)
-							.partName(part.name())
-							.partShort(part.partShort())
+							.partName(part.partType().getPartName())
+							.partShort(part.partType().getPartShort())
 							.partDetail(part.detail())
+							.imageFilename(part.partType().getImageFilename())
 							.build();
 			notices.add(notice);
 		}
@@ -64,8 +65,9 @@ public class RecruitmentNoticeAdminService {
 					RecruitmentNotice.builder()
 							.generation(generation)
 							.noticeType(NoticeType.ACTIVITY_SCHEDULE)
-							.scheduleTitle(activity.name())
+							.scheduleTitle(activity.activityType().getActivityName())
 							.schedule(activity.date())
+							.imageFilename(activity.activityType().getImageFilename())
 							.build();
 			notices.add(notice);
 		}
@@ -76,7 +78,8 @@ public class RecruitmentNoticeAdminService {
 					RecruitmentNotice.builder()
 							.generation(generation)
 							.noticeType(NoticeType.RECRUITMENT_SCHEDULE)
-							.scheduleTitle(schedule.title())
+							.scheduleTitle(
+									schedule.scheduleType().getFullTitle(request.generation()))
 							.schedule(schedule.date())
 							.build();
 			notices.add(notice);

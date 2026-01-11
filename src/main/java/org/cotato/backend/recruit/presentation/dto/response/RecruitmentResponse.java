@@ -22,7 +22,10 @@ public record RecruitmentResponse(
 	public record PartResponse(
 			String name, @JsonProperty("short") String partShort, String detail, String imageUrl) {
 		public static PartResponse from(RecruitmentNotice n) {
-			String imageUrl = "/backend/images/parts/" + n.getPartShort().toLowerCase() + ".jpg";
+			String imageUrl =
+					n.getImageFilename() != null
+							? "/backend/images/parts/" + n.getImageFilename()
+							: null;
 			return new PartResponse(n.getPartName(), n.getPartShort(), n.getPartDetail(), imageUrl);
 		}
 	}
@@ -30,9 +33,9 @@ public record RecruitmentResponse(
 	public record ActivityResponse(Long id, String name, String date, String imageUrl) {
 		public static ActivityResponse from(RecruitmentNotice n) {
 			String imageUrl =
-					"/backend/images/activities/"
-							+ n.getScheduleTitle().toLowerCase().replace(" ", "-")
-							+ ".jpg";
+					n.getImageFilename() != null
+							? "/backend/images/activities/" + n.getImageFilename()
+							: null;
 			return new ActivityResponse(n.getId(), n.getScheduleTitle(), n.getSchedule(), imageUrl);
 		}
 	}

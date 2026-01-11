@@ -52,6 +52,9 @@ public class RecruitmentNotice {
 	@Column(name = "part_detail")
 	private String partDetail;
 
+	@Column(name = "image_filename")
+	private String imageFilename;
+
 	@Builder
 	public RecruitmentNotice(
 			Generation generation,
@@ -60,7 +63,8 @@ public class RecruitmentNotice {
 			String schedule,
 			String partName,
 			String partShort,
-			String partDetail) {
+			String partDetail,
+			String imageFilename) {
 		this.generation = generation;
 		this.noticeType = noticeType;
 		this.scheduleTitle = scheduleTitle;
@@ -68,5 +72,6 @@ public class RecruitmentNotice {
 		this.partName = partName;
 		this.partShort = partShort;
 		this.partDetail = partDetail;
+		this.imageFilename = imageFilename;
 	}
 }

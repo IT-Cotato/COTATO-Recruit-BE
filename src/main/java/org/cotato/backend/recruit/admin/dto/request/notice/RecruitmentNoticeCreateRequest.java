@@ -6,6 +6,9 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
+import org.cotato.backend.recruit.admin.dto.request.notice.enums.ActivityType;
+import org.cotato.backend.recruit.admin.dto.request.notice.enums.RecruitmentPartType;
+import org.cotato.backend.recruit.admin.dto.request.notice.enums.ScheduleType;
 
 @Schema(description = "모집 공고 생성 요청")
 public record RecruitmentNoticeCreateRequest(
@@ -37,20 +40,14 @@ public record RecruitmentNoticeCreateRequest(
 	@Schema(description = "모집 파트 요청")
 	public record PartRequest(
 			@Schema(
-							description = "파트명",
+							description = "파트 타입 (PM, DE, FE, BE)",
 							example = "PM",
 							requiredMode = Schema.RequiredMode.REQUIRED)
-					@NotNull(message = "파트명은 필수입니다.")
-					String name,
-			@Schema(
-							description = "파트 짧은 설명",
-							example = "기획",
-							requiredMode = Schema.RequiredMode.REQUIRED)
-					@NotNull(message = "파트 짧은 설명은 필수입니다.")
-					String partShort,
+					@NotNull(message = "파트 타입은 필수입니다.")
+					RecruitmentPartType partType,
 			@Schema(
 							description = "파트 상세 설명",
-							example = "서비스 기획 및 전략 수립",
+							example = "프로젝트의 기획과 관리를 담당하는 기획 파트입니다.",
 							requiredMode = Schema.RequiredMode.REQUIRED)
 					@NotNull(message = "파트 상세 설명은 필수입니다.")
 					String detail) {}
@@ -58,14 +55,15 @@ public record RecruitmentNoticeCreateRequest(
 	@Schema(description = "주요 활동 요청")
 	public record ActivityRequest(
 			@Schema(
-							description = "활동명",
+							description =
+									"활동 타입 (OT, REGULAR_SESSION, MT, DEV_TALK, COKATHON, DEMO_DAY)",
 							example = "OT",
 							requiredMode = Schema.RequiredMode.REQUIRED)
-					@NotNull(message = "활동명은 필수입니다.")
-					String name,
+					@NotNull(message = "활동 타입은 필수입니다.")
+					ActivityType activityType,
 			@Schema(
 							description = "활동 일정",
-							example = "3월 첫째 주",
+							example = "2025.9.26",
 							requiredMode = Schema.RequiredMode.REQUIRED)
 					@NotNull(message = "활동 일정은 필수입니다.")
 					String date) {}
@@ -73,14 +71,16 @@ public record RecruitmentNoticeCreateRequest(
 	@Schema(description = "모집 일정 요청")
 	public record ScheduleRequest(
 			@Schema(
-							description = "일정 제목",
-							example = "서류 접수",
+							description =
+									"일정 타입 (APPLICATION, DOCUMENT_RESULT, INTERVIEW, FINAL_RESULT,"
+											+ " OT)",
+							example = "APPLICATION",
 							requiredMode = Schema.RequiredMode.REQUIRED)
-					@NotNull(message = "일정 제목은 필수입니다.")
-					String title,
+					@NotNull(message = "일정 타입은 필수입니다.")
+					ScheduleType scheduleType,
 			@Schema(
 							description = "일정 날짜",
-							example = "2024.02.01 - 2024.02.15",
+							example = "2월 20일 (금) ~ \n 2월 27일 (금) \n 오후 11시 59분",
 							requiredMode = Schema.RequiredMode.REQUIRED)
 					@NotNull(message = "일정 날짜는 필수입니다.")
 					String date) {}
