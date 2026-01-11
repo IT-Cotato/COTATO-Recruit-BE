@@ -153,7 +153,7 @@ public class RecruitmentService {
 
 		LocalDateTime now = LocalDateTime.now();
 		if (now.isBefore(recruitmentStart.getEventDatetime())) {
-			throw new PresentationException(PresentationErrorCode.RECRUITMENT_PERIOD_STARTED);
+			throw new PresentationException(PresentationErrorCode.RECRUITMENT_PERIOD_NOT_STARTED);
 		}
 	}
 }
