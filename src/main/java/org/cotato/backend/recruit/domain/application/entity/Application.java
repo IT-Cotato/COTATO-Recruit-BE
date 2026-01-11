@@ -92,7 +92,7 @@ public class Application {
 	@Column(name = "parallel_activities", length = 600)
 	private String parallelActivities;
 
-	@Column(name = "unavailable_interview_times", columnDefinition = "TEXT")
+	@Column(name = "unavailable_interview_times")
 	private String unavailableInterviewTimes;
 
 	@Column(name = "session_attendance_agreed")
