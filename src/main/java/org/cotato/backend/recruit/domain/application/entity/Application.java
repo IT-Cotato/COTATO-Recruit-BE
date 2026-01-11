@@ -17,7 +17,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.backend.recruit.domain.application.enums.ApplicationPartType;
-import org.cotato.backend.recruit.domain.application.enums.DiscoveryPath;
 import org.cotato.backend.recruit.domain.application.enums.PassStatus;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.user.entity.User;
@@ -84,26 +83,6 @@ public class Application {
 	@Column(name = "is_enrolled", nullable = false)
 	private boolean isEnrolled;
 
-	// 기타 정보 필드
-	@Enumerated(EnumType.STRING)
-	@Column(name = "discovery_path")
-	private DiscoveryPath discoveryPath;
-
-	@Column(name = "parallel_activities", length = 600)
-	private String parallelActivities;
-
-	@Column(name = "unavailable_interview_times")
-	private String unavailableInterviewTimes;
-
-	@Column(name = "session_attendance_agreed")
-	private Boolean sessionAttendanceAgreed;
-
-	@Column(name = "mandatory_events_agreed")
-	private Boolean mandatoryEventsAgreed;
-
-	@Column(name = "privacy_policy_agreed")
-	private Boolean privacyPolicyAgreed;
-
 	@Column(name = "pdf_file_key")
 	private String pdfFileKey;
 
@@ -157,28 +136,6 @@ public class Application {
 		this.applicationPartType = applicationPartType;
 	}
 
-	// 기타 정보 업데이트
-	public void updateEtcInfo(
-			DiscoveryPath discoveryPath,
-			String parallelActivities,
-			String unavailableInterviewTimes,
-			Boolean sessionAttendanceAgreed,
-			Boolean mandatoryEventsAgreed,
-			Boolean privacyPolicyAgreed) {
-
-		// 이미 제출된 지원서인지 확인
-		if (this.isSubmitted) {
-			throw new PresentationException(PresentationErrorCode.ALREADY_SUBMITTED);
-		}
-
-		this.discoveryPath = discoveryPath;
-		this.parallelActivities = parallelActivities;
-		this.unavailableInterviewTimes = unavailableInterviewTimes;
-		this.sessionAttendanceAgreed = sessionAttendanceAgreed;
-		this.mandatoryEventsAgreed = mandatoryEventsAgreed;
-		this.privacyPolicyAgreed = privacyPolicyAgreed;
-	}
-
 	// PDF 정보 업데이트
 	public void updatePdfInfo(String pdfFileUrl, String pdfFileKey) {
 		// 이미 제출된 지원서인지 확인
@@ -206,7 +163,6 @@ public class Application {
 	// 제출 전 필수 항목 검증
 	private void validateRequiredFields() {
 		validateBasicInfo();
-		validateEtcInfo();
 	}
 
 	private void validateBasicInfo() {
@@ -221,13 +177,6 @@ public class Application {
 		validateNotNull(this.applicationPartType);
 	}
 
-	private void validateEtcInfo() {
-		validateNotNull(this.discoveryPath);
-		validateAgreement(this.sessionAttendanceAgreed);
-		validateAgreement(this.mandatoryEventsAgreed);
-		validateAgreement(this.privacyPolicyAgreed);
-	}
-
 	private void validateNotBlank(String value) {
 		if (value == null || value.isBlank()) {
 			throw new PresentationException(PresentationErrorCode.REQUIRED_FIELD_MISSING);
@@ -236,12 +185,6 @@ public class Application {
 
 	private void validateNotNull(Object value) {
 		if (value == null) {
-			throw new PresentationException(PresentationErrorCode.REQUIRED_FIELD_MISSING);
-		}
-	}
-
-	private void validateAgreement(Boolean value) {
-		if (value == null || !value) {
 			throw new PresentationException(PresentationErrorCode.REQUIRED_FIELD_MISSING);
 		}
 	}
