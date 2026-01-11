@@ -205,46 +205,43 @@ public class Application {
 
 	// 제출 전 필수 항목 검증
 	private void validateRequiredFields() {
-		// 기본 정보 검증
-		if (this.name == null || this.name.isBlank()) {
-			throw new PresentationException(PresentationErrorCode.REQUIRED_FIELD_MISSING);
-		}
-		if (this.gender == null || this.gender.isBlank()) {
-			throw new PresentationException(PresentationErrorCode.REQUIRED_FIELD_MISSING);
-		}
-		if (this.birthDate == null) {
-			throw new PresentationException(PresentationErrorCode.REQUIRED_FIELD_MISSING);
-		}
-		if (this.phoneNumber == null || this.phoneNumber.isBlank()) {
-			throw new PresentationException(PresentationErrorCode.REQUIRED_FIELD_MISSING);
-		}
-		if (this.university == null || this.university.isBlank()) {
-			throw new PresentationException(PresentationErrorCode.REQUIRED_FIELD_MISSING);
-		}
-		if (this.major == null || this.major.isBlank()) {
-			throw new PresentationException(PresentationErrorCode.REQUIRED_FIELD_MISSING);
-		}
-		if (this.completedSemesters == null) {
-			throw new PresentationException(PresentationErrorCode.REQUIRED_FIELD_MISSING);
-		}
-		if (this.isPrevActivity == null) {
-			throw new PresentationException(PresentationErrorCode.REQUIRED_FIELD_MISSING);
-		}
-		if (this.applicationPartType == null) {
-			throw new PresentationException(PresentationErrorCode.REQUIRED_FIELD_MISSING);
-		}
+		validateBasicInfo();
+		validateEtcInfo();
+	}
 
-		// 기타 정보 검증
-		if (this.discoveryPath == null) {
+	private void validateBasicInfo() {
+		validateNotBlank(this.name);
+		validateNotBlank(this.gender);
+		validateNotBlank(this.phoneNumber);
+		validateNotBlank(this.university);
+		validateNotBlank(this.major);
+		validateNotNull(this.birthDate);
+		validateNotNull(this.completedSemesters);
+		validateNotNull(this.isPrevActivity);
+		validateNotNull(this.applicationPartType);
+	}
+
+	private void validateEtcInfo() {
+		validateNotNull(this.discoveryPath);
+		validateAgreement(this.sessionAttendanceAgreed);
+		validateAgreement(this.mandatoryEventsAgreed);
+		validateAgreement(this.privacyPolicyAgreed);
+	}
+
+	private void validateNotBlank(String value) {
+		if (value == null || value.isBlank()) {
 			throw new PresentationException(PresentationErrorCode.REQUIRED_FIELD_MISSING);
 		}
-		if (this.sessionAttendanceAgreed == null || !this.sessionAttendanceAgreed) {
+	}
+
+	private void validateNotNull(Object value) {
+		if (value == null) {
 			throw new PresentationException(PresentationErrorCode.REQUIRED_FIELD_MISSING);
 		}
-		if (this.mandatoryEventsAgreed == null || !this.mandatoryEventsAgreed) {
-			throw new PresentationException(PresentationErrorCode.REQUIRED_FIELD_MISSING);
-		}
-		if (this.privacyPolicyAgreed == null || !this.privacyPolicyAgreed) {
+	}
+
+	private void validateAgreement(Boolean value) {
+		if (value == null || !value) {
 			throw new PresentationException(PresentationErrorCode.REQUIRED_FIELD_MISSING);
 		}
 	}
