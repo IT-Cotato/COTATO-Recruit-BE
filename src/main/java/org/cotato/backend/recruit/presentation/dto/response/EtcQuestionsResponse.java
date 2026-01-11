@@ -55,7 +55,7 @@ public record EtcQuestionsResponse(
 				application.getUnavailableInterviewTimes(),
 				application.getSessionAttendanceAgreed(),
 				application.getMandatoryEventsAgreed(),
-				application.getPrivacyPolicyAgreed(), // 필드 추가 확인 필요
+				application.getPrivacyPolicyAgreed(),
 				startDate,
 				endDate,
 				formattedOtDate);
