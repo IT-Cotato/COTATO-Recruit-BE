@@ -19,7 +19,8 @@ public record RecruitmentScheduleResponse(
 		@Schema(description = "면접 평가 종료일자", example = "2025-01-14T18:00:00")
 				LocalDateTime interviewEndDate,
 		@Schema(description = "최종 발표일자", example = "2025-01-17T18:00:00")
-				LocalDateTime finalAnnouncement) {
+				LocalDateTime finalAnnouncement,
+		@Schema(description = "OT 일자", example = "2025-01-20T14:00:00") LocalDateTime otDate) {
 
 	public static RecruitmentScheduleResponse of(
 			Long generationId, Map<InformationType, LocalDateTime> scheduleMap) {
@@ -30,6 +31,7 @@ public record RecruitmentScheduleResponse(
 				scheduleMap.get(InformationType.DOCUMENT_ANNOUNCEMENT),
 				scheduleMap.get(InformationType.INTERVIEW_START),
 				scheduleMap.get(InformationType.INTERVIEW_END),
-				scheduleMap.get(InformationType.FINAL_ANNOUNCEMENT));
+				scheduleMap.get(InformationType.FINAL_ANNOUNCEMENT),
+				scheduleMap.get(InformationType.OT));
 	}
 }

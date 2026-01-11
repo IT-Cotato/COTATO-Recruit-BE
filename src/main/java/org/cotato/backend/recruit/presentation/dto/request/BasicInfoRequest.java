@@ -12,4 +12,5 @@ public record BasicInfoRequest(
 		String major,
 		Integer completedSemesters,
 		Boolean isPrevActivity,
+		Boolean isEnrolled,
 		ApplicationPartType applicationPartType) {}

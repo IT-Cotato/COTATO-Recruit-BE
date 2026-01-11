@@ -83,6 +83,12 @@ public class Application {
 	@Column(name = "is_enrolled", nullable = false)
 	private boolean isEnrolled;
 
+	@Column(name = "pdf_file_key")
+	private String pdfFileKey;
+
+	@Column(name = "pdf_file_url")
+	private String pdfFileUrl;
+
 	// 정적 팩토리 메서드 - 새 지원서 생성
 	public static Application createNew(User user, Generation generation) {
 		Application application = new Application();
@@ -111,6 +117,7 @@ public class Application {
 			String major,
 			Integer completedSemesters,
 			Boolean isPrevActivity,
+			boolean isEnrolled,
 			ApplicationPartType applicationPartType) {
 		// 이미 제출된 지원서인지 확인
 		if (this.isSubmitted) {
@@ -125,17 +132,18 @@ public class Application {
 		this.major = major;
 		this.completedSemesters = completedSemesters;
 		this.isPrevActivity = isPrevActivity;
+		this.isEnrolled = isEnrolled;
 		this.applicationPartType = applicationPartType;
 	}
 
-	// 지원 파트 업데이트
-	public void updateApplicationPartType(ApplicationPartType applicationPartType) {
+	// PDF 정보 업데이트
+	public void updatePdfInfo(String pdfFileUrl, String pdfFileKey) {
 		// 이미 제출된 지원서인지 확인
 		if (this.isSubmitted) {
 			throw new PresentationException(PresentationErrorCode.ALREADY_SUBMITTED);
 		}
-
-		this.applicationPartType = applicationPartType;
+		this.pdfFileUrl = pdfFileUrl;
+		this.pdfFileKey = pdfFileKey;
 	}
 
 	// 제출 처리
@@ -145,7 +153,39 @@ public class Application {
 			throw new PresentationException(PresentationErrorCode.ALREADY_SUBMITTED);
 		}
 
+		// 필수 항목 검증
+		validateRequiredFields();
+
 		this.isSubmitted = true;
 		this.submittedAt = LocalDateTime.now();
+	}
+
+	// 제출 전 필수 항목 검증
+	private void validateRequiredFields() {
+		validateBasicInfo();
+	}
+
+	private void validateBasicInfo() {
+		validateNotBlank(this.name);
+		validateNotBlank(this.gender);
+		validateNotBlank(this.phoneNumber);
+		validateNotBlank(this.university);
+		validateNotBlank(this.major);
+		validateNotNull(this.birthDate);
+		validateNotNull(this.completedSemesters);
+		validateNotNull(this.isPrevActivity);
+		validateNotNull(this.applicationPartType);
+	}
+
+	private void validateNotBlank(String value) {
+		if (value == null || value.isBlank()) {
+			throw new PresentationException(PresentationErrorCode.REQUIRED_FIELD_MISSING);
+		}
+	}
+
+	private void validateNotNull(Object value) {
+		if (value == null) {
+			throw new PresentationException(PresentationErrorCode.REQUIRED_FIELD_MISSING);
+		}
 	}
 }

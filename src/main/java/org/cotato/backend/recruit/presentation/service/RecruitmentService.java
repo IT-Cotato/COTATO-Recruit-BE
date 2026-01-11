@@ -17,6 +17,8 @@ import org.cotato.backend.recruit.domain.recruitmentNotice.repository.Recruitmen
 import org.cotato.backend.recruit.presentation.dto.response.RecruitmentResponse;
 import org.cotato.backend.recruit.presentation.dto.response.RecruitmentScheduleResponse;
 import org.cotato.backend.recruit.presentation.dto.response.RecruitmentStatusResponse;
+import org.cotato.backend.recruit.presentation.error.PresentationErrorCode;
+import org.cotato.backend.recruit.presentation.exception.PresentationException;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,6 +62,7 @@ public class RecruitmentService {
 	 */
 	public RecruitmentStatusResponse checkRecruitmentStatus() {
 		Optional<Generation> generation = generationService.getActiveGenerationOptional();
+
 		return RecruitmentStatusResponse.of(generation);
 	}
 
@@ -110,5 +113,47 @@ public class RecruitmentService {
 				grouped.getOrDefault(NoticeType.ACTIVITY_SCHEDULE, List.of()).stream()
 						.map(RecruitmentResponse.ActivityResponse::from)
 						.toList());
+	}
+
+	/**
+	 * 지원 제출 마감 기간 검증
+	 *
+	 * @param generation 기수
+	 */
+	public void validateRecruitmentEnd(Generation generation) {
+		RecruitmentInformation recruitmentEnd =
+				recruitmentInformationRepository
+						.findByGenerationAndInformationType(
+								generation, InformationType.RECRUITMENT_END)
+						.orElseThrow(
+								() ->
+										new PresentationException(
+												PresentationErrorCode.RECRUITMENT_INFO_NOT_FOUND));
+
+		LocalDateTime now = LocalDateTime.now();
+		if (now.isAfter(recruitmentEnd.getEventDatetime())) {
+			throw new PresentationException(PresentationErrorCode.RECRUITMENT_PERIOD_ENDED);
+		}
+	}
+
+	/**
+	 * 지원 제출 시작 기간 검증
+	 *
+	 * @param generation 기수
+	 */
+	public void validateRecruitmentStart(Generation generation) {
+		RecruitmentInformation recruitmentStart =
+				recruitmentInformationRepository
+						.findByGenerationAndInformationType(
+								generation, InformationType.RECRUITMENT_START)
+						.orElseThrow(
+								() ->
+										new PresentationException(
+												PresentationErrorCode.RECRUITMENT_INFO_NOT_FOUND));
+
+		LocalDateTime now = LocalDateTime.now();
+		if (now.isBefore(recruitmentStart.getEventDatetime())) {
+			throw new PresentationException(PresentationErrorCode.RECRUITMENT_PERIOD_NOT_STARTED);
+		}
 	}
 }
