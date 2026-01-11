@@ -1,5 +1,6 @@
 package org.cotato.backend.recruit.presentation.service;
 
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.generation.repository.GenerationRepository;
@@ -37,11 +38,8 @@ public class GenerationService {
 	 * @return 활성화된 기수 ID (활성화된 기수가 없으면 null)
 	 */
 	@Cacheable(value = "activeGeneration", key = "'generationId'")
-	public Long getActiveGenerationId() {
-		return generationRepository
-				.findByIsRecruitingActive(true)
-				.map(Generation::getId)
-				.orElse(null);
+	public Optional<Generation> getActiveGenerationOptional() {
+		return generationRepository.findByIsRecruitingActive(true);
 	}
 
 	/**
