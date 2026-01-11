@@ -59,7 +59,7 @@ public class ApplicationViewListService {
 				applicationRepository.findWithFilters(
 						request.generation(),
 						request.partViewType().name(),
-						request.passViewStatus().name(),
+						request.passViewStatuses().stream().map(Enum::name).toList(),
 						request.searchKeyword(),
 						newPageable);
 
@@ -98,7 +98,7 @@ public class ApplicationViewListService {
 				applicationRepository.countByFilterGroupByApplicationPartType(
 						request.generation(),
 						request.partViewType().name(),
-						request.passViewStatus().name(),
+						request.passViewStatuses().stream().map(Enum::name).toList(),
 						request.searchKeyword());
 
 		return ApplicationSummaryResponse.from(counts);
