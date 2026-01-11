@@ -63,7 +63,7 @@ public class RecruitmentService {
 	public RecruitmentStatusResponse checkRecruitmentStatus() {
 		Optional<Generation> generation = generationService.getActiveGenerationOptional();
 
-    return RecruitmentStatusResponse.of(generation);
+		return RecruitmentStatusResponse.of(generation);
 	}
 
 	/**
