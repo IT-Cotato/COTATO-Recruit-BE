@@ -20,6 +20,7 @@ public enum PresentationErrorCode {
 	RECRUITMENT_PERIOD_ENDED(HttpStatus.BAD_REQUEST, "AP005", "지원 기간이 종료되었습니다."),
 	RECRUITMENT_PERIOD_STARTED(HttpStatus.BAD_REQUEST, "AP007", "아직 지원 기간이 시작되지 않았습니다."),
 	PARALLEL_ACTIVITIES_TOO_LONG(HttpStatus.BAD_REQUEST, "AP006", "병행 활동은 600자를 초과할 수 없습니다."),
+	REQUIRED_FIELD_MISSING(HttpStatus.BAD_REQUEST, "AP008", "필수 입력 항목이 누락되었습니다."),
 
 	// Generation
 	GENERATION_NOT_FOUND(HttpStatus.NOT_FOUND, "GE001", "모집 중인 기수를 찾을 수 없습니다."),

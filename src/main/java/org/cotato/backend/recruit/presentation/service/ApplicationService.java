@@ -1,6 +1,5 @@
 package org.cotato.backend.recruit.presentation.service;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,9 +8,6 @@ import org.cotato.backend.recruit.common.exception.GlobalException;
 import org.cotato.backend.recruit.domain.application.entity.Application;
 import org.cotato.backend.recruit.domain.application.repository.ApplicationRepository;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
-import org.cotato.backend.recruit.domain.recruitmentInformation.entity.RecruitmentInformation;
-import org.cotato.backend.recruit.domain.recruitmentInformation.enums.InformationType;
-import org.cotato.backend.recruit.domain.recruitmentInformation.repository.RecruitmentInformationRepository;
 import org.cotato.backend.recruit.domain.user.entity.User;
 import org.cotato.backend.recruit.domain.user.repository.UserRepository;
 import org.cotato.backend.recruit.presentation.dto.response.ApplicationStartResponse;
@@ -29,7 +25,7 @@ public class ApplicationService {
 	private final ApplicationRepository applicationRepository;
 	private final UserRepository userRepository;
 	private final GenerationService generationService;
-	private final RecruitmentInformationRepository recruitmentInformationRepository;
+	private final RecruitmentService recruitmentService;
 
 	/**
 	 * 지원서 권한 확인 및 조회
@@ -69,7 +65,7 @@ public class ApplicationService {
 		Generation activeGeneration = generationService.getActiveGeneration();
 
 		// 지원 시작 기간 검증
-		validateRecruitmentStart(activeGeneration);
+		recruitmentService.validateRecruitmentStart(activeGeneration);
 
 		// 이미 해당 기수에 지원서가 있는지 확인
 		Optional<Application> existingApplication =
@@ -105,51 +101,9 @@ public class ApplicationService {
 		Application application = getApplicationWithAuth(applicationId, userId);
 
 		// 지원 제출 마감 기간 검증
-		validateRecruitmentEnd(application.getGeneration());
+		recruitmentService.validateRecruitmentEnd(application.getGeneration());
 
 		application.submit();
 		applicationRepository.save(application);
-	}
-
-	/**
-	 * 지원 제출 마감 기간 검증
-	 *
-	 * @param generation 기수
-	 */
-	private void validateRecruitmentEnd(Generation generation) {
-		RecruitmentInformation recruitmentEnd =
-				recruitmentInformationRepository
-						.findByGenerationAndInformationType(
-								generation, InformationType.RECRUITMENT_END)
-						.orElseThrow(
-								() ->
-										new PresentationException(
-												PresentationErrorCode.RECRUITMENT_INFO_NOT_FOUND));
-
-		LocalDateTime now = LocalDateTime.now();
-		if (now.isAfter(recruitmentEnd.getEventDatetime())) {
-			throw new PresentationException(PresentationErrorCode.RECRUITMENT_PERIOD_ENDED);
-		}
-	}
-
-	/**
-	 * 지원 제출 시작 기간 검증
-	 *
-	 * @param generation 기수
-	 */
-	private void validateRecruitmentStart(Generation generation) {
-		RecruitmentInformation recruitmentStart =
-				recruitmentInformationRepository
-						.findByGenerationAndInformationType(
-								generation, InformationType.RECRUITMENT_START)
-						.orElseThrow(
-								() ->
-										new PresentationException(
-												PresentationErrorCode.RECRUITMENT_INFO_NOT_FOUND));
-
-		LocalDateTime now = LocalDateTime.now();
-		if (now.isBefore(recruitmentStart.getEventDatetime())) {
-			throw new PresentationException(PresentationErrorCode.RECRUITMENT_PERIOD_STARTED);
-		}
 	}
 }
