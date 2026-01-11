@@ -10,9 +10,10 @@ import org.cotato.backend.recruit.common.response.ApiResponse;
 import org.cotato.backend.recruit.presentation.dto.request.EtcAnswersRequest;
 import org.cotato.backend.recruit.presentation.dto.request.PartAnswerRequest;
 import org.cotato.backend.recruit.presentation.dto.response.ApplicationStartResponse;
-import org.cotato.backend.recruit.presentation.dto.response.EtcQuestionsResponse;
+import org.cotato.backend.recruit.presentation.dto.response.EtcAnswerResponse;
 import org.cotato.backend.recruit.presentation.dto.response.PartQuestionResponse;
 import org.cotato.backend.recruit.presentation.service.ApplicationAnswerService;
+import org.cotato.backend.recruit.presentation.service.ApplicationEtcInfoService;
 import org.cotato.backend.recruit.presentation.service.ApplicationService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ public class ApplicationController {
 
 	private final ApplicationService applicationService;
 	private final ApplicationAnswerService applicationAnswerService;
+	private final ApplicationEtcInfoService applicationEtcInfoService;
 
 	@Operation(
 			summary = "지원서 시작 (지원하기 버튼)",
@@ -55,12 +57,11 @@ public class ApplicationController {
 			description =
 					"기타(ETC) 질문 (알게 된 경로, 병행 활동, 동의사항 등) 을 저장된 답변과 함께 조회하고 반환합니다. (페이지 3 진입 시)")
 	@GetMapping("/{applicationId}/etc-questions")
-	public ApiResponse<EtcQuestionsResponse> getEtcQuestionsWithAnswers(
+	public ApiResponse<EtcAnswerResponse> getEtcQuestionsWithAnswers(
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
 			@Parameter(description = "지원서 ID", required = true) @PathVariable Long applicationId) {
-		EtcQuestionsResponse response =
-				applicationAnswerService.getEtcQuestionsWithAnswers(
-						userDetails.getUserId(), applicationId);
+		EtcAnswerResponse response =
+				applicationEtcInfoService.getEtcAnswers(userDetails.getUserId(), applicationId);
 		return ApiResponse.success(response);
 	}
 
@@ -89,7 +90,7 @@ public class ApplicationController {
 			@Parameter(description = "지원서 ID", required = true) @PathVariable Long applicationId,
 			@Parameter(description = "기타 질문 응답 및 추가 정보", required = true) @Valid @RequestBody
 					EtcAnswersRequest request) {
-		applicationAnswerService.saveEtcAnswers(userDetails.getUserId(), applicationId, request);
+		applicationEtcInfoService.saveEtcAnswers(userDetails.getUserId(), applicationId, request);
 		return ApiResponse.success();
 	}
 

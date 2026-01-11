@@ -10,12 +10,9 @@ import org.cotato.backend.recruit.domain.application.entity.ApplicationAnswer;
 import org.cotato.backend.recruit.domain.application.repository.ApplicationAnswerRepository;
 import org.cotato.backend.recruit.domain.question.entity.Question;
 import org.cotato.backend.recruit.domain.question.enums.QuestionType;
-import org.cotato.backend.recruit.presentation.dto.request.EtcAnswersRequest;
 import org.cotato.backend.recruit.presentation.dto.request.PartAnswerRequest;
 import org.cotato.backend.recruit.presentation.dto.response.AnswerResponse;
-import org.cotato.backend.recruit.presentation.dto.response.EtcQuestionsResponse;
 import org.cotato.backend.recruit.presentation.dto.response.PartQuestionResponse;
-import org.cotato.backend.recruit.presentation.dto.response.RecruitmentScheduleResponse;
 import org.cotato.backend.recruit.presentation.error.PresentationErrorCode;
 import org.cotato.backend.recruit.presentation.exception.PresentationException;
 import org.springframework.stereotype.Service;
@@ -29,7 +26,6 @@ public class ApplicationAnswerService {
 	private final ApplicationAnswerRepository applicationAnswerRepository;
 	private final QuestionService questionService;
 	private final ApplicationService applicationService;
-	private final RecruitmentService recruitmentService;
 
 	/**
 	 * 질문 목록을 저장된 답변과 함께 매핑
@@ -96,26 +92,6 @@ public class ApplicationAnswerService {
 	}
 
 	/**
-	 * 기타 질문 조회 - Application 필드 기반으로 동적 생성 (페이지 3용)
-	 *
-	 * @param userId 사용자 ID
-	 * @param applicationId 지원서 ID
-	 * @return 기타 질문 및 저장된 답변 목록
-	 */
-	public EtcQuestionsResponse getEtcQuestionsWithAnswers(Long userId, Long applicationId) {
-		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
-
-		// 모집 일정 조회
-		RecruitmentScheduleResponse schedule = recruitmentService.getRecruitmentSchedule();
-
-		return EtcQuestionsResponse.of(
-				application,
-				schedule.interviewStartDate(),
-				schedule.interviewEndDate(),
-				schedule.otDate());
-	}
-
-	/**
 	 * 질문 응답 작성(임시저장)
 	 *
 	 * @param userId 사용자 ID
@@ -155,26 +131,5 @@ public class ApplicationAnswerService {
 
 		// Application PDF 정보 저장
 		application.updatePdfInfo(pdfFileUrl, pdfFileKey);
-	}
-
-	/**
-	 * 기타 질문 임시 저장
-	 *
-	 * @param userId 사용자 ID
-	 * @param applicationId 지원서 ID
-	 * @param request 기타 질문 응답 및 추가 정보 요청
-	 */
-	@Transactional
-	public void saveEtcAnswers(Long userId, Long applicationId, EtcAnswersRequest request) {
-		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
-
-		// Application 기타 정보 저장
-		application.updateEtcInfo(
-				request.discoveryPath(),
-				request.parallelActivities(),
-				request.unavailableInterviewTimes(),
-				request.sessionAttendanceAgreed(),
-				request.mandatoryEventsAgreed(),
-				request.privacyPolicyAgreed());
 	}
 }
