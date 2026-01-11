@@ -17,6 +17,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.backend.recruit.domain.application.enums.ApplicationPartType;
+import org.cotato.backend.recruit.domain.application.enums.DiscoveryPath;
 import org.cotato.backend.recruit.domain.application.enums.PassStatus;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.user.entity.User;
@@ -83,6 +84,32 @@ public class Application {
 	@Column(name = "is_enrolled", nullable = false)
 	private boolean isEnrolled;
 
+	// 기타 정보 필드
+	@Enumerated(EnumType.STRING)
+	@Column(name = "discovery_path")
+	private DiscoveryPath discoveryPath;
+
+	@Column(name = "parallel_activities", length = 600)
+	private String parallelActivities;
+
+	@Column(name = "unavailable_interview_times", columnDefinition = "TEXT")
+	private String unavailableInterviewTimes;
+
+	@Column(name = "session_attendance_agreed")
+	private Boolean sessionAttendanceAgreed;
+
+	@Column(name = "mandatory_events_agreed")
+	private Boolean mandatoryEventsAgreed;
+
+	@Column(name = "privacy_policy_agreed")
+	private Boolean privacyPolicyAgreed;
+
+	@Column(name = "pdf_file_key")
+	private String pdfFileKey;
+
+	@Column(name = "pdf_file_url")
+	private String pdfFileUrl;
+
 	// 정적 팩토리 메서드 - 새 지원서 생성
 	public static Application createNew(User user, Generation generation) {
 		Application application = new Application();
@@ -111,6 +138,7 @@ public class Application {
 			String major,
 			Integer completedSemesters,
 			Boolean isPrevActivity,
+			boolean isEnrolled,
 			ApplicationPartType applicationPartType) {
 		// 이미 제출된 지원서인지 확인
 		if (this.isSubmitted) {
@@ -125,17 +153,40 @@ public class Application {
 		this.major = major;
 		this.completedSemesters = completedSemesters;
 		this.isPrevActivity = isPrevActivity;
+		this.isEnrolled = isEnrolled;
 		this.applicationPartType = applicationPartType;
 	}
 
-	// 지원 파트 업데이트
-	public void updateApplicationPartType(ApplicationPartType applicationPartType) {
+	// 기타 정보 업데이트
+	public void updateEtcInfo(
+			DiscoveryPath discoveryPath,
+			String parallelActivities,
+			String unavailableInterviewTimes,
+			Boolean sessionAttendanceAgreed,
+			Boolean mandatoryEventsAgreed,
+			Boolean privacyPolicyAgreed) {
+
 		// 이미 제출된 지원서인지 확인
 		if (this.isSubmitted) {
 			throw new PresentationException(PresentationErrorCode.ALREADY_SUBMITTED);
 		}
 
-		this.applicationPartType = applicationPartType;
+		this.discoveryPath = discoveryPath;
+		this.parallelActivities = parallelActivities;
+		this.unavailableInterviewTimes = unavailableInterviewTimes;
+		this.sessionAttendanceAgreed = sessionAttendanceAgreed;
+		this.mandatoryEventsAgreed = mandatoryEventsAgreed;
+		this.privacyPolicyAgreed = privacyPolicyAgreed;
+	}
+
+	// PDF 정보 업데이트
+	public void updatePdfInfo(String pdfFileUrl, String pdfFileKey) {
+		// 이미 제출된 지원서인지 확인
+		if (this.isSubmitted) {
+			throw new PresentationException(PresentationErrorCode.ALREADY_SUBMITTED);
+		}
+		this.pdfFileUrl = pdfFileUrl;
+		this.pdfFileKey = pdfFileKey;
 	}
 
 	// 제출 처리

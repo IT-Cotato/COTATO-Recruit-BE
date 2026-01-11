@@ -6,7 +6,6 @@ import org.cotato.backend.recruit.admin.dto.request.applicationQuestion.Applicat
 import org.cotato.backend.recruit.admin.dto.response.applicationQuestion.ApplicationQuestionResponse;
 import org.cotato.backend.recruit.admin.service.generation.GenerationAdminService;
 import org.cotato.backend.recruit.admin.service.question.QuestionAdminService;
-import org.cotato.backend.recruit.domain.application.enums.AnswerType;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.question.entity.Question;
 import org.cotato.backend.recruit.domain.question.enums.QuestionType;
@@ -60,7 +59,6 @@ public class ApplicationQuestionAdminService {
 												.content(element.content())
 												.maxByte(element.maxByte())
 												.questionType(questionType)
-												.answerType(AnswerType.TEXT)
 												.build())
 						.toList();
 		return newQuestions;

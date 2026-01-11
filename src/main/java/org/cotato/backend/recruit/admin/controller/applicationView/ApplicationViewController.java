@@ -1,9 +1,9 @@
 package org.cotato.backend.recruit.admin.controller.applicationView;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.dto.response.applicationView.AdminApplicationBasicInfoResponse;
+import org.cotato.backend.recruit.admin.dto.response.applicationView.AdminApplicationEtcQuestionsResponse;
 import org.cotato.backend.recruit.admin.dto.response.applicationView.AdminApplicationPartQuestionResponse;
 import org.cotato.backend.recruit.admin.service.applicationView.ApplicationViewService;
 import org.cotato.backend.recruit.common.response.ApiResponse;
@@ -40,13 +40,12 @@ public class ApplicationViewController {
 	 * 지원서 파트별 질문 조회
 	 *
 	 * @param applicationId 지원서 ID
-	 * @param part 파트 (BE, FE, DE, PM 등)
 	 * @return 파트별 질문 및 답변 목록
 	 */
 	@GetMapping("/{applicationId}/part-questions")
-	public ApiResponse<List<AdminApplicationPartQuestionResponse>> getPartQuestions(
+	public ApiResponse<AdminApplicationPartQuestionResponse> getPartQuestions(
 			@PathVariable Long applicationId, @RequestParam QuestionType questionType) {
-		List<AdminApplicationPartQuestionResponse> responses =
+		AdminApplicationPartQuestionResponse responses =
 				applicationViewService.getPartQuestionsWithAnswers(applicationId, questionType);
 		return ApiResponse.success(responses);
 	}
@@ -55,13 +54,13 @@ public class ApplicationViewController {
 	 * 지원서 기타 질문 조회
 	 *
 	 * @param applicationId 지원서 ID
-	 * @return 기타 질문 및 답변 목록
+	 * @return 기타 질문 및 답변
 	 */
 	@GetMapping("/{applicationId}/etc-questions")
-	public ApiResponse<List<AdminApplicationPartQuestionResponse>> getEtcQuestions(
+	public ApiResponse<AdminApplicationEtcQuestionsResponse> getEtcQuestions(
 			@PathVariable Long applicationId) {
-		List<AdminApplicationPartQuestionResponse> responses =
+		AdminApplicationEtcQuestionsResponse response =
 				applicationViewService.getEtcQuestionsWithAnswers(applicationId);
-		return ApiResponse.success(responses);
+		return ApiResponse.success(response);
 	}
 }

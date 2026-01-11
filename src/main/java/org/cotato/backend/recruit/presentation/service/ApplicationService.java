@@ -68,6 +68,9 @@ public class ApplicationService {
 		// 현재 모집 중인 기수 조회
 		Generation activeGeneration = generationService.getActiveGeneration();
 
+		// 지원 시작 기간 검증
+		validateRecruitmentStart(activeGeneration);
+
 		// 이미 해당 기수에 지원서가 있는지 확인
 		Optional<Application> existingApplication =
 				applicationRepository.findByUserAndGeneration(user, activeGeneration);
@@ -101,19 +104,19 @@ public class ApplicationService {
 	public void submitApplication(Long userId, Long applicationId) {
 		Application application = getApplicationWithAuth(applicationId, userId);
 
-		// 지원 기간 검증
-		validateRecruitmentPeriod(application.getGeneration());
+		// 지원 제출 마감 기간 검증
+		validateRecruitmentEnd(application.getGeneration());
 
 		application.submit();
 		applicationRepository.save(application);
 	}
 
 	/**
-	 * 지원 기간 검증
+	 * 지원 제출 마감 기간 검증
 	 *
 	 * @param generation 기수
 	 */
-	private void validateRecruitmentPeriod(Generation generation) {
+	private void validateRecruitmentEnd(Generation generation) {
 		RecruitmentInformation recruitmentEnd =
 				recruitmentInformationRepository
 						.findByGenerationAndInformationType(
@@ -126,6 +129,27 @@ public class ApplicationService {
 		LocalDateTime now = LocalDateTime.now();
 		if (now.isAfter(recruitmentEnd.getEventDatetime())) {
 			throw new PresentationException(PresentationErrorCode.RECRUITMENT_PERIOD_ENDED);
+		}
+	}
+
+	/**
+	 * 지원 제출 시작 기간 검증
+	 *
+	 * @param generation 기수
+	 */
+	private void validateRecruitmentStart(Generation generation) {
+		RecruitmentInformation recruitmentStart =
+				recruitmentInformationRepository
+						.findByGenerationAndInformationType(
+								generation, InformationType.RECRUITMENT_START)
+						.orElseThrow(
+								() ->
+										new PresentationException(
+												PresentationErrorCode.RECRUITMENT_INFO_NOT_FOUND));
+
+		LocalDateTime now = LocalDateTime.now();
+		if (now.isBefore(recruitmentStart.getEventDatetime())) {
+			throw new PresentationException(PresentationErrorCode.RECRUITMENT_PERIOD_STARTED);
 		}
 	}
 }

@@ -10,9 +10,12 @@ import org.cotato.backend.recruit.domain.application.entity.ApplicationAnswer;
 import org.cotato.backend.recruit.domain.application.repository.ApplicationAnswerRepository;
 import org.cotato.backend.recruit.domain.question.entity.Question;
 import org.cotato.backend.recruit.domain.question.enums.QuestionType;
-import org.cotato.backend.recruit.presentation.dto.request.AnswerRequest;
+import org.cotato.backend.recruit.presentation.dto.request.EtcAnswersRequest;
+import org.cotato.backend.recruit.presentation.dto.request.PartAnswerRequest;
 import org.cotato.backend.recruit.presentation.dto.response.AnswerResponse;
-import org.cotato.backend.recruit.presentation.dto.response.QuestionWithAnswerResponse;
+import org.cotato.backend.recruit.presentation.dto.response.EtcQuestionsResponse;
+import org.cotato.backend.recruit.presentation.dto.response.PartQuestionResponse;
+import org.cotato.backend.recruit.presentation.dto.response.RecruitmentScheduleResponse;
 import org.cotato.backend.recruit.presentation.error.PresentationErrorCode;
 import org.cotato.backend.recruit.presentation.exception.PresentationException;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,7 @@ public class ApplicationAnswerService {
 	private final ApplicationAnswerRepository applicationAnswerRepository;
 	private final QuestionService questionService;
 	private final ApplicationService applicationService;
+	private final RecruitmentService recruitmentService;
 
 	/**
 	 * 질문 목록을 저장된 답변과 함께 매핑
@@ -34,7 +38,7 @@ public class ApplicationAnswerService {
 	 * @param savedAnswers 저장된 답변 목록
 	 * @return 질문과 답변이 매핑된 응답 목록
 	 */
-	private List<QuestionWithAnswerResponse> mapQuestionsWithAnswers(
+	private List<PartQuestionResponse.QuestionWithAnswerResponse> mapQuestionsWithAnswers(
 			List<Question> questions, List<ApplicationAnswer> savedAnswers) {
 		// 질문 ID를 키로 하는 답변 맵 생성
 		Map<Long, ApplicationAnswer> answerMap =
@@ -51,7 +55,8 @@ public class ApplicationAnswerService {
 							AnswerResponse answerResponse =
 									savedAnswer != null ? AnswerResponse.from(savedAnswer) : null;
 
-							return QuestionWithAnswerResponse.of(q, answerResponse);
+							return PartQuestionResponse.QuestionWithAnswerResponse.of(
+									q, answerResponse);
 						})
 				.collect(Collectors.toList());
 	}
@@ -63,8 +68,7 @@ public class ApplicationAnswerService {
 	 * @param applicationId 지원서 ID
 	 * @return 질문 및 저장된 답변 목록
 	 */
-	public List<QuestionWithAnswerResponse> getQuestionsWithAnswers(
-			Long userId, Long applicationId) {
+	public PartQuestionResponse getQuestionsWithAnswers(Long userId, Long applicationId) {
 		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
 
 		// Application에서 선택한 파트 가져오기
@@ -84,30 +88,31 @@ public class ApplicationAnswerService {
 		List<ApplicationAnswer> savedAnswers =
 				applicationAnswerRepository.findByApplication(application);
 
-		return mapQuestionsWithAnswers(partQuestions, savedAnswers);
+		List<PartQuestionResponse.QuestionWithAnswerResponse> questionList =
+				mapQuestionsWithAnswers(partQuestions, savedAnswers);
+
+		return PartQuestionResponse.of(
+				questionList, application.getPdfFileUrl(), application.getPdfFileKey());
 	}
 
 	/**
-	 * 기타 질문 조회 + 저장된 답변 포함 - 페이지 3용
+	 * 기타 질문 조회 - Application 필드 기반으로 동적 생성 (페이지 3용)
 	 *
 	 * @param userId 사용자 ID
 	 * @param applicationId 지원서 ID
 	 * @return 기타 질문 및 저장된 답변 목록
 	 */
-	public List<QuestionWithAnswerResponse> getEtcQuestionsWithAnswers(
-			Long userId, Long applicationId) {
+	public EtcQuestionsResponse getEtcQuestionsWithAnswers(Long userId, Long applicationId) {
 		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
 
-		// 기타 질문 조회
-		List<Question> etcQuestions =
-				questionService.getQuestionsByGenerationAndQuestionType(
-						application.getGeneration(), QuestionType.ETC);
+		// 모집 일정 조회
+		RecruitmentScheduleResponse schedule = recruitmentService.getRecruitmentSchedule();
 
-		// 저장된 답변 조회 및 매핑
-		List<ApplicationAnswer> savedAnswers =
-				applicationAnswerRepository.findByApplication(application);
-
-		return mapQuestionsWithAnswers(etcQuestions, savedAnswers);
+		return EtcQuestionsResponse.of(
+				application,
+				schedule.interviewStartDate(),
+				schedule.interviewEndDate(),
+				schedule.otDate());
 	}
 
 	/**
@@ -118,45 +123,58 @@ public class ApplicationAnswerService {
 	 * @param requests 질문 응답 요청 목록
 	 */
 	@Transactional
-	public void saveAnswers(Long userId, Long applicationId, List<AnswerRequest> requests) {
+	public void saveAnswers(
+			Long userId,
+			Long applicationId,
+			List<PartAnswerRequest.AnswerRequest> requests,
+			String pdfFileUrl,
+			String pdfFileKey) {
 		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
 
 		// 각 질문에 대한 답변 저장
-		for (AnswerRequest request : requests) {
-			Question question = questionService.getQuestionById(request.questionId());
+		if (requests != null && !requests.isEmpty()) {
+			for (PartAnswerRequest.AnswerRequest request : requests) {
+				Question question = questionService.getQuestionById(request.questionId());
 
-			// 질문의 answerType과 요청의 answerType이 일치하는지 검증
-			if (!question.getAnswerType().equals(request.answerType())) {
-				throw new PresentationException(PresentationErrorCode.ANSWER_TYPE_MISMATCH);
-			}
+				// 기존 답변이 있으면 업데이트, 없으면 새로 생성
+				Optional<ApplicationAnswer> existingAnswer =
+						applicationAnswerRepository.findByApplicationAndQuestion(
+								application, question);
 
-			// 기존 답변이 있으면 업데이트, 없으면 새로 생성
-			Optional<ApplicationAnswer> existingAnswer =
-					applicationAnswerRepository.findByApplicationAndQuestion(application, question);
-
-			if (existingAnswer.isPresent()) {
-				// 기존 답변 업데이트
-				existingAnswer
-						.get()
-						.update(
-								request.answerType(),
-								request.isChecked(),
-								request.content(),
-								request.fileKey(),
-								request.fileUrl());
-			} else {
-				// 새 답변 생성
-				ApplicationAnswer newAnswer =
-						ApplicationAnswer.of(
-								application,
-								question,
-								request.answerType(),
-								request.isChecked(),
-								request.content(),
-								request.fileKey(),
-								request.fileUrl());
-				applicationAnswerRepository.save(newAnswer);
+				if (existingAnswer.isPresent()) {
+					// 기존 답변 업데이트
+					existingAnswer.get().update(request.content());
+				} else {
+					// 새 답변 생성
+					ApplicationAnswer newAnswer =
+							ApplicationAnswer.of(application, question, request.content());
+					applicationAnswerRepository.save(newAnswer);
+				}
 			}
 		}
+
+		// Application PDF 정보 저장
+		application.updatePdfInfo(pdfFileUrl, pdfFileKey);
+	}
+
+	/**
+	 * 기타 질문 임시 저장
+	 *
+	 * @param userId 사용자 ID
+	 * @param applicationId 지원서 ID
+	 * @param request 기타 질문 응답 및 추가 정보 요청
+	 */
+	@Transactional
+	public void saveEtcAnswers(Long userId, Long applicationId, EtcAnswersRequest request) {
+		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
+
+		// Application 기타 정보 저장
+		application.updateEtcInfo(
+				request.discoveryPath(),
+				request.parallelActivities(),
+				request.unavailableInterviewTimes(),
+				request.sessionAttendanceAgreed(),
+				request.mandatoryEventsAgreed(),
+				request.privacyPolicyAgreed());
 	}
 }

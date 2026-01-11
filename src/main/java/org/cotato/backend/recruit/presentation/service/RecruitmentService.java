@@ -60,6 +60,7 @@ public class RecruitmentService {
 	 */
 	public RecruitmentStatusResponse checkRecruitmentStatus() {
 		Long generationId = generationService.getActiveGenerationId();
+
 		boolean isActive = generationId != null;
 		return RecruitmentStatusResponse.of(isActive, generationId);
 	}
