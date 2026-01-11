@@ -80,7 +80,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 				applications a
 			WHERE
 				a.generation_id = :generationId
-				AND (:partViewType = 'ALL' OR a.application_part_type = :partViewType)
 				AND (:passViewStatus = 'ALL' OR a.pass_status = :passViewStatus)
 				AND (
 					:keyword IS NULL OR :keyword = ''
