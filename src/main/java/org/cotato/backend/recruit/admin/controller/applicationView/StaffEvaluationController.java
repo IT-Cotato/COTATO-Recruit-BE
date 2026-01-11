@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Admin Evaluation", description = "운영진 평가 API")
+@Tag(name = "운영진 평가 관리 API", description = "지원서별 운영진 평가 조회 및 생성/수정 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/admin/application/{applicationId}/evaluation")
