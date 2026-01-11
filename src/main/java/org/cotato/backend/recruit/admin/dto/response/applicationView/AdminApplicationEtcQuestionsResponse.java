@@ -5,14 +5,12 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import org.cotato.backend.recruit.common.util.DateFormatter;
-import org.cotato.backend.recruit.domain.application.entity.Application;
+import org.cotato.backend.recruit.domain.application.dto.ApplicationEtcData;
 import org.cotato.backend.recruit.domain.application.enums.DiscoveryPath;
-import org.cotato.backend.recruit.presentation.dto.response.EtcQuestionsResponse;
 
 @Schema(description = "관리자용 기타 질문 및 답변 응답")
 public record AdminApplicationEtcQuestionsResponse(
-		@Schema(description = "동아리를 알게 된 경로")
-				EtcQuestionsResponse.DiscoveryPathQuestion discoveryPath,
+		@Schema(description = "동아리를 알게 된 경로") DiscoveryPathQuestion discoveryPath,
 		@Schema(description = "병행 활동") String parallelActivities,
 		@Schema(description = "면접 불가 시간") String unavailableInterviewTimes,
 		@Schema(description = "세션 출석 동의") Boolean sessionAttendance,
@@ -23,7 +21,7 @@ public record AdminApplicationEtcQuestionsResponse(
 		@Schema(description = "대면 OT 날짜", example = "3월 6일") String otDate) {
 
 	public static AdminApplicationEtcQuestionsResponse of(
-			Application application,
+			ApplicationEtcData etcData,
 			LocalDateTime interviewStart,
 			LocalDateTime interviewEnd,
 			LocalDateTime ot) {
@@ -34,32 +32,39 @@ public record AdminApplicationEtcQuestionsResponse(
 		String formattedOtDate = DateFormatter.formatMonthDay(ot);
 
 		// 2. 동아리를 알게 된 경로 옵션 리스트 생성
-		List<EtcQuestionsResponse.DiscoveryPathQuestion.DiscoveryPathOption> discoveryPathOptions =
+		List<DiscoveryPathQuestion.DiscoveryPathOption> discoveryPathOptions =
 				Arrays.stream(DiscoveryPath.values())
 						.map(
 								dp ->
-										new EtcQuestionsResponse.DiscoveryPathQuestion
-												.DiscoveryPathOption(dp.getDescription()))
+										new DiscoveryPathQuestion.DiscoveryPathOption(
+												dp.getDescription()))
 						.toList();
 
 		// 3. DiscoveryPathQuestion 객체 생성
 		String selectedDiscoveryPath =
-				application.getDiscoveryPath() != null
-						? application.getDiscoveryPath().getDescription()
-						: null;
-		EtcQuestionsResponse.DiscoveryPathQuestion discoveryPathQuestion =
-				new EtcQuestionsResponse.DiscoveryPathQuestion(
-						discoveryPathOptions, selectedDiscoveryPath);
+				etcData.discoveryPath() != null ? etcData.discoveryPath().getDescription() : null;
+		DiscoveryPathQuestion discoveryPathQuestion =
+				new DiscoveryPathQuestion(discoveryPathOptions, selectedDiscoveryPath);
 
 		return new AdminApplicationEtcQuestionsResponse(
 				discoveryPathQuestion,
-				application.getParallelActivities(),
-				application.getUnavailableInterviewTimes(),
-				application.getSessionAttendanceAgreed(),
-				application.getMandatoryEventsAgreed(),
-				application.getPrivacyPolicyAgreed(),
+				etcData.parallelActivities(),
+				etcData.unavailableInterviewTimes(),
+				etcData.sessionAttendanceAgreed(),
+				etcData.mandatoryEventsAgreed(),
+				etcData.privacyPolicyAgreed(),
 				startDate,
 				endDate,
 				formattedOtDate);
+	}
+
+	@Schema(description = "동아리를 알게 된 경로 질문 및 답변")
+	public record DiscoveryPathQuestion(
+			@Schema(description = "선택 가능한 경로 목록") List<DiscoveryPathOption> options,
+			@Schema(description = "선택한 경로", example = "SNS", nullable = true)
+					String selectedAnswer) {
+		@Schema(description = "경로 옵션")
+		public record DiscoveryPathOption(
+				@Schema(description = "옵션 값", example = "SNS") String value) {}
 	}
 }

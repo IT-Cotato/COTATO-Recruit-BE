@@ -10,8 +10,10 @@ import org.cotato.backend.recruit.admin.dto.response.applicationView.AdminApplic
 import org.cotato.backend.recruit.admin.dto.response.applicationView.AdminApplicationPartQuestionResponse;
 import org.cotato.backend.recruit.admin.service.application.ApplicationAdminService;
 import org.cotato.backend.recruit.admin.service.applicationAnswer.ApplicationAnswerAdminService;
+import org.cotato.backend.recruit.admin.service.applicationEtcInfo.ApplicationEtcInfoAdminService;
 import org.cotato.backend.recruit.admin.service.question.QuestionAdminService;
 import org.cotato.backend.recruit.admin.service.recruitmentInformation.RecruitmentInformationAdminService;
+import org.cotato.backend.recruit.domain.application.dto.ApplicationEtcData;
 import org.cotato.backend.recruit.domain.application.entity.Application;
 import org.cotato.backend.recruit.domain.application.entity.ApplicationAnswer;
 import org.cotato.backend.recruit.domain.question.entity.Question;
@@ -30,6 +32,7 @@ public class ApplicationViewService {
 	private final ApplicationAdminService applicationAdminService;
 	private final QuestionAdminService questionAdminService;
 	private final RecruitmentInformationAdminService recruitmentInformationAdminService;
+	private final ApplicationEtcInfoAdminService applicationEtcInfoAdminService;
 
 	public AdminApplicationBasicInfoResponse getBasicInfo(Long applicationId) {
 		Application application = applicationAdminService.getApplication(applicationId);
@@ -50,6 +53,9 @@ public class ApplicationViewService {
 	public AdminApplicationEtcQuestionsResponse getEtcQuestionsWithAnswers(Long applicationId) {
 		Application application = applicationAdminService.getApplication(applicationId);
 
+		// ApplicationEtcInfo에서 JSON 데이터 조회
+		ApplicationEtcData etcData = applicationEtcInfoAdminService.getEtcData(application);
+
 		// 모집 일정 조회
 		RecruitmentInformation interviewStart =
 				recruitmentInformationAdminService.getRecruitmentInformation(
@@ -62,7 +68,7 @@ public class ApplicationViewService {
 						application.getGeneration(), InformationType.OT);
 
 		return AdminApplicationEtcQuestionsResponse.of(
-				application,
+				etcData,
 				interviewStart.getEventDatetime(),
 				interviewEnd.getEventDatetime(),
 				ot.getEventDatetime());
