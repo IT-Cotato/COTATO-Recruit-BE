@@ -26,6 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ApplicationViewListService {
+	private static final String SUBMITTED_AT_FIELD = "submittedAt"; // Pageable 요청용
+	private static final String SUBMITTED_AT_COLUMN = "submitted_at"; // 네이티브 쿼리용
+	private static final String NAME_COLUMN = "name"; // 네이티브 쿼리용
 
 	private final ApplicationRepository applicationRepository;
 	private final RecruitmentInformationAdminService recruitmentInformationAdminService;
@@ -38,14 +41,16 @@ public class ApplicationViewListService {
 		// 정렬 로직 처리
 		// 정렬 기준: 지원제출최신순(submitted_at) -> 이름 오름차순 고정
 		Sort sort = pageable.getSort();
-		Sort.Order submittedAtOrder = sort.getOrderFor("submittedAt");
+		Sort.Order submittedAtOrder = sort.getOrderFor(SUBMITTED_AT_FIELD);
 
 		Sort.Direction direction = Sort.Direction.DESC;
 		if (submittedAtOrder != null) {
 			direction = submittedAtOrder.getDirection();
 		}
 
-		Sort newSort = Sort.by(direction, "submitted_at").and(Sort.by(Sort.Direction.ASC, "name"));
+		Sort newSort =
+				Sort.by(direction, SUBMITTED_AT_COLUMN)
+						.and(Sort.by(Sort.Direction.ASC, NAME_COLUMN));
 
 		Pageable newPageable =
 				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), newSort);

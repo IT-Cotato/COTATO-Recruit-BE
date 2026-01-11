@@ -58,6 +58,7 @@ public class GenerationAdminService {
 		return generationRepository.findById(generation);
 	}
 
+	// 모집활성화된 기수를 생성, 추가모집활성화여부는 false
 	@Transactional
 	public Generation saveNewGenerationWithRecruitingActive(Long generation) {
 		return generationRepository.save(

@@ -46,7 +46,7 @@ public class RecruitmentActiveService {
 		Generation newGeneration =
 				generationAdminService.saveNewGenerationWithRecruitingActive(generationId);
 
-		// 모집 활성화
+		// 모집 활성화, 추가모집활성화여부 설정
 		newGeneration.startRecruitment(isAdditionalRecruitmentActive);
 
 		// 지원시작일, 지원종료일 정보 update, 없으면 생성

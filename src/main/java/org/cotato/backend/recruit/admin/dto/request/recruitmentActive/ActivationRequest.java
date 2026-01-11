@@ -5,6 +5,6 @@ import java.time.LocalDate;
 
 public record ActivationRequest(
 		@NotNull Long generation,
-		@NotNull boolean isAdditionalRecruitmentActive,
+		@NotNull Boolean isAdditionalRecruitmentActive,
 		@NotNull LocalDate startDate,
 		@NotNull LocalDate endDate) {}
