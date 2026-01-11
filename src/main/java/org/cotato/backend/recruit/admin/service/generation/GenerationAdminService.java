@@ -1,11 +1,14 @@
 package org.cotato.backend.recruit.admin.service.generation;
 
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.cotato.backend.recruit.admin.dto.response.applicationView.GenerationElementResponse;
 import org.cotato.backend.recruit.admin.error.AdminErrorCode;
 import org.cotato.backend.recruit.admin.exception.AdminException;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.generation.repository.GenerationRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,9 +58,16 @@ public class GenerationAdminService {
 		return generationRepository.findById(generation);
 	}
 
+	// 모집활성화된 기수를 생성, 추가모집활성화여부는 false
 	@Transactional
-	public Generation saveGeneration(Long generation) {
+	public Generation saveNewGenerationWithRecruitingActive(Long generation) {
 		return generationRepository.save(
 				Generation.builder().id(generation).isRecruitingActive(true).build());
+	}
+
+	public List<GenerationElementResponse> getAllGenerations() {
+		return generationRepository.findAll(Sort.by(Sort.Direction.DESC, "id")).stream()
+				.map(GenerationElementResponse::from)
+				.toList();
 	}
 }

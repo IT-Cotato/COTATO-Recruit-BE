@@ -47,7 +47,7 @@ public class Application {
 	private PassStatus passStatus;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "part_type")
+	@Column(name = "application_part_type")
 	private ApplicationPartType applicationPartType;
 
 	@Column(name = "completed_semesters")

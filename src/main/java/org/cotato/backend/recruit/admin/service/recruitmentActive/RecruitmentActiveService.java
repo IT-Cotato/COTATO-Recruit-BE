@@ -20,9 +20,13 @@ public class RecruitmentActiveService {
 	private final GenerationAdminService generationAdminService;
 
 	@Transactional
-	public void activateRecruitment(Long generationId, LocalDate startDate, LocalDate endDate) {
+	public void activateRecruitment(
+			Long generationId,
+			boolean isAdditionalRecruitmentActive,
+			LocalDate startDate,
+			LocalDate endDate) {
 		// startDate < endDate
-		validate(generationId, startDate, endDate);
+		validate(startDate, endDate);
 
 		// 기존 Generation인지 확인
 		Optional<Generation> generation =
@@ -30,7 +34,7 @@ public class RecruitmentActiveService {
 
 		// 이미 생성됐으면 모집기간 활성화 및 지원시작일, 종료일 업데이트
 		if (generation.isPresent()) {
-			generation.get().updateRecruitmentStatus(true);
+			generation.get().startRecruitment(isAdditionalRecruitmentActive);
 			updateRecruitmentInformation(
 					generation.get(), InformationType.RECRUITMENT_START, startDate.atStartOfDay());
 			updateRecruitmentInformation(
@@ -39,10 +43,11 @@ public class RecruitmentActiveService {
 		}
 
 		// 기수가 생성되지 않았으면 생성
-		Generation newGeneration = generationAdminService.saveGeneration(generationId);
+		Generation newGeneration =
+				generationAdminService.saveNewGenerationWithRecruitingActive(generationId);
 
-		// 모집 활성화
-		newGeneration.updateRecruitmentStatus(true);
+		// 모집 활성화, 추가모집활성화여부 설정
+		newGeneration.startRecruitment(isAdditionalRecruitmentActive);
 
 		// 지원시작일, 지원종료일 정보 update, 없으면 생성
 		updateRecruitmentInformation(
@@ -51,7 +56,14 @@ public class RecruitmentActiveService {
 				newGeneration, InformationType.RECRUITMENT_END, endDate.atTime(23, 59, 59));
 	}
 
-	private void validate(Long generationId, LocalDate startDate, LocalDate endDate) {
+	@Transactional
+	public void deactivateRecruitment(Long generationId) {
+		Generation generation = generationAdminService.findGeneration(generationId);
+		// 모집활성화여부, 추가모집활성화여부 false처리
+		generation.endRecruitment();
+	}
+
+	private void validate(LocalDate startDate, LocalDate endDate) {
 		if (startDate.isAfter(endDate)) {
 			throw new IllegalArgumentException("시작일은 종료일보다 빨라야 합니다.");
 		}
