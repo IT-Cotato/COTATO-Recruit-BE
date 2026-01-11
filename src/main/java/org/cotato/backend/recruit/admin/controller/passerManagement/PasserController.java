@@ -1,5 +1,6 @@
 package org.cotato.backend.recruit.admin.controller.passerManagement;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.dto.response.passer.PassStatusSummaryResponse;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "합격자 관리 API", description = "합격자 현황 조회 API")
 @RestController
 @RequiredArgsConstructor
 public class PasserController {
