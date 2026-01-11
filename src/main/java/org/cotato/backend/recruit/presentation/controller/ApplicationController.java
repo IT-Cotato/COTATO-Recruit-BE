@@ -53,8 +53,7 @@ public class ApplicationController {
 	@Operation(
 			summary = "기타 질문 + 저장된 답변 조회 (페이지 3)",
 			description =
-					"기타(ETC) 질문을 저장된 답변과 함께 조회하고, Application의 추가 정보(알게 된 경로, 병행 활동, 동의사항 등)도 함께"
-							+ " 반환합니다. (페이지 3 진입 시)")
+					"기타(ETC) 질문 (알게 된 경로, 병행 활동, 동의사항 등) 을 저장된 답변과 함께 조회하고 반환합니다. (페이지 3 진입 시)")
 	@GetMapping("/{applicationId}/etc-questions")
 	public ApiResponse<EtcQuestionsResponse> getEtcQuestionsWithAnswers(
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
