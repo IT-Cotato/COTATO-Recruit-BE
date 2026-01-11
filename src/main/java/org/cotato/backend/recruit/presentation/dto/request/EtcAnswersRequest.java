@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.cotato.backend.recruit.domain.application.enums.DiscoveryPath;
 
-@Schema(description = "기타 질문 답변 및 추가 정보 요청")
+@Schema(description = "기타 질문 답변 요청")
 public record EtcAnswersRequest(
 		@Schema(
 						description = "알게 된 경로",
