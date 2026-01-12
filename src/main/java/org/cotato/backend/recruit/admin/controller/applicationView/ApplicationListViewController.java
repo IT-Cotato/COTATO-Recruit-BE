@@ -28,7 +28,7 @@ public class ApplicationListViewController {
 	 *
 	 * @param request 지원서 목록 조회 요청 정보
 	 * @param generationId 기수 ID - 필수
-	 * @param partViewType (ALL, BE, FE, PM, DE) - 필수
+	 * @param partViewType (ALL, BE, FE, PM, DE) - 필수, 다중선택 가능
 	 * @param passViewType (ALL, PASS, FAIL, WAITLISTED) - 필수
 	 * @param pageable 페이지네이션 정보
 	 * @return 지원서 목록

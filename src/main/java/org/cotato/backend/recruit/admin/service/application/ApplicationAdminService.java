@@ -28,6 +28,15 @@ public class ApplicationAdminService {
 	}
 
 	// 합격 상태별 통계 조회
+	// 결과 예시
+	// [
+	// [PassStatus.PASS, BE, 10],
+	// [PassStatus.PASS, FE, 20],
+	// [PassStatus.WAITLISTED, BE, 30],
+	// [PassStatus.WAITLISTED, FE, 40],
+	// [PassStatus.FAIL, BE, 50],
+	// [PassStatus.FAIL, FE, 60]
+	// ]
 	public List<Object[]> getPassStatusCounts(Long generationId) {
 		return applicationRepository.countByGenerationIdGroupByPassStatusAndApplicationPartType(
 				generationId);
