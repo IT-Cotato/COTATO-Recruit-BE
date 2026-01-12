@@ -97,7 +97,6 @@ public class ApplicationViewListService {
 		List<Object[]> counts =
 				applicationRepository.countByFilterGroupByApplicationPartType(
 						request.generation(),
-						request.partViewType().name(),
 						request.passViewStatuses().stream().map(Enum::name).toList(),
 						request.searchKeyword());
 

@@ -92,7 +92,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 			nativeQuery = true)
 	List<Object[]> countByFilterGroupByApplicationPartType(
 			@Param("generationId") Long generationId,
-			@Param("partViewType") String partViewType,
 			@Param("passViewStatuses") List<String> passViewStatuses,
 			@Param("keyword") String keyword);
 
