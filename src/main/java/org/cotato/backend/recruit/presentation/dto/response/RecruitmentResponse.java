@@ -7,7 +7,7 @@ import org.cotato.backend.recruit.domain.recruitmentNotice.entity.RecruitmentNot
 
 @JsonPropertyOrder({"generation", "startDate", "endDate", "schedule", "parts", "activities"})
 public record RecruitmentResponse(
-		int generation,
+		Long generationId,
 		String startDate,
 		String endDate,
 		List<ScheduleResponse> schedule,

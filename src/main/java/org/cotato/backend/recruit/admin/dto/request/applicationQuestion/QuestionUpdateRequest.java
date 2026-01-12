@@ -5,6 +5,6 @@ import java.util.List;
 import org.cotato.backend.recruit.domain.question.enums.QuestionType;
 
 public record QuestionUpdateRequest(
-		@NotNull Long generation,
+		@NotNull Long generationId,
 		@NotNull QuestionType questionType,
 		@NotNull List<ApplicationQuestionUpdateElement> questions) {}

@@ -32,9 +32,9 @@ public class RecruitmentInformationController {
 	@Operation(summary = "모집 일정 조회", description = "해당 기수의 모집 일정을 조회합니다.")
 	@GetMapping
 	public ApiResponse<RecruitmentInformationResponse> getRecruitmentInformation(
-			@RequestParam(required = true) Long generation) {
+			@RequestParam Long generationId) {
 		RecruitmentInformationResponse response =
-				recruitmentInformationAdminService.getRecruitmentInformation(generation);
+				recruitmentInformationAdminService.getRecruitmentInformation(generationId);
 		return ApiResponse.success(response);
 	}
 

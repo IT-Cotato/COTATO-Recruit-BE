@@ -14,7 +14,7 @@ import org.cotato.backend.recruit.admin.dto.request.notice.enums.ScheduleType;
 public record RecruitmentNoticeCreateRequest(
 		@Schema(description = "기수 번호", example = "12", requiredMode = Schema.RequiredMode.REQUIRED)
 				@NotNull(message = "기수는 필수입니다.")
-				Integer generation,
+				Long generationId,
 		@Schema(
 						description = "모집 파트 목록 (PM, DE, FE, BE 순서)",
 						requiredMode = Schema.RequiredMode.REQUIRED)

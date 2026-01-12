@@ -6,7 +6,7 @@ import org.cotato.backend.recruit.admin.enums.PartViewType;
 import org.cotato.backend.recruit.admin.enums.PassViewStatus;
 
 public record ApplicationListRequest(
-		@NotNull Long generation,
+		@NotNull Long generationId,
 		String searchKeyword,
 		@NotNull PartViewType partViewType,
 		@NotNull List<PassViewStatus> passViewStatuses) {}

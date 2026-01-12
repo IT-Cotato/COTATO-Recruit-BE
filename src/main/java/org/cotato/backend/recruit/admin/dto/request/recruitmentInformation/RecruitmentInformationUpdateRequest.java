@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record RecruitmentInformationUpdateRequest(
-		@NotNull Long generation,
+		@NotNull Long generationId,
 		@NotNull LocalDateTime recruitmentStart,
 		@NotNull LocalDateTime recruitmentEnd,
 		@NotNull LocalDate documentAnnouncement,
