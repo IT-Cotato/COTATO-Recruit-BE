@@ -5,9 +5,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.cotato.backend.recruit.admin.dto.request.applicationQuestion.ApplicationQuestionUpdateRequest;
+import org.cotato.backend.recruit.admin.dto.request.applicationQuestion.QuestionUpdateRequest;
 import org.cotato.backend.recruit.admin.dto.response.applicationQuestion.ApplicationQuestionResponse;
-import org.cotato.backend.recruit.admin.service.applicationQuestion.ApplicationQuestionAdminService;
+import org.cotato.backend.recruit.admin.service.applicationQuestion.QuestionEditAdminService;
+import org.cotato.backend.recruit.admin.service.question.QuestionAdminService;
 import org.cotato.backend.recruit.common.response.ApiResponse;
 import org.cotato.backend.recruit.domain.question.enums.QuestionType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,13 +24,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/admin/application-questions")
 public class ApplicationQuestionController {
 
-	private final ApplicationQuestionAdminService applicationQuestionAdminService;
+	private final QuestionEditAdminService questionEditAdminService;
+	private final QuestionAdminService questionAdminService;
 
 	/**
 	 * 지원서 질문 조회
 	 *
 	 * @param generation 기수
-	 * @param partType 파트
+	 * @param questionType 파트
 	 * @return 지원서 질문 목록
 	 */
 	@Operation(summary = "지원서 질문 조회", description = "해당 기수 및 파트의 지원서 질문을 조회합니다.")
@@ -37,7 +39,7 @@ public class ApplicationQuestionController {
 	public ApiResponse<List<ApplicationQuestionResponse>> getQuestions(
 			@RequestParam Long generation, @RequestParam QuestionType questionType) {
 		List<ApplicationQuestionResponse> response =
-				applicationQuestionAdminService.getApplicationQuestions(generation, questionType);
+				questionAdminService.getApplicationQuestions(generation, questionType);
 		return ApiResponse.success(response);
 	}
 
@@ -49,9 +51,8 @@ public class ApplicationQuestionController {
 	 */
 	@Operation(summary = "지원서 질문 수정", description = "해당 기수의 지원서 공통 질문을 수정합니다. (기존 질문 삭제 후 재등록)")
 	@PostMapping
-	public ApiResponse<Void> updateQuestions(
-			@Valid @RequestBody ApplicationQuestionUpdateRequest request) {
-		applicationQuestionAdminService.updateApplicationQuestions(request);
+	public ApiResponse<Void> updateQuestions(@Valid @RequestBody QuestionUpdateRequest request) {
+		questionEditAdminService.updateApplicationQuestions(request);
 		return ApiResponse.success();
 	}
 }

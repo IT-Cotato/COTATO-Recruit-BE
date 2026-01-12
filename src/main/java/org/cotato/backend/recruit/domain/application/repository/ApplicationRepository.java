@@ -40,7 +40,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 			WHERE
 				a.generation_id = :generationId
 				AND (:partViewType = 'ALL' OR a.application_part_type = :partViewType)
-				AND (:passViewStatus = 'ALL' OR a.pass_status = :passViewStatus)
+				AND ('ALL' IN :passViewStatuses OR a.pass_status IN :passViewStatuses)
 				AND (
 					:keyword IS NULL OR :keyword = ''
 					OR a.name LIKE CONCAT('%', :keyword, '%')
@@ -54,7 +54,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 			WHERE
 				a.generation_id = :generationId
 				AND (:partViewType = 'ALL' OR a.application_part_type = :partViewType)
-				AND (:passViewStatus = 'ALL' OR a.pass_status = :passViewStatus)
+				AND ('ALL' IN :passViewStatuses OR a.pass_status IN :passViewStatuses)
 				AND (
 					:keyword IS NULL OR :keyword = ''
 					OR a.name LIKE CONCAT('%', :keyword, '%')
@@ -65,7 +65,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 	Page<Application> findWithFilters(
 			@Param("generationId") Long generationId,
 			@Param("partViewType") String partViewType,
-			@Param("passViewStatus") String passViewStatus,
+			@Param("passViewStatuses") List<String> passViewStatuses,
 			@Param("keyword") String keyword,
 			Pageable pageable);
 
@@ -80,7 +80,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 				applications a
 			WHERE
 				a.generation_id = :generationId
-				AND (:passViewStatus = 'ALL' OR a.pass_status = :passViewStatus)
+				AND ('ALL' IN :passViewStatuses OR a.pass_status IN :passViewStatuses)
 				AND (
 					:keyword IS NULL OR :keyword = ''
 					OR a.name LIKE CONCAT('%', :keyword, '%')
@@ -92,8 +92,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 			nativeQuery = true)
 	List<Object[]> countByFilterGroupByApplicationPartType(
 			@Param("generationId") Long generationId,
-			@Param("partViewType") String partViewType,
-			@Param("passViewStatus") String passViewStatus,
+			@Param("passViewStatuses") List<String> passViewStatuses,
 			@Param("keyword") String keyword);
 
 	// 합격 상태 및 파트별 통계 조회
