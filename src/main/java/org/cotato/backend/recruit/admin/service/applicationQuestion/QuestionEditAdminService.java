@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class QuestionEditAdminService {
 	private static final String PORTFOLIO_QUESTION_CONTENT =
 			"(선택) 추가로 제출할 포트폴리오(깃허브,블로그,노션,비핸스 등) 링크를 첨부해주세요. 업로드하실 포트폴리오 양식은 꼭 PDF로 변경 후 제출해주세요!";
-	private static Integer PORTFOIL_MAX_BYTE = -1;
+	private static final Integer PORTFOIL_MAX_BYTE = -1; // 제한없음 -> -1 처리
 
 	private final GenerationAdminService generationAdminService;
 	private final QuestionAdminService questionAdminService;
