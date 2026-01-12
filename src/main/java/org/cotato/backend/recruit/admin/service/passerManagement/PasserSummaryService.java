@@ -1,7 +1,7 @@
 package org.cotato.backend.recruit.admin.service.passerManagement;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,95 +20,79 @@ public class PasserSummaryService {
 
 	private final ApplicationAdminService applicationAdminService;
 
+	private static final List<PassStatus> TARGET_STATUS_ORDER = List.of(PassStatus.PASS, PassStatus.WAITLISTED,
+			PassStatus.FAIL);
+
+	private static final EnumSet<PassStatus> TARGET_STATUS_SET = EnumSet.copyOf(TARGET_STATUS_ORDER);
+
 	public List<PassStatusSummaryResponse> getPasserSummary(Long generationId) {
-		List<Object[]> results = applicationAdminService.getPassStatusCounts(generationId);
+		// status -> (part -> count)
+		Map<PassStatus, Map<ApplicationPartType, Long>> grouped = aggregate(generationId);
 
-		Map<PassStatus, Map<String, Long>> statusMap = new EnumMap<>(PassStatus.class);
-		List<PassStatus> targetStatuses =
-				List.of(PassStatus.PASS, PassStatus.WAITLISTED, PassStatus.FAIL);
-
-		// statusMap 초기화
-		initializeStatusMap(statusMap, targetStatuses);
-
-		// DB 결과를 statusMap에 매핑
-		mapStatusMap(results, statusMap, targetStatuses);
-
-		// ALL 결과 계산
-		calculateAllCounts(statusMap);
-
-		// responseList 생성
-		List<PassStatusSummaryResponse> responseList = getResponseList(statusMap);
-
-		return responseList;
+		return TARGET_STATUS_ORDER.stream()
+				.map(status -> toResponse(status, grouped.getOrDefault(status, Map.of())))
+				.toList();
 	}
 
-	// 응답 형태 매핑
-	private List<PassStatusSummaryResponse> getResponseList(
-			Map<PassStatus, Map<String, Long>> statusMap) {
-		List<PassStatusSummaryResponse> responseList = new ArrayList<>();
-		for (Map.Entry<PassStatus, Map<String, Long>> entry : statusMap.entrySet()) {
-			PassStatusSummaryResponse response =
-					PassStatusSummaryResponse.builder()
-							.passStatus(entry.getKey())
-							.counts(entry.getValue())
-							.build();
-			responseList.add(response);
+	// 상태별, 파트별 count를 모아서 Map으로 반환
+	private Map<PassStatus, Map<ApplicationPartType, Long>> aggregate(Long generationId) {
+		Map<PassStatus, Map<ApplicationPartType, Long>> result = new EnumMap<>(PassStatus.class);
+
+		for (Object[] row : applicationAdminService.getPassStatusCounts(generationId)) {
+			// data 예시
+			// [PassStatus.WAITLISTED, FE, 40]
+			PassStatusCount data = PassStatusCount.from(row);
+
+			// target status가 아닌 경우 continue
+			if (!TARGET_STATUS_SET.contains(data.status())) {
+				continue;
+			}
+
+			// 중복되는 결과가 있을 경우 합산
+			result.computeIfAbsent(data.status(), s -> new EnumMap<>(ApplicationPartType.class))
+					.merge(data.part(), data.count(), Long::sum);
 		}
-		return responseList;
+
+		return result;
 	}
 
-	private void calculateAllCounts(Map<PassStatus, Map<String, Long>> statusMap) {
-		for (PassStatus status : statusMap.keySet()) {
-			Map<String, Long> counts = statusMap.get(status);
-			long allCount = counts.values().stream().mapToLong(Long::longValue).sum();
-			counts.put("ALL", allCount);
+	// 상태별, 파트별 count를 모아서 Response로 반환
+	private PassStatusSummaryResponse toResponse(PassStatus status, Map<ApplicationPartType, Long> partCounts) {
+		Map<String, Long> counts = new LinkedHashMap<>();
+		long total = 0L;
+
+		for (ApplicationPartType part : ApplicationPartType.values()) {
+			long c = partCounts.getOrDefault(part, 0L);
+			counts.put(part.name(), c);
+			total += c;
 		}
+
+		counts.put("ALL", total);
+
+		return PassStatusSummaryResponse.builder()
+				.passStatus(status)
+				.counts(counts)
+				.build();
 	}
 
-	private void mapStatusMap(
-			List<Object[]> results,
-			Map<PassStatus, Map<String, Long>> statusMap,
-			List<PassStatus> targetStatuses) {
-		// DB 결과 예시
-		// results = [
-		// [PASS, BE, 10],
-		// [PASS, FE, 20],
-		// [PASS, PM, 30],
-		// [PASS, DE, 40],
-		// [WAITLISTED, BE, 50],
-		// [WAITLISTED, FE, 60].....
-		for (Object[] row : results) {
+	// DB에서 가져온 데이터를 PassStatusCount로 변환
+	private record PassStatusCount(PassStatus status, ApplicationPartType part, long count) {
+		// 결과 예시
+		// [
+		// [PassStatus.PASS, BE, 10],
+		// [PassStatus.PASS, FE, 20],
+		// [PassStatus.WAITLISTED, BE, 30],
+		// [PassStatus.WAITLISTED, FE, 40],
+		// [PassStatus.FAIL, BE, 50],
+		// [PassStatus.FAIL, FE, 60]
+		// ]
+		static PassStatusCount from(Object[] row) {
+			// row[0]=PassStatus, row[1]=ApplicationPartType, row[2]=Long (혹은 Number)
 			PassStatus status = (PassStatus) row[0];
 			ApplicationPartType part = (ApplicationPartType) row[1];
-			Long count = (Long) row[2];
 
-			if (status != null && part != null && targetStatuses.contains(status)) {
-				Map<String, Long> countMap = statusMap.get(status);
-				if (countMap != null && countMap.containsKey(part.name())) {
-					countMap.put(part.name(), count);
-				}
-			}
-		}
-	}
-
-	private void initializeStatusMap(
-			Map<PassStatus, Map<String, Long>> statusMap, List<PassStatus> targetStatuses) {
-		for (PassStatus status : targetStatuses) {
-			Map<String, Long> countMap = new LinkedHashMap<>();
-			// 파트별 초기화
-			countMap.put(ApplicationPartType.BE.name(), 0L);
-			countMap.put(ApplicationPartType.FE.name(), 0L);
-			countMap.put(ApplicationPartType.PM.name(), 0L);
-			countMap.put(ApplicationPartType.DE.name(), 0L);
-
-			// 합격 상태별 초기화
-			// 초기화 예시
-			// statusMap = {
-			// PASS: {BE: 0, FE: 0, PM: 0, DE: 0},
-			// WAITLISTED: {BE: 0, FE: 0, PM: 0, DE: 0},
-			// FAIL: {BE: 0, FE: 0, PM: 0, DE: 0}
-			// }
-			statusMap.put(status, countMap);
+			long count = (row[2] instanceof Number n) ? n.longValue() : (Long) row[2];
+			return new PassStatusCount(status, part, count);
 		}
 	}
 }
