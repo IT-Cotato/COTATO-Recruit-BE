@@ -40,35 +40,23 @@ public class ApplicationViewListService {
 
 		// 정렬 로직 처리
 		// 정렬 기준: 지원제출최신순(submitted_at) -> 이름 오름차순 고정
-		Sort sort = pageable.getSort();
-		Sort.Order submittedAtOrder = sort.getOrderFor(SUBMITTED_AT_FIELD);
-
-		Sort.Direction direction = Sort.Direction.DESC;
-		if (submittedAtOrder != null) {
-			direction = submittedAtOrder.getDirection();
-		}
-
-		Sort newSort =
-				Sort.by(direction, SUBMITTED_AT_COLUMN)
-						.and(Sort.by(Sort.Direction.ASC, NAME_COLUMN));
-
-		Pageable newPageable =
-				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), newSort);
+		Pageable sortedPageable = createPageableWithCustomSort(pageable);
 
 		Page<Application> applicationsPage =
 				applicationRepository.findWithFilters(
-						request.generation(),
+						request.generationId(),
 						request.partViewType().name(),
 						request.passViewStatuses().stream().map(Enum::name).toList(),
 						request.searchKeyword(),
-						newPageable);
+						sortedPageable);
 
 		List<ApplicationElementResponse> content =
 				applicationsPage.getContent().stream()
-						.map(this::toApplicationElementResponse)
+						.map(ApplicationElementResponse::from)
 						.toList();
 
-		Generation generation = generationAdminService.getGenerationById(request.generation());
+		// 기수 부가 정보
+		Generation generation = generationAdminService.getGenerationById(request.generationId());
 		RecruitmentPeriodResponse recruitmentPeriodResponse =
 				getRecruitmentPeriodResponse(generation);
 
@@ -79,6 +67,21 @@ public class ApplicationViewListService {
 		PageInfoResponse pageInfo = applicationViewPageInfoManager.getPageInfo(applicationsPage);
 
 		return AdminApplicationsResponse.of(recruitmentPeriodResponse, summary, content, pageInfo);
+	}
+
+	private Pageable createPageableWithCustomSort(Pageable pageable) {
+		Sort.Order submittedAtOrder = pageable.getSort().getOrderFor(SUBMITTED_AT_FIELD);
+
+		// 기본값 DESC 설정
+		Sort.Direction direction =
+				(submittedAtOrder != null) ? submittedAtOrder.getDirection() : Sort.Direction.DESC;
+
+		// 정렬 우선순위: 제출일시 -> 이름 (고정)
+		Sort newSort =
+				Sort.by(direction, SUBMITTED_AT_COLUMN)
+						.and(Sort.by(Sort.Direction.ASC, NAME_COLUMN));
+
+		return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), newSort);
 	}
 
 	private RecruitmentPeriodResponse getRecruitmentPeriodResponse(Generation generation) {
@@ -96,14 +99,10 @@ public class ApplicationViewListService {
 	private ApplicationSummaryResponse getSummaryResponse(ApplicationListRequest request) {
 		List<Object[]> counts =
 				applicationRepository.countByFilterGroupByApplicationPartType(
-						request.generation(),
+						request.generationId(),
 						request.passViewStatuses().stream().map(Enum::name).toList(),
 						request.searchKeyword());
 
 		return ApplicationSummaryResponse.from(counts);
-	}
-
-	private ApplicationElementResponse toApplicationElementResponse(Application application) {
-		return ApplicationElementResponse.from(application);
 	}
 }

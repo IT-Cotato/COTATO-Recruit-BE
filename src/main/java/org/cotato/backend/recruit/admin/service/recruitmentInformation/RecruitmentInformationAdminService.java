@@ -1,12 +1,11 @@
 package org.cotato.backend.recruit.admin.service.recruitmentInformation;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.dto.request.recruitmentInformation.RecruitmentInformationUpdateRequest;
 import org.cotato.backend.recruit.admin.dto.response.recruitmentInformation.RecruitmentInformationResponse;
+import org.cotato.backend.recruit.admin.error.AdminErrorCode;
+import org.cotato.backend.recruit.admin.exception.AdminException;
 import org.cotato.backend.recruit.admin.service.generation.GenerationAdminService;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.recruitmentInformation.entity.RecruitmentInformation;
@@ -21,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class RecruitmentInformationAdminService {
 	private final RecruitmentInformationRepository recruitmentInformationRepository;
 	private final GenerationAdminService generationAdminService;
+	private final RecruitmentInformationUpserterManager recruitmentInformationUpserterManager;
 
 	public RecruitmentInformationResponse getRecruitmentInformation(Long generationId) {
 		Generation generation = generationAdminService.getGenerationById(generationId);
@@ -36,58 +36,29 @@ public class RecruitmentInformationAdminService {
 		return recruitmentInformationRepository
 				.findByGenerationAndInformationType(generation, informationType)
 				.orElseThrow(
-						() -> new IllegalArgumentException("RecruitmentInformation not found"));
+						() -> new AdminException(AdminErrorCode.RECRUITMENT_INFORMATION_NOT_FOUND));
 	}
 
 	@Transactional
 	public void updateRecruitmentInformation(RecruitmentInformationUpdateRequest request) {
 		validate(request);
 
-		Generation generation = generationAdminService.getGenerationById(request.generation());
+		Generation generation = generationAdminService.getGenerationById(request.generationId());
 
-		upsertInformation(
+		recruitmentInformationUpserterManager.upsertDatetime(
 				generation, InformationType.RECRUITMENT_START, request.recruitmentStart());
-		upsertInformation(generation, InformationType.RECRUITMENT_END, request.recruitmentEnd());
-		upsertInformation(
+		recruitmentInformationUpserterManager.upsertDatetime(
+				generation, InformationType.RECRUITMENT_END, request.recruitmentEnd());
+		recruitmentInformationUpserterManager.upsertDateStartOfDay(
 				generation, InformationType.DOCUMENT_ANNOUNCEMENT, request.documentAnnouncement());
-		upsertInformation(generation, InformationType.INTERVIEW_START, request.interviewStart());
-		upsertInformation(generation, InformationType.INTERVIEW_END, request.interviewEnd());
-		upsertInformation(
+		recruitmentInformationUpserterManager.upsertDateStartOfDay(
+				generation, InformationType.INTERVIEW_START, request.interviewStart());
+		recruitmentInformationUpserterManager.upsertDateStartOfDay(
+				generation, InformationType.INTERVIEW_END, request.interviewEnd());
+		recruitmentInformationUpserterManager.upsertDateStartOfDay(
 				generation, InformationType.FINAL_ANNOUNCEMENT, request.finalAnnouncement());
-		upsertInformation(generation, InformationType.OT, request.ot());
-	}
-
-	private LocalDateTime getDateTime(
-			Map<InformationType, RecruitmentInformation> map, InformationType type) {
-		RecruitmentInformation info = map.get(type);
-		return info != null ? info.getEventDatetime() : null;
-	}
-
-	private LocalDate getDate(
-			Map<InformationType, RecruitmentInformation> map, InformationType type) {
-		RecruitmentInformation info = map.get(type);
-		return info != null ? info.getEventDatetime().toLocalDate() : null;
-	}
-
-	private void upsertInformation(
-			Generation generation, InformationType type, LocalDateTime datetime) {
-		if (datetime == null) return;
-		RecruitmentInformation info =
-				recruitmentInformationRepository
-						.findByGenerationAndInformationType(generation, type)
-						.orElse(
-								RecruitmentInformation.builder()
-										.generation(generation)
-										.informationType(type)
-										.eventDatetime(datetime)
-										.build());
-		info.updateEventDatetime(datetime);
-		recruitmentInformationRepository.save(info);
-	}
-
-	private void upsertInformation(Generation generation, InformationType type, LocalDate date) {
-		if (date == null) return;
-		upsertInformation(generation, type, date.atStartOfDay());
+		recruitmentInformationUpserterManager.upsertDateStartOfDay(
+				generation, InformationType.OT, request.ot());
 	}
 
 	private void validate(RecruitmentInformationUpdateRequest request) {

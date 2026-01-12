@@ -20,10 +20,11 @@ public class PasserSummaryService {
 
 	private final ApplicationAdminService applicationAdminService;
 
-	private static final List<PassStatus> TARGET_STATUS_ORDER = List.of(PassStatus.PASS, PassStatus.WAITLISTED,
-			PassStatus.FAIL);
+	private static final List<PassStatus> TARGET_STATUS_ORDER =
+			List.of(PassStatus.PASS, PassStatus.WAITLISTED, PassStatus.FAIL);
 
-	private static final EnumSet<PassStatus> TARGET_STATUS_SET = EnumSet.copyOf(TARGET_STATUS_ORDER);
+	private static final EnumSet<PassStatus> TARGET_STATUS_SET =
+			EnumSet.copyOf(TARGET_STATUS_ORDER);
 
 	public List<PassStatusSummaryResponse> getPasserSummary(Long generationId) {
 		// status -> (part -> count)
@@ -57,7 +58,8 @@ public class PasserSummaryService {
 	}
 
 	// 상태별, 파트별 count를 모아서 Response로 반환
-	private PassStatusSummaryResponse toResponse(PassStatus status, Map<ApplicationPartType, Long> partCounts) {
+	private PassStatusSummaryResponse toResponse(
+			PassStatus status, Map<ApplicationPartType, Long> partCounts) {
 		Map<String, Long> counts = new LinkedHashMap<>();
 		long total = 0L;
 
@@ -69,10 +71,7 @@ public class PasserSummaryService {
 
 		counts.put("ALL", total);
 
-		return PassStatusSummaryResponse.builder()
-				.passStatus(status)
-				.counts(counts)
-				.build();
+		return PassStatusSummaryResponse.builder().passStatus(status).counts(counts).build();
 	}
 
 	// DB에서 가져온 데이터를 PassStatusCount로 변환
