@@ -76,7 +76,7 @@ public class ApplicationService {
 			Application application = existingApplication.get();
 
 			// 이미 제출한 경우 예외 발생
-			if (application.isSubmitted()) {
+			if (application.getIsSubmitted()) {
 				throw new PresentationException(PresentationErrorCode.ALREADY_SUBMITTED);
 			}
 

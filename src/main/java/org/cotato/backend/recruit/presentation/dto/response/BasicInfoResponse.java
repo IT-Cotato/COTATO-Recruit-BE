@@ -14,7 +14,7 @@ public record BasicInfoResponse(
 		String major,
 		Integer completedSemesters,
 		Boolean isPrevActivity,
-		boolean isEnrolled,
+		Boolean isEnrolled,
 		ApplicationPartType applicationPartType) {
 
 	public static BasicInfoResponse from(Application application) {
@@ -28,7 +28,7 @@ public record BasicInfoResponse(
 				application.getMajor(),
 				application.getCompletedSemesters(),
 				application.getIsPrevActivity(),
-				application.isEnrolled(),
+				application.getIsEnrolled(),
 				application.getApplicationPartType());
 	}
 }

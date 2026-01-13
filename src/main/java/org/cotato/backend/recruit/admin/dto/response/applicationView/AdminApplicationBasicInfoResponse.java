@@ -27,7 +27,7 @@ public record AdminApplicationBasicInfoResponse(
 				.school(application.getUniversity())
 				.major(application.getMajor())
 				.enrollmentStatus(
-						application.isEnrolled()
+						application.getIsEnrolled()
 								? EnrollmentStatus.ENROLLED
 								: EnrollmentStatus.NOT_ENROLLED)
 				.completedSemesters(application.getCompletedSemesters())
