@@ -31,7 +31,7 @@ public class RecruitmentActiveController {
 	@PostMapping("/recruitment-activation")
 	public ApiResponse<Void> activateRecruitment(@Valid @RequestBody ActivationRequest request) {
 		recruitmentActiveService.activateRecruitment(
-				request.generation(),
+				request.generationId(),
 				request.isAdditionalRecruitmentActive(),
 				request.startDate(),
 				request.endDate());
@@ -42,7 +42,7 @@ public class RecruitmentActiveController {
 	@PostMapping("/recruitment-deactivation")
 	public ApiResponse<Void> deactivateRecruitment(
 			@Valid @RequestBody DeactivationRequest request) {
-		recruitmentActiveService.deactivateRecruitment(request.generation());
+		recruitmentActiveService.deactivateRecruitment(request.generationId());
 		return ApiResponse.success();
 	}
 }

@@ -27,7 +27,10 @@ public enum AdminErrorCode {
 	PART_TYPE_NOT_FOUND(HttpStatus.NOT_FOUND, "PT001", "해당 파트 타입을 찾을 수 없습니다."),
 
 	// Pass Status
-	PASS_STATUS_NOT_FOUND(HttpStatus.NOT_FOUND, "PS001", "해당 패스 상태를 찾을 수 없습니다.");
+	PASS_STATUS_NOT_FOUND(HttpStatus.NOT_FOUND, "PS001", "해당 패스 상태를 찾을 수 없습니다."),
+
+	// Recruitment Information
+	RECRUITMENT_INFORMATION_NOT_FOUND(HttpStatus.NOT_FOUND, "RI001", "해당 모집 정보를 찾을 수 없습니다.");
 
 	private final HttpStatus status;
 	private final String code;

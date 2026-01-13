@@ -57,8 +57,6 @@ public class RecruitmentEmailTemplateService {
 
 		// 내용 저장 (생성/수정)
 		template.updateContent(content);
-
-		recruitmentEmailTemplateRepository.save(template);
 	}
 
 	/** 모집 알림 메일 템플릿 조회 또는 생성 */
@@ -66,14 +64,12 @@ public class RecruitmentEmailTemplateService {
 	public RecruitmentEmailTemplate getOrCreateTemplate(Generation generation) {
 		return recruitmentEmailTemplateRepository
 				.findByGeneration(generation)
-				.orElseGet(
-						() -> {
-							RecruitmentEmailTemplate newTemplate =
-									RecruitmentEmailTemplate.builder()
-											.generation(generation)
-											.content("") // 빈 content로 시작
-											.build();
-							return recruitmentEmailTemplateRepository.save(newTemplate);
-						});
+				.orElseGet(() -> createNewTemplate(generation));
+	}
+
+	private RecruitmentEmailTemplate createNewTemplate(Generation generation) {
+		RecruitmentEmailTemplate newTemplate =
+				RecruitmentEmailTemplate.builder().generation(generation).content("").build();
+		return recruitmentEmailTemplateRepository.save(newTemplate);
 	}
 }

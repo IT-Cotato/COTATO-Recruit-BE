@@ -1,23 +1,24 @@
 package org.cotato.backend.recruit.admin.service.recruitmentActive;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Optional;
+import java.time.LocalTime;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.service.generation.GenerationAdminService;
+import org.cotato.backend.recruit.admin.service.recruitmentInformation.RecruitmentInformationUpserterManager;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
-import org.cotato.backend.recruit.domain.recruitmentInformation.entity.RecruitmentInformation;
 import org.cotato.backend.recruit.domain.recruitmentInformation.enums.InformationType;
-import org.cotato.backend.recruit.domain.recruitmentInformation.repository.RecruitmentInformationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true) // 기본적으로 읽기 전용, 쓰기가 필요한 곳만 오버라이드
 public class RecruitmentActiveService {
 
-	private final RecruitmentInformationRepository recruitmentInformationRepository;
 	private final GenerationAdminService generationAdminService;
+	private final RecruitmentInformationUpserterManager recruitmentInformationUpserterManager;
+
+	private static final LocalTime END_OF_DAY = LocalTime.of(23, 59, 59);
 
 	@Transactional
 	public void activateRecruitment(
@@ -25,62 +26,41 @@ public class RecruitmentActiveService {
 			boolean isAdditionalRecruitmentActive,
 			LocalDate startDate,
 			LocalDate endDate) {
-		// startDate < endDate
-		validate(startDate, endDate);
 
-		// 기존 Generation인지 확인
-		Optional<Generation> generation =
-				generationAdminService.findGenerationOptional(generationId);
+		validateDateOrder(startDate, endDate);
 
-		// 이미 생성됐으면 모집기간 활성화 및 지원시작일, 종료일 업데이트
-		if (generation.isPresent()) {
-			generation.get().startRecruitment(isAdditionalRecruitmentActive);
-			updateRecruitmentInformation(
-					generation.get(), InformationType.RECRUITMENT_START, startDate.atStartOfDay());
-			updateRecruitmentInformation(
-					generation.get(), InformationType.RECRUITMENT_END, endDate.atTime(23, 59, 59));
-			return;
-		}
+		// 1. 기수 조회 혹은 생성
+		// 기수 생성할 때 모집 상태도 활성화
+		Generation generation = getOrCreateGenerationWithRecruitmentActive(generationId);
 
-		// 기수가 생성되지 않았으면 생성
-		Generation newGeneration =
-				generationAdminService.saveNewGenerationWithRecruitingActive(generationId);
+		// 2. 모집 상태 업데이트 (활성화 및 추가모집 여부 설정)
+		generation.startRecruitment(isAdditionalRecruitmentActive);
 
-		// 모집 활성화, 추가모집활성화여부 설정
-		newGeneration.startRecruitment(isAdditionalRecruitmentActive);
-
-		// 지원시작일, 지원종료일 정보 update, 없으면 생성
-		updateRecruitmentInformation(
-				newGeneration, InformationType.RECRUITMENT_START, startDate.atStartOfDay());
-		updateRecruitmentInformation(
-				newGeneration, InformationType.RECRUITMENT_END, endDate.atTime(23, 59, 59));
+		// 3. 모집 기간(RecruitmentInformation) 업데이트 (Upsert)
+		recruitmentInformationUpserterManager.upsertDatetime(
+				generation, InformationType.RECRUITMENT_START, startDate.atStartOfDay());
+		recruitmentInformationUpserterManager.upsertDatetime(
+				generation, InformationType.RECRUITMENT_END, endDate.atTime(END_OF_DAY));
 	}
 
 	@Transactional
 	public void deactivateRecruitment(Long generationId) {
 		Generation generation = generationAdminService.findGeneration(generationId);
-		// 모집활성화여부, 추가모집활성화여부 false처리
 		generation.endRecruitment();
 	}
 
-	private void validate(LocalDate startDate, LocalDate endDate) {
+	private Generation getOrCreateGenerationWithRecruitmentActive(Long generationId) {
+		return generationAdminService
+				.findGenerationOptional(generationId)
+				.orElseGet(
+						() ->
+								generationAdminService.saveNewGenerationWithRecruitingActive(
+										generationId));
+	}
+
+	private void validateDateOrder(LocalDate startDate, LocalDate endDate) {
 		if (startDate.isAfter(endDate)) {
 			throw new IllegalArgumentException("시작일은 종료일보다 빨라야 합니다.");
 		}
-	}
-
-	private void updateRecruitmentInformation(
-			Generation generation, InformationType type, LocalDateTime datetime) {
-		recruitmentInformationRepository
-				.findByGenerationAndInformationType(generation, type)
-				.ifPresentOrElse(
-						info -> info.updateEventDatetime(datetime),
-						() ->
-								recruitmentInformationRepository.save(
-										RecruitmentInformation.builder()
-												.generation(generation)
-												.informationType(type)
-												.eventDatetime(datetime)
-												.build()));
 	}
 }

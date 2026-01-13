@@ -21,40 +21,43 @@ public class StaffEvaluationService {
 
 	public StaffEvaluationResponse getEvaluation(Long applicationId, EvaluatorType evaluatorType) {
 		Application application = applicationAdminService.getApplication(applicationId);
-		Evaluation evaluation =
+
+		String comment =
 				evaluationRepository
 						.findByApplicationAndEvaluatorType(application, evaluatorType)
+						.map(Evaluation::getComment)
 						.orElse(null);
 
-		return StaffEvaluationResponse.from(evaluation != null ? evaluation.getComment() : null);
+		return StaffEvaluationResponse.from(comment);
 	}
 
 	@Transactional
 	public void createEvaluation(Long applicationId, CreateStaffEvaluationRequest request) {
-		Application application = applicationAdminService.getApplication(applicationId);
+		Application application = getApplication(applicationId);
+		upsertEvaluation(application, request.evaluatorType(), request.comment());
+	}
 
+	private Application getApplication(Long applicationId) {
+		return applicationAdminService.getApplication(applicationId);
+	}
+
+	private void upsertEvaluation(
+			Application application, EvaluatorType evaluatorType, String comment) {
 		Evaluation evaluation =
 				evaluationRepository
-						.findByApplicationAndEvaluatorType(application, request.evaluatorType())
-						.orElse(null);
+						.findByApplicationAndEvaluatorType(application, evaluatorType)
+						.orElseGet(() -> newEvaluation(application, evaluatorType));
 
-		if (evaluation != null) {
-			update(evaluation, request);
-		} else {
-			insert(application, request);
-		}
-	}
-
-	private void update(Evaluation evaluation, CreateStaffEvaluationRequest request) {
-		evaluation.updateComment(request.comment());
-	}
-
-	private void insert(Application application, CreateStaffEvaluationRequest request) {
+		evaluation.updateComment(comment); // 새로 만든 경우에도 값 세팅
 		evaluationRepository.save(
-				Evaluation.builder()
-						.application(application)
-						.evaluatorType(request.evaluatorType())
-						.comment(request.comment())
-						.build());
+				evaluation); // 신규면 insert, 기존이면 merge(또는 JPA dirty checking으로 update)
+	}
+
+	private Evaluation newEvaluation(Application application, EvaluatorType evaluatorType) {
+		return Evaluation.builder()
+				.application(application)
+				.evaluatorType(evaluatorType)
+				.comment(null)
+				.build();
 	}
 }

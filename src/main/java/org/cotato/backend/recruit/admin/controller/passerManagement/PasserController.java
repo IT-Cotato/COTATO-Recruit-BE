@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class PasserController {
 
-	private final PasserSummaryService passerService;
+	private final PasserSummaryService passerSummaryService;
 
 	/**
 	 * 합격자 현황 조회
@@ -25,8 +25,9 @@ public class PasserController {
 	 */
 	@GetMapping("/api/admin/pass-status")
 	public ApiResponse<List<PassStatusSummaryResponse>> getPassStatus(
-			@RequestParam(name = "generation") Long generationId) {
-		List<PassStatusSummaryResponse> response = passerService.getPasserSummary(generationId);
+			@RequestParam Long generationId) {
+		List<PassStatusSummaryResponse> response =
+				passerSummaryService.getPasserSummary(generationId);
 		return ApiResponse.success(response);
 	}
 }

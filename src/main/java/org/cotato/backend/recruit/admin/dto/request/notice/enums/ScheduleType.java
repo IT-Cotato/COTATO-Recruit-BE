@@ -15,7 +15,7 @@ public enum ScheduleType {
 	private final String scheduleTitle;
 
 	/** 기수 정보를 포함한 전체 제목 반환 */
-	public String getFullTitle(int generation) {
-		return generation + "기 " + scheduleTitle;
+	public String getFullTitle(Long generationId) {
+		return generationId + "기 " + scheduleTitle;
 	}
 }

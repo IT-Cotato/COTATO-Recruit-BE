@@ -16,6 +16,7 @@ import org.cotato.backend.recruit.admin.service.recruitmentInformation.Recruitme
 import org.cotato.backend.recruit.domain.application.dto.ApplicationEtcData;
 import org.cotato.backend.recruit.domain.application.entity.Application;
 import org.cotato.backend.recruit.domain.application.entity.ApplicationAnswer;
+import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.question.entity.Question;
 import org.cotato.backend.recruit.domain.question.enums.QuestionType;
 import org.cotato.backend.recruit.domain.recruitmentInformation.entity.RecruitmentInformation;
@@ -44,7 +45,7 @@ public class ApplicationViewService {
 		Application application = applicationAdminService.getApplication(applicationId);
 
 		List<AdminApplicationPartQuestionResponse.AdminPartQuestionResponse> questionList =
-				getQuestionsWithAnswers(applicationId, questionType);
+				getQuestionsWithAnswers(application, questionType);
 
 		return AdminApplicationPartQuestionResponse.of(
 				questionList, application.getPdfFileUrl(), application.getPdfFileKey());
@@ -58,14 +59,11 @@ public class ApplicationViewService {
 
 		// 모집 일정 조회
 		RecruitmentInformation interviewStart =
-				recruitmentInformationAdminService.getRecruitmentInformation(
-						application.getGeneration(), InformationType.INTERVIEW_START);
+				getRecruitmentInfo(application.getGeneration(), InformationType.INTERVIEW_START);
 		RecruitmentInformation interviewEnd =
-				recruitmentInformationAdminService.getRecruitmentInformation(
-						application.getGeneration(), InformationType.INTERVIEW_END);
+				getRecruitmentInfo(application.getGeneration(), InformationType.INTERVIEW_END);
 		RecruitmentInformation ot =
-				recruitmentInformationAdminService.getRecruitmentInformation(
-						application.getGeneration(), InformationType.OT);
+				getRecruitmentInfo(application.getGeneration(), InformationType.OT);
 
 		return AdminApplicationEtcQuestionsResponse.of(
 				etcData,
@@ -74,10 +72,12 @@ public class ApplicationViewService {
 				ot.getEventDatetime());
 	}
 
-	private List<AdminApplicationPartQuestionResponse.AdminPartQuestionResponse>
-			getQuestionsWithAnswers(Long applicationId, QuestionType questionType) {
-		Application application = applicationAdminService.getApplication(applicationId);
+	private RecruitmentInformation getRecruitmentInfo(Generation generation, InformationType type) {
+		return recruitmentInformationAdminService.getRecruitmentInformation(generation, type);
+	}
 
+	private List<AdminApplicationPartQuestionResponse.AdminPartQuestionResponse>
+			getQuestionsWithAnswers(Application application, QuestionType questionType) {
 		List<Question> questions =
 				questionAdminService.getQuestionsByGenerationAndQuestionType(
 						application.getGeneration(), questionType);

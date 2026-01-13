@@ -75,13 +75,13 @@ public class Application {
 	private Boolean isPrevActivity;
 
 	@Column(name = "is_submitted", nullable = false)
-	private boolean isSubmitted;
+	private Boolean isSubmitted;
 
-	@Column(name = "submitted_at", nullable = false)
+	@Column(name = "submitted_at")
 	private LocalDateTime submittedAt;
 
-	@Column(name = "is_enrolled", nullable = false)
-	private boolean isEnrolled;
+	@Column(name = "is_enrolled")
+	private Boolean isEnrolled;
 
 	@Column(name = "pdf_file_key")
 	private String pdfFileKey;
@@ -95,8 +95,6 @@ public class Application {
 		application.user = user;
 		application.generation = generation;
 		application.isSubmitted = false;
-		application.submittedAt = LocalDateTime.now();
-		application.isEnrolled = false;
 		return application;
 	}
 
@@ -117,7 +115,7 @@ public class Application {
 			String major,
 			Integer completedSemesters,
 			Boolean isPrevActivity,
-			boolean isEnrolled,
+			Boolean isEnrolled,
 			ApplicationPartType applicationPartType) {
 		// 이미 제출된 지원서인지 확인
 		if (this.isSubmitted) {

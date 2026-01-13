@@ -46,6 +46,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 					OR a.name LIKE CONCAT('%', :keyword, '%')
 					OR a.university LIKE CONCAT('%', :keyword, '%')
 				)
+				AND a.is_submitted = true
 			""",
 			countQuery =
 					"""
@@ -60,6 +61,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 					OR a.name LIKE CONCAT('%', :keyword, '%')
 					OR a.university LIKE CONCAT('%', :keyword, '%')
 				)
+				AND a.is_submitted = true
 			""",
 			nativeQuery = true)
 	Page<Application> findWithFilters(
@@ -86,6 +88,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 					OR a.name LIKE CONCAT('%', :keyword, '%')
 					OR a.university LIKE CONCAT('%', :keyword, '%')
 				)
+				AND a.is_submitted = true
 			GROUP BY
 				a.application_part_type
 			""",
@@ -97,8 +100,13 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
 	// 합격 상태 및 파트별 통계 조회
 	@Query(
-			"SELECT a.passStatus, a.applicationPartType, COUNT(a) FROM Application a WHERE"
-				+ " a.generation.id = :generationId GROUP BY a.passStatus, a.applicationPartType")
+			"""
+			SELECT a.passStatus, a.applicationPartType, COUNT(a)
+			FROM Application a
+			WHERE a.generation.id = :generationId
+			AND a.isSubmitted = true
+			GROUP BY a.passStatus, a.applicationPartType
+			""")
 	List<Object[]> countByGenerationIdGroupByPassStatusAndApplicationPartType(
 			@Param("generationId") Long generationId);
 }

@@ -97,7 +97,7 @@ public class RecruitmentService {
 
 		// 3. 응답
 		return new RecruitmentResponse(
-				latestGeneration.getId().intValue(),
+				latestGeneration.getId(),
 				Optional.ofNullable(scheduleMap.get(InformationType.RECRUITMENT_START))
 						.map(LocalDateTime::toString)
 						.orElse(null),
