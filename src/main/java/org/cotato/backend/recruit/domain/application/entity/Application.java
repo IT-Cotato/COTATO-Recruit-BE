@@ -77,10 +77,10 @@ public class Application {
 	@Column(name = "is_submitted", nullable = false)
 	private boolean isSubmitted;
 
-	@Column(name = "submitted_at", nullable = false)
+	@Column(name = "submitted_at")
 	private LocalDateTime submittedAt;
 
-	@Column(name = "is_enrolled", nullable = false)
+	@Column(name = "is_enrolled")
 	private boolean isEnrolled;
 
 	@Column(name = "pdf_file_key")
