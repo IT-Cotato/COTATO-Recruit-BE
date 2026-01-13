@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.List;
 import org.cotato.backend.recruit.domain.recruitmentNotice.entity.RecruitmentNotice;
 
-@JsonPropertyOrder({ "generationId", "startDate", "endDate", "schedule", "parts", "activities" })
+@JsonPropertyOrder({"generationId", "startDate", "endDate", "schedule", "parts", "activities"})
 public record RecruitmentResponse(
 		Long generationId,
 		String startDate,
@@ -22,18 +22,20 @@ public record RecruitmentResponse(
 	public record PartResponse(
 			String name, @JsonProperty("short") String partShort, String detail, String imageUrl) {
 		public static PartResponse from(RecruitmentNotice n) {
-			String imageUrl = n.getImageFilename() != null
-					? "/backend/images/parts/" + n.getImageFilename()
-					: null;
+			String imageUrl =
+					n.getImageFilename() != null
+							? "/backend/images/parts/" + n.getImageFilename()
+							: null;
 			return new PartResponse(n.getPartName(), n.getPartShort(), n.getPartDetail(), imageUrl);
 		}
 	}
 
 	public record ActivityResponse(Long id, String name, String date, String imageUrl) {
 		public static ActivityResponse from(RecruitmentNotice n) {
-			String imageUrl = n.getImageFilename() != null
-					? "/backend/images/activities/" + n.getImageFilename()
-					: null;
+			String imageUrl =
+					n.getImageFilename() != null
+							? "/backend/images/activities/" + n.getImageFilename()
+							: null;
 			return new ActivityResponse(n.getId(), n.getScheduleTitle(), n.getSchedule(), imageUrl);
 		}
 	}
