@@ -28,7 +28,7 @@ public record BasicInfoResponse(
 				application.getMajor(),
 				application.getCompletedSemesters(),
 				application.getIsPrevActivity(),
-				application.isEnrolled(),
+				application.getIsEnrolled(),
 				application.getApplicationPartType());
 	}
 }
