@@ -40,12 +40,12 @@ public class ApplicationViewService {
 		return AdminApplicationBasicInfoResponse.from(application);
 	}
 
-	public AdminApplicationPartQuestionResponse getPartQuestionsWithAnswers(
-			Long applicationId, QuestionType questionType) {
+	public AdminApplicationPartQuestionResponse getPartQuestionsWithAnswers(Long applicationId) {
 		Application application = applicationAdminService.getApplication(applicationId);
+		QuestionType questionType = application.getApplicationPartType().toQuestionType();
 
-		List<AdminApplicationPartQuestionResponse.AdminPartQuestionResponse> questionList =
-				getQuestionsWithAnswers(application, questionType);
+		List<AdminApplicationPartQuestionResponse.AdminPartQuestionResponse> questionList = getQuestionsWithAnswers(
+				application, questionType);
 
 		return AdminApplicationPartQuestionResponse.of(
 				questionList, application.getPdfFileUrl(), application.getPdfFileKey());
@@ -58,12 +58,11 @@ public class ApplicationViewService {
 		ApplicationEtcData etcData = applicationEtcInfoAdminService.getEtcData(application);
 
 		// 모집 일정 조회
-		RecruitmentInformation interviewStart =
-				getRecruitmentInfo(application.getGeneration(), InformationType.INTERVIEW_START);
-		RecruitmentInformation interviewEnd =
-				getRecruitmentInfo(application.getGeneration(), InformationType.INTERVIEW_END);
-		RecruitmentInformation ot =
-				getRecruitmentInfo(application.getGeneration(), InformationType.OT);
+		RecruitmentInformation interviewStart = getRecruitmentInfo(application.getGeneration(),
+				InformationType.INTERVIEW_START);
+		RecruitmentInformation interviewEnd = getRecruitmentInfo(application.getGeneration(),
+				InformationType.INTERVIEW_END);
+		RecruitmentInformation ot = getRecruitmentInfo(application.getGeneration(), InformationType.OT);
 
 		return AdminApplicationEtcQuestionsResponse.of(
 				etcData,
@@ -76,11 +75,10 @@ public class ApplicationViewService {
 		return recruitmentInformationAdminService.getRecruitmentInformation(generation, type);
 	}
 
-	private List<AdminApplicationPartQuestionResponse.AdminPartQuestionResponse>
-			getQuestionsWithAnswers(Application application, QuestionType questionType) {
-		List<Question> questions =
-				questionAdminService.getQuestionsByGenerationAndQuestionType(
-						application.getGeneration(), questionType);
+	private List<AdminApplicationPartQuestionResponse.AdminPartQuestionResponse> getQuestionsWithAnswers(
+			Application application, QuestionType questionType) {
+		List<Question> questions = questionAdminService.getQuestionsByGenerationAndQuestionType(
+				application.getGeneration(), questionType);
 
 		List<ApplicationAnswer> answers = applicationAnswerAdminService.getAnswers(application);
 		Map<Long, ApplicationAnswer> answerMap = createAnswerMap(answers);
@@ -102,6 +100,6 @@ public class ApplicationViewService {
 						Collectors.toMap(
 								a -> a.getQuestion().getId(), // Key: 질문 ID
 								Function.identity() // Value: 답변 객체
-								));
+						));
 	}
 }
