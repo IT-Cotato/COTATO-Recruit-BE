@@ -7,6 +7,7 @@ import org.cotato.backend.recruit.admin.service.generation.GenerationAdminServic
 import org.cotato.backend.recruit.admin.service.recruitmentInformation.RecruitmentInformationUpserterManager;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.recruitmentInformation.enums.InformationType;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,9 @@ public class RecruitmentActiveService {
 	private static final LocalTime END_OF_DAY = LocalTime.of(23, 59, 59);
 
 	@Transactional
+	@CacheEvict(
+			value = {"activeGeneration", "recruitmentSchedule"},
+			allEntries = true)
 	public void activateRecruitment(
 			Long generationId,
 			boolean isAdditionalRecruitmentActive,
@@ -44,6 +48,7 @@ public class RecruitmentActiveService {
 	}
 
 	@Transactional
+	@CacheEvict(value = "activeGeneration", allEntries = true)
 	public void deactivateRecruitment(Long generationId) {
 		Generation generation = generationAdminService.findGeneration(generationId);
 		generation.endRecruitment();

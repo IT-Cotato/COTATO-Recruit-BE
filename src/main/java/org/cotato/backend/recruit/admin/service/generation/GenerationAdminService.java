@@ -8,6 +8,7 @@ import org.cotato.backend.recruit.admin.error.AdminErrorCode;
 import org.cotato.backend.recruit.admin.exception.AdminException;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.generation.repository.GenerationRepository;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,6 +61,9 @@ public class GenerationAdminService {
 
 	// 모집활성화된 기수를 생성, 추가모집활성화여부는 false
 	@Transactional
+	@CacheEvict(
+			value = {"latestGeneration", "activeGeneration"},
+			allEntries = true)
 	public Generation saveNewGenerationWithRecruitingActive(Long generation) {
 		return generationRepository.save(
 				Generation.builder().id(generation).isRecruitingActive(true).build());
