@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import lombok.Builder;
 import org.cotato.backend.recruit.domain.application.entity.Application;
 import org.cotato.backend.recruit.domain.application.enums.ApplicationPartType;
-import org.cotato.backend.recruit.domain.application.enums.EnrollmentStatus;
 
 @Builder
 public record AdminApplicationBasicInfoResponse(
@@ -15,7 +14,7 @@ public record AdminApplicationBasicInfoResponse(
 		String phoneNumber,
 		String school,
 		String major,
-		EnrollmentStatus enrollmentStatus,
+		Boolean isEnrolled,
 		Integer completedSemesters,
 		Boolean isPrevActivity,
 		ApplicationPartType applicationPartType) {
@@ -28,10 +27,7 @@ public record AdminApplicationBasicInfoResponse(
 				.phoneNumber(application.getPhoneNumber())
 				.school(application.getUniversity())
 				.major(application.getMajor())
-				.enrollmentStatus(
-						application.getIsEnrolled()
-								? EnrollmentStatus.ENROLLED
-								: EnrollmentStatus.NOT_ENROLLED)
+				.isEnrolled(application.getIsEnrolled())
 				.completedSemesters(application.getCompletedSemesters())
 				.isPrevActivity(application.getIsPrevActivity())
 				.applicationPartType(application.getApplicationPartType())

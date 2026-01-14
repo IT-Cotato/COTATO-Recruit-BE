@@ -40,9 +40,9 @@ public class ApplicationViewService {
 		return AdminApplicationBasicInfoResponse.from(application);
 	}
 
-	public AdminApplicationPartQuestionResponse getPartQuestionsWithAnswers(
-			Long applicationId, QuestionType questionType) {
+	public AdminApplicationPartQuestionResponse getPartQuestionsWithAnswers(Long applicationId) {
 		Application application = applicationAdminService.getApplication(applicationId);
+		QuestionType questionType = application.getApplicationPartType().toQuestionType();
 
 		List<AdminApplicationPartQuestionResponse.AdminPartQuestionResponse> questionList =
 				getQuestionsWithAnswers(application, questionType);
