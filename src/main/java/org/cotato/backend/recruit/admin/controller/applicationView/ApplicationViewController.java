@@ -7,11 +7,9 @@ import org.cotato.backend.recruit.admin.dto.response.applicationView.AdminApplic
 import org.cotato.backend.recruit.admin.dto.response.applicationView.AdminApplicationPartQuestionResponse;
 import org.cotato.backend.recruit.admin.service.applicationView.ApplicationViewService;
 import org.cotato.backend.recruit.common.response.ApiResponse;
-import org.cotato.backend.recruit.domain.question.enums.QuestionType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "지원서 조회 API", description = "지원서 조회 관련 API")
@@ -31,7 +29,8 @@ public class ApplicationViewController {
 	@GetMapping("/{applicationId}/basic-info")
 	public ApiResponse<AdminApplicationBasicInfoResponse> getBasicInfo(
 			@PathVariable Long applicationId) {
-		AdminApplicationBasicInfoResponse response = applicationViewService.getBasicInfo(applicationId);
+		AdminApplicationBasicInfoResponse response =
+				applicationViewService.getBasicInfo(applicationId);
 		return ApiResponse.success(response);
 	}
 
@@ -44,8 +43,8 @@ public class ApplicationViewController {
 	@GetMapping("/{applicationId}/part-questions")
 	public ApiResponse<AdminApplicationPartQuestionResponse> getPartQuestions(
 			@PathVariable Long applicationId) {
-		AdminApplicationPartQuestionResponse responses = applicationViewService
-				.getPartQuestionsWithAnswers(applicationId);
+		AdminApplicationPartQuestionResponse responses =
+				applicationViewService.getPartQuestionsWithAnswers(applicationId);
 		return ApiResponse.success(responses);
 	}
 
@@ -58,8 +57,8 @@ public class ApplicationViewController {
 	@GetMapping("/{applicationId}/etc-questions")
 	public ApiResponse<AdminApplicationEtcQuestionsResponse> getEtcQuestions(
 			@PathVariable Long applicationId) {
-		AdminApplicationEtcQuestionsResponse response = applicationViewService
-				.getEtcQuestionsWithAnswers(applicationId);
+		AdminApplicationEtcQuestionsResponse response =
+				applicationViewService.getEtcQuestionsWithAnswers(applicationId);
 		return ApiResponse.success(response);
 	}
 }

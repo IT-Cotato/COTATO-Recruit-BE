@@ -15,7 +15,7 @@ public record AdminApplicationBasicInfoResponse(
 		String phoneNumber,
 		String school,
 		String major,
-		EnrollmentStatus enrollmentStatus,
+		Boolean enrollmentStatus,
 		Integer completedSemesters,
 		Boolean isPrevActivity,
 		ApplicationPartType applicationPartType) {
@@ -28,10 +28,7 @@ public record AdminApplicationBasicInfoResponse(
 				.phoneNumber(application.getPhoneNumber())
 				.school(application.getUniversity())
 				.major(application.getMajor())
-				.enrollmentStatus(
-						application.getIsEnrolled()
-								? EnrollmentStatus.ENROLLED
-								: EnrollmentStatus.NOT_ENROLLED)
+				.enrollmentStatus(application.getIsEnrolled())
 				.completedSemesters(application.getCompletedSemesters())
 				.isPrevActivity(application.getIsPrevActivity())
 				.applicationPartType(application.getApplicationPartType())
