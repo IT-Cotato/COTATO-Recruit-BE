@@ -11,6 +11,7 @@ import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.recruitmentInformation.entity.RecruitmentInformation;
 import org.cotato.backend.recruit.domain.recruitmentInformation.enums.InformationType;
 import org.cotato.backend.recruit.domain.recruitmentInformation.repository.RecruitmentInformationRepository;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +41,7 @@ public class RecruitmentInformationAdminService {
 	}
 
 	@Transactional
+	@CacheEvict(value = "recruitmentSchedule", allEntries = true)
 	public void updateRecruitmentInformation(RecruitmentInformationUpdateRequest request) {
 		validate(request);
 

@@ -21,6 +21,11 @@ public class CacheConfig {
 				"activeGeneration",
 				Caffeine.newBuilder().expireAfterWrite(1, TimeUnit.HOURS).maximumSize(10).build());
 
+		// latestGeneration 캐시: 1시간 TTL
+		cacheManager.registerCustomCache(
+				"latestGeneration",
+				Caffeine.newBuilder().expireAfterWrite(1, TimeUnit.HOURS).maximumSize(10).build());
+
 		// questions 캐시: 1일 TTL
 		cacheManager.registerCustomCache(
 				"questions",

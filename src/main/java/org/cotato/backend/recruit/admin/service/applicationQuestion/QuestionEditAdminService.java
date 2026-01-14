@@ -8,6 +8,7 @@ import org.cotato.backend.recruit.admin.service.question.QuestionAdminService;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.question.entity.Question;
 import org.cotato.backend.recruit.domain.question.enums.QuestionType;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,9 @@ public class QuestionEditAdminService {
 
 	// 전체 삭제 후 추가
 	@Transactional
+	@CacheEvict(
+			value = {"questions", "question"},
+			allEntries = true)
 	public void updateApplicationQuestions(QuestionUpdateRequest request) {
 		Generation generation = generationAdminService.getGenerationById(request.generationId());
 		QuestionType questionType = request.questionType();
