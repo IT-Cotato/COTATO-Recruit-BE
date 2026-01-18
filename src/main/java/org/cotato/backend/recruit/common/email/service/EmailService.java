@@ -38,7 +38,7 @@ public class EmailService {
 
 			helper.setTo(emailMessage.getTo());
 			helper.setSubject(emailMessage.getSubject());
-			helper.setText(emailMessage.getContent(), true);
+			helper.setText(emailMessage.getContent().replace("\n", "<br>"), true);
 
 			mailSender.send(message);
 			log.info("이메일 전송 성공: {}", emailMessage.getTo());
