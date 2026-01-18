@@ -4,19 +4,14 @@ import java.time.LocalDateTime;
 import org.cotato.backend.recruit.domain.email.enums.TemplateType;
 
 public record EmailSendResponse(
-		String templateType,
-		long successCount,
-		long failCount,
-		LocalDateTime sentAt,
-		Long generationId) {
+		Long jobId, String templateType, long totalCount, LocalDateTime sentAt, Long generationId) {
 
 	public static EmailSendResponse of(
+			Long jobId,
 			TemplateType templateType,
-			long successCount,
-			long failCount,
+			int totalCount,
 			LocalDateTime sentAt,
 			Long generationId) {
-		return new EmailSendResponse(
-				templateType.name(), successCount, failCount, sentAt, generationId);
+		return new EmailSendResponse(jobId, templateType.name(), totalCount, sentAt, generationId);
 	}
 }

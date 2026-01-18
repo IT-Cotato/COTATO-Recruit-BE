@@ -3,13 +3,16 @@ package org.cotato.backend.recruit.admin.service.email;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.cotato.backend.recruit.admin.dto.response.email.EmailJobStatusResponse;
 import org.cotato.backend.recruit.admin.dto.response.email.RecruitmentEmailSendResponse;
 import org.cotato.backend.recruit.admin.error.AdminErrorCode;
 import org.cotato.backend.recruit.admin.exception.AdminException;
 import org.cotato.backend.recruit.admin.service.generation.GenerationAdminService;
 import org.cotato.backend.recruit.common.email.dto.EmailMessage;
 import org.cotato.backend.recruit.common.email.service.EmailService;
+import org.cotato.backend.recruit.domain.email.entity.EmailSendJob;
 import org.cotato.backend.recruit.domain.email.entity.RecruitmentEmailTemplate;
+import org.cotato.backend.recruit.domain.email.repository.EmailSendJobRepository;
 import org.cotato.backend.recruit.domain.email.repository.RecruitmentEmailTemplateRepository;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.subscriber.entity.RecruitmentSubscriber;
@@ -24,12 +27,13 @@ public class RecruitmentNotificationEmailSendService {
 
 	private final RecruitmentEmailTemplateRepository recruitmentEmailTemplateRepository;
 	private final RecruitmentSubscriberRepository recruitmentSubscriberRepository;
+	private final EmailSendJobRepository emailSendJobRepository;
 	private final GenerationAdminService generationAdminService;
 	private final RecruitmentEmailTemplateService recruitmentEmailTemplateService;
 	private final EmailService emailService;
 
 	/**
-	 * 모집 알림 이메일 전송
+	 * 모집 알림 이메일 전송 (비동기)
 	 *
 	 * @param generationId 기수 ID (null이면 현재 활성화된 기수 사용)
 	 * @return 이메일 전송 응답
@@ -47,20 +51,43 @@ public class RecruitmentNotificationEmailSendService {
 		List<RecruitmentSubscriber> subscribers =
 				recruitmentSubscriberRepository.findAllByIsNotified(false);
 		if (subscribers.isEmpty()) {
-			return RecruitmentEmailSendResponse.of(0L, 0L, null, generation.getId());
+			return RecruitmentEmailSendResponse.of(null, 0, null, generation.getId());
 		}
 
 		List<EmailMessage> emailMessages =
 				createEmailMessages(subscribers, template, generation.getId());
 
-		long successCount = emailService.sendBatchEmails(emailMessages);
-		long failCount = emailMessages.size() - successCount;
+		// Job 생성
+		EmailSendJob job =
+				EmailSendJob.builder()
+						.generation(generation)
+						.totalCount(emailMessages.size())
+						.build();
+		emailSendJobRepository.save(job);
 
+		// 템플릿 전송 완료 표시 및 구독자 알림 완료 표시 (비동기 전에 미리 처리)
 		markTemplateAsSent(template);
 		markSubscribersAsNotified(subscribers);
 
+		// 비동기 메일 발송 시작
+		emailService.sendBatchEmailsAsync(emailMessages, job.getId());
+
 		return RecruitmentEmailSendResponse.of(
-				successCount, failCount, template.getSentAt(), generation.getId());
+				job.getId(), emailMessages.size(), template.getSentAt(), generation.getId());
+	}
+
+	/**
+	 * 이메일 발송 작업 상태 조회
+	 *
+	 * @param jobId 발송 작업 ID
+	 * @return 발송 작업 상태
+	 */
+	public EmailJobStatusResponse getJobStatus(Long jobId) {
+		EmailSendJob job =
+				emailSendJobRepository
+						.findById(jobId)
+						.orElseThrow(() -> new AdminException(AdminErrorCode.EMAIL_JOB_NOT_FOUND));
+		return EmailJobStatusResponse.from(job);
 	}
 
 	/** 템플릿 조회 및 검증 */
