@@ -12,6 +12,7 @@ public enum AdminErrorCode {
 	EMAIL_TEMPLATE_NOT_FOUND(HttpStatus.NOT_FOUND, "EM001", "이메일 템플릿을 찾을 수 없습니다."),
 	EMAIL_ALREADY_SENT(HttpStatus.BAD_REQUEST, "EM002", "이미 전송된 이메일입니다."),
 	EMAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "EM003", "이메일 전송에 실패했습니다."),
+	EMAIL_JOB_NOT_FOUND(HttpStatus.NOT_FOUND, "EM004", "이메일 발송 작업을 찾을 수 없습니다."),
 
 	// Recruitment
 	RECRUITMENT_NOT_ACTIVE(HttpStatus.FORBIDDEN, "RE001", "현재 모집이 활성화되어 있지 않습니다."),
