@@ -68,6 +68,6 @@ public class EmailHtmlTemplateRenderer {
 		if (content == null) {
 			return "";
 		}
-		return content.replace("\n", "<br>");
+		return content.replace("\r\n", "<br>").replace("\r", "<br>").replace("\n", "<br>");
 	}
 }

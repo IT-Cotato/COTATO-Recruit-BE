@@ -11,6 +11,7 @@ import org.cotato.backend.recruit.common.email.dto.EmailMessage;
 import org.cotato.backend.recruit.domain.email.entity.EmailSendJob;
 import org.cotato.backend.recruit.domain.email.repository.EmailSendJobRepository;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -53,7 +54,7 @@ public class EmailService {
 			log.info("이메일 전송 성공: {}", emailMessage.getTo());
 			return true;
 
-		} catch (MessagingException e) {
+		} catch (MessagingException | MailException e) {
 			log.error("이메일 전송 실패: {}", emailMessage.getTo(), e);
 			return false;
 		}
