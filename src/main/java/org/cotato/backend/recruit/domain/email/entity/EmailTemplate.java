@@ -40,7 +40,7 @@ public class EmailTemplate {
 	@Column(name = "template_type", nullable = false)
 	private TemplateType templateType;
 
-	@Column(name = "content", nullable = false)
+	@Column(name = "content", nullable = false, columnDefinition = "TEXT")
 	private String content;
 
 	@Column(name = "is_sent", nullable = false)

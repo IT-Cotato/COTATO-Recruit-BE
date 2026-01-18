@@ -9,6 +9,7 @@ import org.cotato.backend.recruit.admin.error.AdminErrorCode;
 import org.cotato.backend.recruit.admin.exception.AdminException;
 import org.cotato.backend.recruit.admin.service.generation.GenerationAdminService;
 import org.cotato.backend.recruit.common.email.dto.EmailMessage;
+import org.cotato.backend.recruit.common.email.service.EmailHtmlTemplateRenderer;
 import org.cotato.backend.recruit.common.email.service.EmailService;
 import org.cotato.backend.recruit.domain.email.entity.EmailSendJob;
 import org.cotato.backend.recruit.domain.email.entity.RecruitmentEmailTemplate;
@@ -31,6 +32,7 @@ public class RecruitmentNotificationEmailSendService {
 	private final GenerationAdminService generationAdminService;
 	private final RecruitmentEmailTemplateService recruitmentEmailTemplateService;
 	private final EmailService emailService;
+	private final EmailHtmlTemplateRenderer emailHtmlTemplateRenderer;
 
 	/**
 	 * 모집 알림 이메일 전송 (비동기)
@@ -111,7 +113,9 @@ public class RecruitmentNotificationEmailSendService {
 			RecruitmentEmailTemplate template,
 			Long generationId) {
 		String subject = generateEmailSubject(generationId);
-		String htmlContent = template.getContent();
+		String htmlContent =
+				emailHtmlTemplateRenderer.renderRecruitmentNotification(
+						template.getContent(), generationId);
 
 		return subscribers.stream()
 				.map(
@@ -120,13 +124,14 @@ public class RecruitmentNotificationEmailSendService {
 										.to(subscriber.getEmail())
 										.subject(subject)
 										.content(htmlContent)
+										.withTemplateImages(true)
 										.build())
 				.collect(Collectors.toList());
 	}
 
 	/** 이메일 제목 생성 */
 	private String generateEmailSubject(Long generationId) {
-		return String.format("[COTATO %d기] 모집 시작 안내", generationId);
+		return String.format("[COTATO] %d기 모집이 시작되었습니다!", generationId);
 	}
 
 	/** 전송 완료 표시 */

@@ -10,6 +10,7 @@ import org.cotato.backend.recruit.admin.exception.AdminException;
 import org.cotato.backend.recruit.common.email.dto.EmailMessage;
 import org.cotato.backend.recruit.domain.email.entity.EmailSendJob;
 import org.cotato.backend.recruit.domain.email.repository.EmailSendJobRepository;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -25,6 +26,9 @@ public class EmailService {
 	private final JavaMailSender mailSender;
 	private final EmailSendJobRepository emailSendJobRepository;
 
+	private static final String HEADER_IMAGE_PATH = "static/email/header.png";
+	private static final String BOTTOM_IMAGE_PATH = "static/email/bottom.png";
+
 	/**
 	 * 이메일 전송
 	 *
@@ -38,7 +42,12 @@ public class EmailService {
 
 			helper.setTo(emailMessage.getTo());
 			helper.setSubject(emailMessage.getSubject());
-			helper.setText(emailMessage.getContent().replace("\n", "<br>"), true);
+			helper.setText(emailMessage.getContent(), true);
+
+			// 템플릿 이미지 첨부
+			if (emailMessage.isWithTemplateImages()) {
+				addTemplateImages(helper);
+			}
 
 			mailSender.send(message);
 			log.info("이메일 전송 성공: {}", emailMessage.getTo());
@@ -48,6 +57,15 @@ public class EmailService {
 			log.error("이메일 전송 실패: {}", emailMessage.getTo(), e);
 			return false;
 		}
+	}
+
+	/** 템플릿 이미지 첨부 (CID 방식) */
+	private void addTemplateImages(MimeMessageHelper helper) throws MessagingException {
+		ClassPathResource headerImage = new ClassPathResource(HEADER_IMAGE_PATH);
+		ClassPathResource bottomImage = new ClassPathResource(BOTTOM_IMAGE_PATH);
+
+		helper.addInline("header", headerImage, "image/png");
+		helper.addInline("bottom", bottomImage, "image/png");
 	}
 
 	/**

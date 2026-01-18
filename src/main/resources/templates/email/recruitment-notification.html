@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>코테이토 모집 알림</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f5f5f5; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;">
+<div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+    <img src="cid:header" alt="COTATO" style="width: 100%; display: block;"/>
+
+    <div style="padding: 40px 30px; text-align: center;">
+        <div style="font-weight: 600; font-size: 16px; line-height: 26px; text-align: center; color: #1F1F1F; margin-bottom: 27px;">
+            코테이토 {{generationNumber}}기 모집 안내
+        </div>
+
+        <div style="font-weight: 400; font-size: 12px; line-height: 20px; text-align: center; color: #1F1F1F; margin-bottom: 27px;">
+            {{content}}
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="{{recruitmentUrl}}" style="display: block; color: #F87D02; font-weight: 700; text-decoration: underline; font-size: 12px; line-height: 20px; margin-bottom: 12px;">코테이토 {{generationNumber}}기 모집 공고</a>
+            <a href="{{kakaoChannelUrl}}" style="display: block; color: #F87D02; font-weight: 700; text-decoration: underline; font-size: 12px; line-height: 20px; margin-bottom: 12px;">코테이토 카카오 채널</a>
+        </div>
+    </div>
+
+    <img src="cid:bottom" alt="COTATO Footer" style="width: 100%; display: block;"/>
+</div>
+</body>
+</html>
