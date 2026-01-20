@@ -3,7 +3,7 @@ package org.cotato.backend.recruit.admin.service.generation;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.cotato.backend.recruit.admin.dto.response.applicationView.GenerationElementResponse;
+import org.cotato.backend.recruit.admin.dto.response.generation.GenerationElementResponse;
 import org.cotato.backend.recruit.admin.error.AdminErrorCode;
 import org.cotato.backend.recruit.admin.exception.AdminException;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
@@ -65,13 +65,21 @@ public class GenerationAdminService {
 			value = {"latestGeneration", "activeGeneration"},
 			allEntries = true)
 	public Generation saveNewGenerationWithRecruitingActive(Long generation) {
-		return generationRepository.save(
-				Generation.builder().id(generation).isRecruitingActive(true).build());
+		return generationRepository.save(new Generation(generation, true, false));
 	}
 
 	public List<GenerationElementResponse> getAllGenerations() {
 		return generationRepository.findAll(Sort.by(Sort.Direction.DESC, "id")).stream()
 				.map(GenerationElementResponse::from)
 				.toList();
+	}
+
+	// 모집활성화여부 false, 추가모집활성화여부는 false
+	@Transactional
+	@CacheEvict(
+			value = {"latestGeneration", "activeGeneration"},
+			allEntries = true)
+	public Generation createGeneration(Long generation) {
+		return generationRepository.save(new Generation(generation, false, false));
 	}
 }

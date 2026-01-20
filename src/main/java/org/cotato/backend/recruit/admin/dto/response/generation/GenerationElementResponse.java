@@ -1,4 +1,4 @@
-package org.cotato.backend.recruit.admin.dto.response.applicationView;
+package org.cotato.backend.recruit.admin.dto.response.generation;
 
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 
