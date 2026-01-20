@@ -7,12 +7,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.dto.request.email.RecruitmentNotificationEmailRequest;
 import org.cotato.backend.recruit.admin.dto.request.email.RecruitmentNotificationEmailSendRequest;
+import org.cotato.backend.recruit.admin.dto.response.email.EmailJobStatusResponse;
 import org.cotato.backend.recruit.admin.dto.response.email.RecruitmentEmailSendResponse;
 import org.cotato.backend.recruit.admin.dto.response.email.RecruitmentEmailTemplateResponse;
 import org.cotato.backend.recruit.admin.service.email.RecruitmentEmailTemplateService;
 import org.cotato.backend.recruit.admin.service.email.RecruitmentNotificationEmailSendService;
 import org.cotato.backend.recruit.common.response.ApiResponse;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,13 +55,26 @@ public class RecruitmentEmailController {
 
 	@Operation(
 			summary = "모집 알림 메일 전송",
-			description = "모집 알림 신청자들에게 메일을 전송합니다. 모집이 활성화되어 있어야만 전송할 수 있습니다.")
+			description =
+					"모집 알림 신청자들에게 메일을 비동기로 전송합니다. 즉시 jobId를 반환하고 백그라운드에서 메일을 발송합니다. 모집이 활성화되어 있어야만"
+							+ " 전송할 수 있습니다.")
 	@PostMapping("/send")
 	public ApiResponse<RecruitmentEmailSendResponse> sendRecruitmentNotificationEmail(
 			@Valid @RequestBody RecruitmentNotificationEmailSendRequest request) {
 		RecruitmentEmailSendResponse response =
 				recruitmentNotificationEmailSendService.sendRecruitmentNotificationEmails(
 						request.generationId());
+		return ApiResponse.success(response);
+	}
+
+	@Operation(
+			summary = "메일 발송 작업 상태 조회",
+			description = "메일 발송 작업의 진행 상태를 조회합니다. (총 개수, 성공, 실패, 진행률)")
+	@GetMapping("/jobs/{jobId}")
+	public ApiResponse<EmailJobStatusResponse> getJobStatus(
+			@Parameter(description = "발송 작업 ID", required = true) @PathVariable Long jobId) {
+		EmailJobStatusResponse response =
+				recruitmentNotificationEmailSendService.getJobStatus(jobId);
 		return ApiResponse.success(response);
 	}
 }

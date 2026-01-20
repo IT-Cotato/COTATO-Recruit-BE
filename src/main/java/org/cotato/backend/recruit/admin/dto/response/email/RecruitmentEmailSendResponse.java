@@ -3,10 +3,10 @@ package org.cotato.backend.recruit.admin.dto.response.email;
 import java.time.LocalDateTime;
 
 public record RecruitmentEmailSendResponse(
-		long successCount, long failCount, LocalDateTime sentAt, Long generationId) {
+		Long jobId, long totalCount, LocalDateTime sentAt, Long generationId) {
 
 	public static RecruitmentEmailSendResponse of(
-			long successCount, long failCount, LocalDateTime sentAt, Long generationId) {
-		return new RecruitmentEmailSendResponse(successCount, failCount, sentAt, generationId);
+			Long jobId, int totalCount, LocalDateTime sentAt, Long generationId) {
+		return new RecruitmentEmailSendResponse(jobId, totalCount, sentAt, generationId);
 	}
 }
