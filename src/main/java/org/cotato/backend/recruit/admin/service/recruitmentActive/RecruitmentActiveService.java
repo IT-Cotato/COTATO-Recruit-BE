@@ -23,7 +23,7 @@ public class RecruitmentActiveService {
 
 	@Transactional
 	@CacheEvict(
-			value = {"activeGeneration", "recruitmentSchedule"},
+			value = {"activeGeneration", "recruitmentSchedule", "recruitmentStatus"},
 			allEntries = true)
 	public void activateRecruitment(
 			Long generationId,
@@ -48,7 +48,9 @@ public class RecruitmentActiveService {
 	}
 
 	@Transactional
-	@CacheEvict(value = "activeGeneration", allEntries = true)
+	@CacheEvict(
+			value = {"activeGeneration", "recruitmentStatus"},
+			allEntries = true)
 	public void deactivateRecruitment(Long generationId) {
 		Generation generation = generationAdminService.findGeneration(generationId);
 		generation.endRecruitment();

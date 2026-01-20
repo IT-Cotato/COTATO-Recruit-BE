@@ -41,6 +41,11 @@ public class CacheConfig {
 				"recruitmentSchedule",
 				Caffeine.newBuilder().expireAfterWrite(1, TimeUnit.HOURS).maximumSize(10).build());
 
+		// recruitmentStatus 캐시: 1시간 TTL
+		cacheManager.registerCustomCache(
+				"recruitmentStatus",
+				Caffeine.newBuilder().expireAfterWrite(1, TimeUnit.HOURS).maximumSize(10).build());
+
 		return cacheManager;
 	}
 }

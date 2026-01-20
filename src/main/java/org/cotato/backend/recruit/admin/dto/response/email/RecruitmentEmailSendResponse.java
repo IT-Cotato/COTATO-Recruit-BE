@@ -6,7 +6,7 @@ public record RecruitmentEmailSendResponse(
 		Long jobId, long totalCount, LocalDateTime sentAt, Long generationId) {
 
 	public static RecruitmentEmailSendResponse of(
-			Long jobId, int totalCount, LocalDateTime sentAt, Long generationId) {
+			Long jobId, long totalCount, LocalDateTime sentAt, Long generationId) {
 		return new RecruitmentEmailSendResponse(jobId, totalCount, sentAt, generationId);
 	}
 }
