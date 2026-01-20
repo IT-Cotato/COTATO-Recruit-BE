@@ -23,11 +23,8 @@ import org.springframework.validation.BindingResult;
 @RequiredArgsConstructor
 public class FailureMonitorAspect {
 
-	private final HttpServletRequest request;
-
-	@Around(
-			"@annotation(org.cotato.backend.recruit.common.annotation.MonitorFailure) || "
-					+ "@within(org.cotato.backend.recruit.common.annotation.MonitorFailure)")
+	@Around("@annotation(org.cotato.backend.recruit.common.annotation.MonitorFailure) || "
+			+ "@within(org.cotato.backend.recruit.common.annotation.MonitorFailure)")
 	public Object handleFailure(ProceedingJoinPoint joinPoint) throws Throwable {
 		try {
 			return joinPoint.proceed();
@@ -36,10 +33,8 @@ public class FailureMonitorAspect {
 			MonitorFailure monitorFailure = getAnnotation(joinPoint);
 
 			// 2. 로그 이름 결정 (어노테이션 값이 없으면 "메서드이름"으로 자동 지정)
-			String logName =
-					monitorFailure.logName().isEmpty()
-							? joinPoint.getSignature().getName()
-							: monitorFailure.logName();
+			String logName = monitorFailure.logName() != null ? monitorFailure.logName()
+					: joinPoint.getSignature().getName();
 
 			// 파라미터 수집 로직 호출
 			Map<String, Object> requestParams = getMethodParams(joinPoint);
@@ -67,8 +62,7 @@ public class FailureMonitorAspect {
 
 		try {
 			Object[] args = joinPoint.getArgs(); // 파라미터 값들
-			String[] argNames =
-					((MethodSignature) joinPoint.getSignature()).getParameterNames(); // 파라미터 이름들
+			String[] argNames = ((MethodSignature) joinPoint.getSignature()).getParameterNames(); // 파라미터 이름들
 
 			for (int i = 0; i < args.length; i++) {
 				Object arg = args[i];
@@ -102,6 +96,10 @@ public class FailureMonitorAspect {
 		MethodSignature signature = (MethodSignature) joinPoint.getSignature();
 		Method method = signature.getMethod();
 
-		return method.getAnnotation(MonitorFailure.class);
+		MonitorFailure annotation = method.getAnnotation(MonitorFailure.class);
+		if (annotation == null) {
+			annotation = joinPoint.getTarget().getClass().getAnnotation(MonitorFailure.class);
+		}
+		return annotation;
 	}
 }
