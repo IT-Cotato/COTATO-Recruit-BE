@@ -3,17 +3,17 @@ name: Deploy to Production Server
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
     inputs:
       tag:
-        description: '배포할 Tag (예: v2025.12.01)'
+        description: "배포할 Tag (예: v2025.12.01)"
         required: true
         type: string
-  workflow_call:  # 다른 워크플로우에서 호출 가능
+  workflow_call: # 다른 워크플로우에서 호출 가능
     inputs:
       tag:
-        description: '배포할 Tag'
+        description: "배포할 Tag"
         required: true
         type: string
 
@@ -128,6 +128,7 @@ jobs:
             export AWS_SECRET_KEY=${{ secrets.PROD_AWS_SECRET_KEY }}
             export AWS_REGION=${{ secrets.PROD_AWS_REGION }}
             export AWS_S3_BUCKET=${{ secrets.PROD_AWS_S3_BUCKET }}
+            export SENTRY_DSN=${{ secrets.SENTRY_DSN }}
 
             # 환경변수 .env 파일로 저장
             cat > .env << EOF
@@ -148,6 +149,7 @@ jobs:
             AWS_SECRET_KEY=$AWS_SECRET_KEY
             AWS_REGION=$AWS_REGION
             AWS_S3_BUCKET=$AWS_S3_BUCKET
+            SENTRY_DSN=$SENTRY_DSN
             EOF
 
             # Docker 로그인
