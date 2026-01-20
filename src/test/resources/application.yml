@@ -100,3 +100,14 @@ springdoc:
     enabled: false
   swagger-ui:
     enabled: false
+
+
+sentry:
+  dsn: https://dummy@dummy.ingest.sentry.io/0
+  traces-sample-rate: 1.0
+  debug: false
+  logging:
+    minimum-breadcrumb-level: info
+    minimum-event-level: error
+  logs:
+    enabled: true
