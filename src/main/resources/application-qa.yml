@@ -99,7 +99,7 @@ management:
       enabled: false
 
 sentry:
-  dsn: ${SENTRY_DSN}
+  dsn: https://dummy-key@dummy.ingest.sentry.io/0
   traces-sample-rate: 1.0
   debug: false
   logging:
