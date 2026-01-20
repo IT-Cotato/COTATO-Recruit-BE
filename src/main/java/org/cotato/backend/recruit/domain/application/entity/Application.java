@@ -144,6 +144,10 @@ public class Application {
 		this.pdfFileKey = pdfFileKey;
 	}
 
+	public void updatePassStatus(PassStatus passStatus) {
+		this.passStatus = passStatus;
+	}
+
 	// 제출 처리
 	public void submit() {
 		// 이미 제출된 지원서인지 확인
