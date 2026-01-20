@@ -1,3 +1,5 @@
 package org.cotato.backend.recruit.admin.dto.request.generation;
 
-public record generationCreateRequest(Long generationId) {}
+import jakarta.validation.constraints.NotNull;
+
+public record GenerationCreateRequest(@NotNull Long generationId) {}

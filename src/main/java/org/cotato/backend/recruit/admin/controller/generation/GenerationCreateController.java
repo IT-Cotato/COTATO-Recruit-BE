@@ -2,8 +2,9 @@ package org.cotato.backend.recruit.admin.controller.generation;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.cotato.backend.recruit.admin.dto.request.generation.generationCreateRequest;
+import org.cotato.backend.recruit.admin.dto.request.generation.GenerationCreateRequest;
 import org.cotato.backend.recruit.admin.service.generation.GenerationAdminService;
 import org.cotato.backend.recruit.common.response.ApiResponse;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +22,7 @@ public class GenerationCreateController {
 
 	@Operation(summary = "기수 생성", description = "기수를 생성합니다.")
 	@PostMapping
-	public ApiResponse<Void> createGeneration(@RequestBody generationCreateRequest request) {
+	public ApiResponse<Void> createGeneration(@Valid @RequestBody GenerationCreateRequest request) {
 		generationAdminService.createGeneration(request.generationId());
 		return ApiResponse.success();
 	}
