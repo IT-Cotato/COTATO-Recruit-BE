@@ -41,7 +41,9 @@ public class RecruitmentInformationAdminService {
 	}
 
 	@Transactional
-	@CacheEvict(value = "recruitmentSchedule", allEntries = true)
+	@CacheEvict(
+			value = {"recruitmentSchedule", "recruitmentStatus"},
+			allEntries = true)
 	public void updateRecruitmentInformation(RecruitmentInformationUpdateRequest request) {
 		validate(request);
 

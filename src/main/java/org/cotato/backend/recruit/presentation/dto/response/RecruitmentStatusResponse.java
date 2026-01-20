@@ -12,10 +12,11 @@ public record RecruitmentStatusResponse(
 		@Schema(description = "추가 모집 활성화 여부", example = "true")
 				boolean isAdditionalRecruitmentActive) {
 
-	public static RecruitmentStatusResponse of(Optional<Generation> generation) {
+	public static RecruitmentStatusResponse of(
+			Optional<Generation> generation, boolean isWithinRecruitmentPeriod) {
 		return new RecruitmentStatusResponse(
-				generation.isPresent() ? generation.get().isRecruitingActive() : false,
+				generation.isPresent() && isWithinRecruitmentPeriod,
 				generation.isPresent() ? generation.get().getId() : null,
-				generation.isPresent() ? generation.get().isAdditionalRecruitmentActive() : false);
+				generation.isPresent() && generation.get().isAdditionalRecruitmentActive());
 	}
 }

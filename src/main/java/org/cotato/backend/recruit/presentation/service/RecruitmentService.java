@@ -56,14 +56,44 @@ public class RecruitmentService {
 	}
 
 	/**
-	 * 현재 모집 활성화 여부 조회
+	 * 현재 모집 활성화 여부 조회 (지원 기간 기반, 캐시 적용)
 	 *
 	 * @return 모집 활성화 여부 응답
 	 */
+	@Cacheable(value = "recruitmentStatus", key = "'current'")
 	public RecruitmentStatusResponse checkRecruitmentStatus() {
 		Optional<Generation> generation = generationService.getActiveGenerationOptional();
 
-		return RecruitmentStatusResponse.of(generation);
+		if (generation.isEmpty()) {
+			return RecruitmentStatusResponse.of(Optional.empty(), false);
+		}
+
+		boolean isWithinPeriod = isWithinRecruitmentPeriod(generation.get());
+		return RecruitmentStatusResponse.of(generation, isWithinPeriod);
+	}
+
+	/**
+	 * 지원 기간 내인지 확인
+	 *
+	 * @param generation 기수
+	 * @return 지원 기간 내이면 true, 아니면 false
+	 */
+	private boolean isWithinRecruitmentPeriod(Generation generation) {
+		Optional<RecruitmentInformation> recruitmentStart =
+				recruitmentInformationRepository.findByGenerationAndInformationType(
+						generation, InformationType.RECRUITMENT_START);
+
+		Optional<RecruitmentInformation> recruitmentEnd =
+				recruitmentInformationRepository.findByGenerationAndInformationType(
+						generation, InformationType.RECRUITMENT_END);
+
+		if (recruitmentStart.isEmpty() || recruitmentEnd.isEmpty()) {
+			return false;
+		}
+
+		LocalDateTime now = LocalDateTime.now();
+		return !now.isBefore(recruitmentStart.get().getEventDatetime())
+				&& !now.isAfter(recruitmentEnd.get().getEventDatetime());
 	}
 
 	/**
@@ -155,5 +185,15 @@ public class RecruitmentService {
 		if (now.isBefore(recruitmentStart.getEventDatetime())) {
 			throw new PresentationException(PresentationErrorCode.RECRUITMENT_PERIOD_NOT_STARTED);
 		}
+	}
+
+	/**
+	 * 지원 기간 전체 검증 (시작 + 종료)
+	 *
+	 * @param generation 기수
+	 */
+	public void validateRecruitmentPeriod(Generation generation) {
+		validateRecruitmentStart(generation);
+		validateRecruitmentEnd(generation);
 	}
 }
