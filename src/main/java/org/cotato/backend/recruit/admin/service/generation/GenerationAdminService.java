@@ -80,6 +80,10 @@ public class GenerationAdminService {
 			value = {"latestGeneration", "activeGeneration"},
 			allEntries = true)
 	public Generation createGeneration(Long generation) {
+		boolean existsGeneration = generationRepository.existsById(generation);
+		if (existsGeneration) {
+			throw new AdminException(AdminErrorCode.GENERATION_ALREADY_EXISTS);
+		}
 		return generationRepository.save(new Generation(generation, false, false));
 	}
 }

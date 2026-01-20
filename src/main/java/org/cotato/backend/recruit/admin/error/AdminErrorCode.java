@@ -20,6 +20,7 @@ public enum AdminErrorCode {
 	// Generation
 	GENERATION_NOT_FOUND(HttpStatus.NOT_FOUND, "GE001", "모집 중인 기수를 찾을 수 없습니다."),
 	NO_ACTIVE_GENERATION(HttpStatus.BAD_REQUEST, "GE002", "현재 모집 중인 기수가 없습니다."),
+	GENERATION_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "GE003", "이미 존재하는 기수입니다."),
 
 	// Application
 	APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "AP001", "지원서를 찾을 수 없습니다."),
