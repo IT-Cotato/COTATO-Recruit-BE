@@ -3,13 +3,13 @@ name: Deploy to QA Server
 on:
   push:
     branches:
-      - 'release/**'
-      - 'hotfix/**'
-  workflow_dispatch:  # 수동 실행 가능
-  workflow_call:  # 다른 워크플로우에서 호출 가능
+      - "release/**"
+      - "hotfix/**"
+  workflow_dispatch: # 수동 실행 가능
+  workflow_call: # 다른 워크플로우에서 호출 가능
     inputs:
       ref:
-        description: '배포할 브랜치 또는 커밋'
+        description: "배포할 브랜치 또는 커밋"
         required: true
         type: string
 
@@ -55,8 +55,8 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: "17"
+          distribution: "temurin"
           cache: gradle
 
       - name: Grant execute permission for gradlew
@@ -140,6 +140,7 @@ jobs:
             export AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
             export AWS_REGION=${{ secrets.AWS_REGION }}
             export AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}
+            export SENTRY_DSN=${{ secrets.SENTRY_DSN }}
 
             # 환경변수 .env 파일로 저장
             cat > .env << EOF
@@ -160,6 +161,7 @@ jobs:
             AWS_SECRET_KEY=$AWS_SECRET_KEY
             AWS_REGION=$AWS_REGION
             AWS_S3_BUCKET=$AWS_S3_BUCKET
+            SENTRY_DSN=$SENTRY_DSN
             EOF
 
             # Docker 로그인
