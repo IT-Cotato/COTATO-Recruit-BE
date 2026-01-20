@@ -97,3 +97,14 @@ management:
   health:
     mail:
       enabled: false
+
+sentry:
+  dsn: ${SENTRY_DSN}
+  traces-sample-rate: 1.0
+  debug: false
+  logging:
+    minimum-breadcrumb-level: info
+    minimum-event-level: error
+  logs:
+    enabled: true
+s
