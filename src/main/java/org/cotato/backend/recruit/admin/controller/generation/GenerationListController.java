@@ -1,9 +1,9 @@
-package org.cotato.backend.recruit.admin.controller.applicationView;
+package org.cotato.backend.recruit.admin.controller.generation;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.cotato.backend.recruit.admin.dto.response.applicationView.GenerationElementResponse;
+import org.cotato.backend.recruit.admin.dto.response.generation.GenerationElementResponse;
 import org.cotato.backend.recruit.admin.service.generation.GenerationAdminService;
 import org.cotato.backend.recruit.common.response.ApiResponse;
 import org.springframework.web.bind.annotation.GetMapping;

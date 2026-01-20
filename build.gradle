@@ -63,6 +63,11 @@ dependencies {
 	implementation 'software.amazon.awssdk:s3'
 	implementation 'software.amazon.awssdk:aws-crt-client'
 
+	// Sentry Spring Boot Starter
+	implementation platform("io.sentry:sentry-bom:8.30.0")
+	implementation "io.sentry:sentry-spring-boot-starter"
+	implementation "io.sentry:sentry-logback"
+
 	// Database
 	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'
