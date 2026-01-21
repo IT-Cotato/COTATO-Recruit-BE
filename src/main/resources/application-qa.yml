@@ -107,4 +107,3 @@ sentry:
     minimum-event-level: error
   logs:
     enabled: true
-s
