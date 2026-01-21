@@ -158,6 +158,7 @@ public class Application {
 		// 필수 항목 검증
 		validateRequiredFields();
 
+		this.passStatus = PassStatus.PENDING;
 		this.isSubmitted = true;
 		this.submittedAt = LocalDateTime.now();
 	}
