@@ -2,6 +2,8 @@ package org.cotato.backend.recruit.domain.email.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,6 +16,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.cotato.backend.recruit.domain.email.enums.EmailJobType;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 
 @Entity
@@ -31,6 +34,10 @@ public class EmailSendJob {
 	@JoinColumn(name = "generation_id", nullable = false)
 	private Generation generation;
 
+	@Enumerated(EnumType.STRING)
+	@Column(name = "job_type", nullable = false)
+	private EmailJobType jobType;
+
 	@Column(name = "total_count", nullable = false)
 	private int totalCount;
 
@@ -47,8 +54,9 @@ public class EmailSendJob {
 	private LocalDateTime completedAt;
 
 	@Builder
-	public EmailSendJob(Generation generation, int totalCount) {
+	public EmailSendJob(Generation generation, EmailJobType jobType, int totalCount) {
 		this.generation = generation;
+		this.jobType = jobType;
 		this.totalCount = totalCount;
 		this.successCount = 0;
 		this.failCount = 0;
