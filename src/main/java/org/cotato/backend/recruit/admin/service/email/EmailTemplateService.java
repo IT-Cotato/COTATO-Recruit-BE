@@ -7,8 +7,11 @@ import org.cotato.backend.recruit.admin.dto.response.email.EmailTemplateResponse
 import org.cotato.backend.recruit.admin.service.application.ApplicationAdminService;
 import org.cotato.backend.recruit.admin.service.generation.GenerationAdminService;
 import org.cotato.backend.recruit.domain.application.enums.PassStatus;
+import org.cotato.backend.recruit.domain.email.entity.EmailSendJob;
 import org.cotato.backend.recruit.domain.email.entity.EmailTemplate;
+import org.cotato.backend.recruit.domain.email.enums.EmailJobType;
 import org.cotato.backend.recruit.domain.email.enums.TemplateType;
+import org.cotato.backend.recruit.domain.email.repository.EmailSendJobRepository;
 import org.cotato.backend.recruit.domain.email.repository.EmailTemplateRepository;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class EmailTemplateService {
 
 	private final EmailTemplateRepository emailTemplateRepository;
+	private final EmailSendJobRepository emailSendJobRepository;
 	private final ApplicationAdminService applicationAdminService;
 	private final GenerationAdminService generationAdminService;
 
@@ -46,7 +50,14 @@ public class EmailTemplateService {
 		long recipientCount =
 				applicationAdminService.countByGenerationAndPassStatus(generation, passStatus);
 
-		return EmailTemplateResponse.of(emailTemplate, recipientCount);
+		// Job 정보 조회 (가장 최근 것)
+		EmailSendJob job =
+				emailSendJobRepository
+						.findTopByGenerationAndJobTypeOrderByCreatedAtDesc(
+								generation, EmailJobType.from(templateType))
+						.orElse(null);
+
+		return EmailTemplateResponse.of(emailTemplate, recipientCount, job);
 	}
 
 	/** 메일 내용 저장 (존재하면 수정, 없으면 생성) */

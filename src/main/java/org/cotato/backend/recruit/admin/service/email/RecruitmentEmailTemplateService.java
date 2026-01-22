@@ -5,7 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.backend.recruit.admin.dto.response.email.RecruitmentEmailTemplateResponse;
 import org.cotato.backend.recruit.admin.service.generation.GenerationAdminService;
+import org.cotato.backend.recruit.domain.email.entity.EmailSendJob;
 import org.cotato.backend.recruit.domain.email.entity.RecruitmentEmailTemplate;
+import org.cotato.backend.recruit.domain.email.enums.EmailJobType;
+import org.cotato.backend.recruit.domain.email.repository.EmailSendJobRepository;
 import org.cotato.backend.recruit.domain.email.repository.RecruitmentEmailTemplateRepository;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
 import org.cotato.backend.recruit.domain.subscriber.repository.RecruitmentSubscriberRepository;
@@ -20,6 +23,7 @@ public class RecruitmentEmailTemplateService {
 
 	private final RecruitmentEmailTemplateRepository recruitmentEmailTemplateRepository;
 	private final RecruitmentSubscriberRepository recruitmentSubscriberRepository;
+	private final EmailSendJobRepository emailSendJobRepository;
 	private final GenerationAdminService generationAdminService;
 
 	/** 모집 알림 메일 템플릿 조회 (구독자 수 포함) */
@@ -41,7 +45,14 @@ public class RecruitmentEmailTemplateService {
 		// 아직 알림을 받지 않은 구독자 수 조회
 		long subscriberCount = recruitmentSubscriberRepository.countByIsNotified(false);
 
-		return RecruitmentEmailTemplateResponse.of(template, subscriberCount);
+		// Job 정보 조회 (가장 최근 것)
+		EmailSendJob job =
+				emailSendJobRepository
+						.findTopByGenerationAndJobTypeOrderByCreatedAtDesc(
+								generation, EmailJobType.RECRUITMENT_NOTIFICATION)
+						.orElse(null);
+
+		return RecruitmentEmailTemplateResponse.of(template, subscriberCount, job);
 	}
 
 	/** 모집 알림 메일 내용 저장 (존재하면 수정, 없으면 생성) */
