@@ -4,10 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cotato.backend.recruit.admin.dto.response.email.EmailJobStatusResponse;
 import org.cotato.backend.recruit.admin.dto.response.email.EmailSendResponse;
-import org.cotato.backend.recruit.admin.error.AdminErrorCode;
-import org.cotato.backend.recruit.admin.exception.AdminException;
 import org.cotato.backend.recruit.admin.service.application.ApplicationAdminService;
 import org.cotato.backend.recruit.admin.service.generation.GenerationAdminService;
 import org.cotato.backend.recruit.common.email.dto.EmailMessage;
@@ -17,6 +14,7 @@ import org.cotato.backend.recruit.domain.application.entity.Application;
 import org.cotato.backend.recruit.domain.application.enums.PassStatus;
 import org.cotato.backend.recruit.domain.email.entity.EmailSendJob;
 import org.cotato.backend.recruit.domain.email.entity.EmailTemplate;
+import org.cotato.backend.recruit.domain.email.enums.EmailJobType;
 import org.cotato.backend.recruit.domain.email.enums.TemplateType;
 import org.cotato.backend.recruit.domain.email.repository.EmailSendJobRepository;
 import org.cotato.backend.recruit.domain.email.repository.EmailTemplateRepository;
@@ -63,6 +61,7 @@ public class EmailSendService {
 		EmailSendJob job =
 				EmailSendJob.builder()
 						.generation(generation)
+						.jobType(EmailJobType.from(templateType))
 						.totalCount(emailMessages.size())
 						.build();
 		emailSendJobRepository.save(job);
@@ -79,20 +78,6 @@ public class EmailSendService {
 				emailMessages.size(),
 				emailTemplate.getSentAt(),
 				generation.getId());
-	}
-
-	/**
-	 * 이메일 발송 작업 상태 조회
-	 *
-	 * @param jobId 발송 작업 ID
-	 * @return 발송 작업 상태
-	 */
-	public EmailJobStatusResponse getJobStatus(Long jobId) {
-		EmailSendJob job =
-				emailSendJobRepository
-						.findById(jobId)
-						.orElseThrow(() -> new AdminException(AdminErrorCode.EMAIL_JOB_NOT_FOUND));
-		return EmailJobStatusResponse.from(job);
 	}
 
 	/** 템플릿 조회 및 검증 */

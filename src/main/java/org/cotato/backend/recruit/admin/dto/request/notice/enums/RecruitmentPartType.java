@@ -6,12 +6,11 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum RecruitmentPartType {
-	PM("Product Manager", "PM", "pm.jpg"),
-	DE("Team Design", "DE", "design.jpg"),
-	FE("Team Frontend", "FE", "frontend.jpg"),
-	BE("Team Backend", "BE", "backend.jpg");
+	PM("Product Manager", "PM"),
+	DE("Team Design", "DE"),
+	FE("Team Frontend", "FE"),
+	BE("Team Backend", "BE");
 
 	private final String partName;
 	private final String partShort;
-	private final String imageFilename;
 }

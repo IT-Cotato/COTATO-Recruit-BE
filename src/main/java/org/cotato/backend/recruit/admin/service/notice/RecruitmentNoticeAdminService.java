@@ -53,7 +53,6 @@ public class RecruitmentNoticeAdminService {
 										.partName(part.partType().getPartName())
 										.partShort(part.partType().getPartShort())
 										.partDetail(part.detail())
-										.imageFilename(part.partType().getImageFilename())
 										.build())
 				.toList();
 	}
@@ -69,7 +68,7 @@ public class RecruitmentNoticeAdminService {
 										.noticeType(NoticeType.ACTIVITY_SCHEDULE)
 										.scheduleTitle(activity.activityType().getActivityName())
 										.schedule(activity.date())
-										.imageFilename(activity.activityType().getImageFilename())
+										.activityShort(activity.activityType().getActivityShort())
 										.build())
 				.toList();
 	}

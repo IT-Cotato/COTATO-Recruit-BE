@@ -3,7 +3,6 @@ package org.cotato.backend.recruit.admin.service.email;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.cotato.backend.recruit.admin.dto.response.email.EmailJobStatusResponse;
 import org.cotato.backend.recruit.admin.dto.response.email.RecruitmentEmailSendResponse;
 import org.cotato.backend.recruit.admin.error.AdminErrorCode;
 import org.cotato.backend.recruit.admin.exception.AdminException;
@@ -13,6 +12,7 @@ import org.cotato.backend.recruit.common.email.service.EmailHtmlTemplateRenderer
 import org.cotato.backend.recruit.common.email.service.EmailService;
 import org.cotato.backend.recruit.domain.email.entity.EmailSendJob;
 import org.cotato.backend.recruit.domain.email.entity.RecruitmentEmailTemplate;
+import org.cotato.backend.recruit.domain.email.enums.EmailJobType;
 import org.cotato.backend.recruit.domain.email.repository.EmailSendJobRepository;
 import org.cotato.backend.recruit.domain.email.repository.RecruitmentEmailTemplateRepository;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
@@ -63,6 +63,7 @@ public class RecruitmentNotificationEmailSendService {
 		EmailSendJob job =
 				EmailSendJob.builder()
 						.generation(generation)
+						.jobType(EmailJobType.RECRUITMENT_NOTIFICATION)
 						.totalCount(emailMessages.size())
 						.build();
 		emailSendJobRepository.save(job);
@@ -76,20 +77,6 @@ public class RecruitmentNotificationEmailSendService {
 
 		return RecruitmentEmailSendResponse.of(
 				job.getId(), emailMessages.size(), template.getSentAt(), generation.getId());
-	}
-
-	/**
-	 * 이메일 발송 작업 상태 조회
-	 *
-	 * @param jobId 발송 작업 ID
-	 * @return 발송 작업 상태
-	 */
-	public EmailJobStatusResponse getJobStatus(Long jobId) {
-		EmailSendJob job =
-				emailSendJobRepository
-						.findById(jobId)
-						.orElseThrow(() -> new AdminException(AdminErrorCode.EMAIL_JOB_NOT_FOUND));
-		return EmailJobStatusResponse.from(job);
 	}
 
 	/** 템플릿 조회 및 검증 */

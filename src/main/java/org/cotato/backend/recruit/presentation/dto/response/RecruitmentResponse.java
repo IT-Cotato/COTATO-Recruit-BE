@@ -20,23 +20,17 @@ public record RecruitmentResponse(
 	}
 
 	public record PartResponse(
-			String name, @JsonProperty("short") String partShort, String detail, String imageUrl) {
+			String name, @JsonProperty("short") String partShort, String detail) {
 		public static PartResponse from(RecruitmentNotice n) {
-			String imageUrl =
-					n.getImageFilename() != null
-							? "/backend/images/parts/" + n.getImageFilename()
-							: null;
-			return new PartResponse(n.getPartName(), n.getPartShort(), n.getPartDetail(), imageUrl);
+			return new PartResponse(n.getPartName(), n.getPartShort(), n.getPartDetail());
 		}
 	}
 
-	public record ActivityResponse(Long id, String name, String date, String imageUrl) {
+	public record ActivityResponse(
+			Long id, String name, @JsonProperty("short") String activityShort, String date) {
 		public static ActivityResponse from(RecruitmentNotice n) {
-			String imageUrl =
-					n.getImageFilename() != null
-							? "/backend/images/activities/" + n.getImageFilename()
-							: null;
-			return new ActivityResponse(n.getId(), n.getScheduleTitle(), n.getSchedule(), imageUrl);
+			return new ActivityResponse(
+					n.getId(), n.getScheduleTitle(), n.getActivityShort(), n.getSchedule());
 		}
 	}
 }

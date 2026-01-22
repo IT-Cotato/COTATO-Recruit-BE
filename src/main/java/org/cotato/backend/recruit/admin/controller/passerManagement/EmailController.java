@@ -7,7 +7,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.dto.request.email.EmailSaveRequest;
 import org.cotato.backend.recruit.admin.dto.request.email.EmailSendRequest;
-import org.cotato.backend.recruit.admin.dto.response.email.EmailJobStatusResponse;
 import org.cotato.backend.recruit.admin.dto.response.email.EmailSendResponse;
 import org.cotato.backend.recruit.admin.dto.response.email.EmailTemplateResponse;
 import org.cotato.backend.recruit.admin.service.email.EmailSendService;
@@ -15,7 +14,6 @@ import org.cotato.backend.recruit.admin.service.email.EmailTemplateService;
 import org.cotato.backend.recruit.common.response.ApiResponse;
 import org.cotato.backend.recruit.domain.email.enums.TemplateType;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -63,16 +61,6 @@ public class EmailController {
 	public ApiResponse<EmailSendResponse> sendEmails(@Valid @RequestBody EmailSendRequest request) {
 		EmailSendResponse response =
 				emailSendService.sendEmails(request.templateType(), request.generationId());
-		return ApiResponse.success(response);
-	}
-
-	@Operation(
-			summary = "메일 발송 작업 상태 조회",
-			description = "메일 발송 작업의 진행 상태를 조회합니다. (총 개수, 성공, 실패, 진행률)")
-	@GetMapping("/jobs/{jobId}")
-	public ApiResponse<EmailJobStatusResponse> getJobStatus(
-			@Parameter(description = "발송 작업 ID", required = true) @PathVariable Long jobId) {
-		EmailJobStatusResponse response = emailSendService.getJobStatus(jobId);
 		return ApiResponse.success(response);
 	}
 }

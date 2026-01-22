@@ -6,13 +6,13 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum ActivityType {
-	OT("OT", "ot.jpg"),
-	REGULAR_SESSION("정기세션", "정기-세션.jpg"),
-	MT("MT", "mt.jpg"),
-	DEV_TALK("Dev Talk", "devtalk.jpg"),
-	COKATHON("코카톤", "코커톤.jpg"),
-	DEMO_DAY("데모데이", "데모데이.jpg");
+	OT("OT", "OT"),
+	REGULAR_SESSION("정기세션", "SESSION"),
+	MT("MT", "MT"),
+	DEV_TALK("Dev Talk", "DEVTALK"),
+	COKATHON("코카톤", "COKERTHON"),
+	DEMO_DAY("데모데이", "DEMODAY");
 
 	private final String activityName;
-	private final String imageFilename;
+	private final String activityShort;
 }

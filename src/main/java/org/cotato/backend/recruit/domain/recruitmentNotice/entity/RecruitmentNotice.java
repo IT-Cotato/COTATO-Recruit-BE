@@ -52,8 +52,8 @@ public class RecruitmentNotice {
 	@Column(name = "part_detail")
 	private String partDetail;
 
-	@Column(name = "image_filename")
-	private String imageFilename;
+	@Column(name = "activity_short")
+	private String activityShort;
 
 	@Builder
 	public RecruitmentNotice(
@@ -64,7 +64,7 @@ public class RecruitmentNotice {
 			String partName,
 			String partShort,
 			String partDetail,
-			String imageFilename) {
+			String activityShort) {
 		this.generation = generation;
 		this.noticeType = noticeType;
 		this.scheduleTitle = scheduleTitle;
@@ -72,6 +72,6 @@ public class RecruitmentNotice {
 		this.partName = partName;
 		this.partShort = partShort;
 		this.partDetail = partDetail;
-		this.imageFilename = imageFilename;
+		this.activityShort = activityShort;
 	}
 }
