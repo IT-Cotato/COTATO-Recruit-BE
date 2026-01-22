@@ -21,6 +21,7 @@ import org.cotato.backend.recruit.domain.user.entity.User;
 import org.cotato.backend.recruit.domain.user.repository.UserRepository;
 import org.cotato.backend.recruit.excelReport.TestReportManager;
 import org.cotato.backend.recruit.testsupport.ApiMetadata;
+import org.cotato.backend.recruit.testsupport.IntegrationTestSupport;
 import org.cotato.backend.recruit.testsupport.WithMockCustomUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -28,24 +29,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
-@SpringBootTest
 @org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
-@Transactional // 테스트 후 DB 롤백 보장
 @ApiMetadata("GET /api/applications/start")
 @ExtendWith(TestReportManager.class)
 @TestMethodOrder(MethodOrderer.DisplayName.class)
-class StartApplicationControllerTest {
+class StartApplicationApiTest extends IntegrationTestSupport {
 
 	@Autowired private MockMvc mockMvc;
 
-	// 실제 로직 검증을 위해 Repository 사용
 	@Autowired private UserRepository userRepository;
 	@Autowired private GenerationRepository generationRepository;
 	@Autowired private ApplicationRepository applicationRepository;
@@ -60,16 +57,15 @@ class StartApplicationControllerTest {
 	void startApplication_NoGeneration() throws Exception {
 		// given
 		var auth = setupMemberAndSyncAuth(); // 멤버 생성 및 ID 동기화
-		// 기수(Generation)를 생성하지 않음
 
 		// when & then
-		mockMvc.perform(
-						post("/api/applications/start")
-								.contentType(MediaType.APPLICATION_JSON)
-								.with(
-										org.springframework.security.test.web.servlet.request
-												.SecurityMockMvcRequestPostProcessors
-												.authentication(auth)))
+		performAndLog(
+						mockMvc.perform(
+								post("/api/applications/start")
+										.contentType(MediaType.APPLICATION_JSON)
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
 				.andDo(print())
 				.andExpect(status().isNotFound()) // 404
 				.andExpect(jsonPath("$.code").value("RE002"));
@@ -86,13 +82,13 @@ class StartApplicationControllerTest {
 				gen, LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(10));
 
 		// when & then
-		mockMvc.perform(
-						post("/api/applications/start")
-								.contentType(MediaType.APPLICATION_JSON)
-								.with(
-										org.springframework.security.test.web.servlet.request
-												.SecurityMockMvcRequestPostProcessors
-												.authentication(auth)))
+		performAndLog(
+						mockMvc.perform(
+								post("/api/applications/start")
+										.contentType(MediaType.APPLICATION_JSON)
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
 				.andDo(print())
 				.andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.code").value("AP007"));
@@ -109,13 +105,13 @@ class StartApplicationControllerTest {
 				gen, LocalDateTime.now().minusDays(10), LocalDateTime.now().minusDays(1));
 
 		// when & then
-		mockMvc.perform(
-						post("/api/applications/start")
-								.contentType(MediaType.APPLICATION_JSON)
-								.with(
-										org.springframework.security.test.web.servlet.request
-												.SecurityMockMvcRequestPostProcessors
-												.authentication(auth)))
+		performAndLog(
+						mockMvc.perform(
+								post("/api/applications/start")
+										.contentType(MediaType.APPLICATION_JSON)
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
 				.andDo(print())
 				.andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.code").value("AP005"));
@@ -151,19 +147,19 @@ class StartApplicationControllerTest {
 				true,
 				ApplicationPartType.DE);
 		app.submit();
-		applicationRepository.save(app);
+		applicationRepository.saveAndFlush(app);
 
 		// when & then
-		mockMvc.perform(
-						post("/api/applications/start")
-								.contentType(MediaType.APPLICATION_JSON)
-								.with(
-										org.springframework.security.test.web.servlet.request
-												.SecurityMockMvcRequestPostProcessors
-												.authentication(auth)))
+		performAndLog(
+						mockMvc.perform(
+								post("/api/applications/start")
+										.contentType(MediaType.APPLICATION_JSON)
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
 				.andDo(print())
 				.andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.code").value("AP002")); // Check this code later if it fails
+				.andExpect(jsonPath("$.code").value("AP002"));
 	}
 
 	@Test
@@ -182,16 +178,16 @@ class StartApplicationControllerTest {
 
 		// '작성 중' 상태의 지원서 저장
 		Application existingApp = Application.createNew(userEntity, gen);
-		applicationRepository.save(existingApp);
+		applicationRepository.saveAndFlush(existingApp);
 
 		// when & then
-		mockMvc.perform(
-						post("/api/applications/start")
-								.contentType(MediaType.APPLICATION_JSON)
-								.with(
-										org.springframework.security.test.web.servlet.request
-												.SecurityMockMvcRequestPostProcessors
-												.authentication(auth)))
+		performAndLog(
+						mockMvc.perform(
+								post("/api/applications/start")
+										.contentType(MediaType.APPLICATION_JSON)
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.code").value("SUCCESS"))
@@ -212,13 +208,13 @@ class StartApplicationControllerTest {
 				gen, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1));
 
 		// when & then
-		mockMvc.perform(
-						post("/api/applications/start")
-								.contentType(MediaType.APPLICATION_JSON)
-								.with(
-										org.springframework.security.test.web.servlet.request
-												.SecurityMockMvcRequestPostProcessors
-												.authentication(auth)))
+		performAndLog(
+						mockMvc.perform(
+								post("/api/applications/start")
+										.contentType(MediaType.APPLICATION_JSON)
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.code").value("SUCCESS"))
@@ -234,7 +230,8 @@ class StartApplicationControllerTest {
 	private UsernamePasswordAuthenticationToken setupMemberAndSyncAuth() {
 		// 1. 실제 DB 저장 (여기서 ID 자동 생성)
 		User user =
-				userRepository.save(User.createGoogleUser("test@gmail.com", "testUser", "123456"));
+				userRepository.saveAndFlush(
+						User.createGoogleUser("test@gmail.com", "testUser", "123456"));
 
 		// 2. CustomUserDetails 생성 (진짜 ID 주입)
 		CustomUserDetails userDetails =
@@ -249,22 +246,23 @@ class StartApplicationControllerTest {
 	}
 
 	private Generation createGeneration() {
-		return generationRepository.save(
+		Generation newGeneration =
 				Generation.builder()
-						.id(1L) // Manually assign ID
+						.id(1L)
 						.isRecruitingActive(true)
 						.isAdditionalRecruitmentActive(false)
-						.build());
+						.build();
+		return generationRepository.saveAndFlush(newGeneration);
 	}
 
 	private void createRecruitmentPeriod(Generation gen, LocalDateTime start, LocalDateTime end) {
-		recruitmentInformationRepository.save(
+		recruitmentInformationRepository.saveAndFlush(
 				RecruitmentInformation.builder()
 						.generation(gen)
 						.informationType(InformationType.RECRUITMENT_START)
 						.eventDatetime(start)
 						.build());
-		recruitmentInformationRepository.save(
+		recruitmentInformationRepository.saveAndFlush(
 				RecruitmentInformation.builder()
 						.generation(gen)
 						.informationType(InformationType.RECRUITMENT_END)
