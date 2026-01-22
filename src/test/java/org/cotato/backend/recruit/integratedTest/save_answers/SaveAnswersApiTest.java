@@ -232,7 +232,12 @@ class SaveAnswersApiTest extends IntegrationTestSupport {
 
 		// Verify creation
 		List<ApplicationAnswer> answers = applicationAnswerRepository.findAll();
+		Application createdApp = applicationRepository.findAll().get(0);
 		assertEquals(1, answers.size());
+		assertEquals("New Answer", answers.get(0).getContent());
+		assertEquals(createdApp.getId(), app.getId());
+		assertEquals("url", createdApp.getPdfFileUrl());
+		assertEquals("key", createdApp.getPdfFileKey());
 	}
 
 	private UsernamePasswordAuthenticationToken setupMemberAndSyncAuth() {

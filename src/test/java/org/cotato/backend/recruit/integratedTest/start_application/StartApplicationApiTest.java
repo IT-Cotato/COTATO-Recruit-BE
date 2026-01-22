@@ -36,7 +36,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
-@ApiMetadata("GET /api/applications/start")
+@ApiMetadata("POST /api/applications/start")
 @ExtendWith(TestReportManager.class)
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 class StartApplicationApiTest extends IntegrationTestSupport {

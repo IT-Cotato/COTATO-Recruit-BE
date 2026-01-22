@@ -85,6 +85,7 @@ public class TestReportManager implements TestWatcher {
 		if (results.isEmpty()) return;
 
 		File excelFile = excelWriter.write(results);
+		if (excelFile == null) return;
 
 		long passCount = results.stream().filter(r -> "PASS".equals(r.getStatus())).count();
 		DiscordNotificationSender.TestStatistics stats =

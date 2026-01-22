@@ -1,5 +1,7 @@
 package org.cotato.backend.recruit.integratedTest.submit_application;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -297,9 +299,8 @@ class SubmitApplicationApiTest extends IntegrationTestSupport {
 
 		// Verify
 		Application updated = applicationRepository.findById(app.getId()).orElseThrow();
-		if (!updated.getIsSubmitted()) throw new RuntimeException("Should be submitted");
-		if (updated.getPassStatus() != PassStatus.PENDING)
-			throw new RuntimeException("Should be PENDING");
+		assertTrue(updated.getIsSubmitted());
+		assertEquals(updated.getPassStatus(), PassStatus.PENDING);
 	}
 
 	private UsernamePasswordAuthenticationToken setupMemberAndSyncAuth() {
