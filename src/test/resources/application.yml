@@ -1,6 +1,8 @@
 spring:
   application:
     name: recruit-test
+  profiles:
+    active: local
 
   # H2 In-Memory Database for Testing
   datasource:
@@ -61,6 +63,7 @@ spring:
               - email
               - profile
 
+
 # JWT Configuration (Test values)
 jwt:
   secret: test-jwt-secret-key-for-testing-purposes-minimum-256-bits-required-for-HS256-algorithm-this-is-a-very-long-secret-key
@@ -90,24 +93,10 @@ logging:
   level:
     root: INFO
     org.cotato.backend: DEBUG
-    org.springframework.web: INFO
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
-# Swagger (Disabled in tests)
-springdoc:
-  api-docs:
-    enabled: false
-  swagger-ui:
-    enabled: false
-
-
+# Sentry (Test values)
 sentry:
-  dsn: https://dummy@dummy.ingest.sentry.io/0
-  traces-sample-rate: 1.0
-  debug: false
-  logging:
-    minimum-breadcrumb-level: info
-    minimum-event-level: error
-  logs:
-    enabled: true
+  dsn: https://examplePublicKey@o0.ingest.sentry.io/0
+
+discord:
+  webhook-url: ${TEST_DISCORD_WEBHOOK_URL:}

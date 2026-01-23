@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MonitorFailure {
-	String logName() default "";
+	String apiName() default "";
 
 	boolean alertNeeded() default true;
 }

@@ -24,7 +24,7 @@ public class BasicInfoController {
 
 	@Operation(summary = "기본 인적사항 조회", description = "저장된 기본 인적사항을 불러옵니다. (페이지 1 진입 시)")
 	@GetMapping("/{applicationId}/basic-info")
-	@MonitorFailure
+	@MonitorFailure(apiName = "기본 인적사항 조회")
 	public ApiResponse<BasicInfoResponse> getBasicInfo(
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
 			@Parameter(description = "지원서 ID", required = true) @PathVariable Long applicationId) {
@@ -35,7 +35,7 @@ public class BasicInfoController {
 
 	@Operation(summary = "기본 인적사항 작성(임시저장)", description = "지원자의 기본 인적사항을 작성하고 임시 저장합니다.")
 	@PostMapping("/{applicationId}/basic-info")
-	@MonitorFailure
+	@MonitorFailure(apiName = "기본 인적사항 작성(임시저장)")
 	public ApiResponse<Void> saveBasicInfo(
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
 			@Parameter(description = "지원서 ID", required = true) @PathVariable Long applicationId,

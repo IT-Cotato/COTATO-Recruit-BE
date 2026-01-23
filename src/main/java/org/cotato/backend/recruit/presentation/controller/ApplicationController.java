@@ -33,7 +33,7 @@ public class ApplicationController {
 			summary = "지원서 시작 (지원하기 버튼)",
 			description = "지원하기 버튼 클릭 시 호출됩니다. 이미 해당 기수에 지원서가 있으면 기존 지원서 ID 반환, 없으면 새로 생성합니다.")
 	@PostMapping("/start")
-	@MonitorFailure
+	@MonitorFailure(apiName = "지원서 시작")
 	public ApiResponse<ApplicationStartResponse> startApplication(
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails) {
 		ApplicationStartResponse response =
@@ -45,7 +45,7 @@ public class ApplicationController {
 			summary = "파트별 질문 + 저장된 답변 조회 (페이지 2)",
 			description = "공통 + 선택한 파트 질문을 저장된 답변과 함께 조회합니다. (페이지 2 진입 시)")
 	@GetMapping("/{applicationId}/part-questions")
-	@MonitorFailure
+	@MonitorFailure(apiName = "파트별 질문 + 저장된 답변 조회")
 	public ApiResponse<PartQuestionResponse> getQuestionsWithAnswers(
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
 			@Parameter(description = "지원서 ID", required = true) @PathVariable Long applicationId) {
@@ -60,7 +60,7 @@ public class ApplicationController {
 			description =
 					"기타(ETC) 질문 (알게 된 경로, 병행 활동, 동의사항 등) 을 저장된 답변과 함께 조회하고 반환합니다. (페이지 3 진입 시)")
 	@GetMapping("/{applicationId}/etc-questions")
-	@MonitorFailure
+	@MonitorFailure(apiName = "기타 질문 + 저장된 답변 조회")
 	public ApiResponse<EtcAnswerResponse> getEtcQuestionsWithAnswers(
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
 			@Parameter(description = "지원서 ID", required = true) @PathVariable Long applicationId) {
@@ -71,7 +71,7 @@ public class ApplicationController {
 
 	@Operation(summary = "질문 응답 작성(임시저장)", description = "지원서 질문에 대한 응답과 PDF 정보를 함께 저장합니다.")
 	@PostMapping("/{applicationId}/answers")
-	@MonitorFailure
+	@MonitorFailure(apiName = "질문 응답 작성(임시저장)")
 	public ApiResponse<Void> saveAnswers(
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
 			@PathVariable Long applicationId,
@@ -90,7 +90,7 @@ public class ApplicationController {
 			summary = "기타 질문 응답 작성(임시 저장)",
 			description = "기타 질문 응답을 작성하고 임시 저장합니다. 임시 저장 또는 다음 버튼 클릭 시 기타 질문 응답을 전송해야 합니다.")
 	@PostMapping("/{applicationId}/etc-answers")
-	@MonitorFailure
+	@MonitorFailure(apiName = "기타 질문 응답 작성(임시 저장)")
 	public ApiResponse<Void> saveEtcAnswers(
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
 			@Parameter(description = "지원서 ID", required = true) @PathVariable Long applicationId,
@@ -104,7 +104,7 @@ public class ApplicationController {
 			summary = "지원서 최종 제출",
 			description = "작성한 지원서를 최종 제출합니다. 최종 제출 하기 전에 임시저장을 먼저 해야 합니다.")
 	@PostMapping("/{applicationId}/submit")
-	@MonitorFailure
+	@MonitorFailure(apiName = "지원서 최종 제출")
 	public ApiResponse<Void> submitApplication(
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
 			@Parameter(description = "지원서 ID", required = true) @PathVariable Long applicationId) {
