@@ -1,9 +1,14 @@
 package org.cotato.backend.recruit.excelReport;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
+
 import org.cotato.backend.recruit.testsupport.ApiMetadata;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestWatcher;
@@ -12,8 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 public class TestReportManager implements TestWatcher {
 
-	private static final List<TestResultDto> results =
-			Collections.synchronizedList(new ArrayList<>());
+	private static final List<TestResultDto> results = Collections.synchronizedList(new ArrayList<>());
 	private static String webhookUrl;
 
 	// [추가] 현재 실행 중인 스레드(테스트)의 로그를 임시 저장하는 공간
@@ -52,15 +56,15 @@ public class TestReportManager implements TestWatcher {
 
 		String testClassName = context.getTestClass().map(Class::getSimpleName).orElse("-");
 
-		String apiUrl =
-				context.getTestClass()
-						.map(clazz -> clazz.getAnnotation(ApiMetadata.class))
-						.map(ApiMetadata::value)
-						.orElse("-");
+		String apiUrl = context.getTestClass()
+				.map(clazz -> clazz.getAnnotation(ApiMetadata.class))
+				.map(ApiMetadata::value)
+				.orElse("-");
 
 		// ThreadLocal에서 로그 꺼내기 (없으면 빈 문자열)
 		String details = logHolder.get();
-		if (details == null) details = "";
+		if (details == null)
+			details = "";
 
 		results.add(
 				new TestResultDto(
@@ -82,15 +86,41 @@ public class TestReportManager implements TestWatcher {
 	}
 
 	private static void finalizeReport() {
-		if (results.isEmpty()) return;
+		if (results.isEmpty())
+			return;
 
+		// 엑셀 파일 생성
 		File excelFile = excelWriter.write(results);
-		if (excelFile == null) return;
+		if (excelFile == null)
+			return;
+
+		// 통계 요약 파일(test_summary.properties) 생성
+		try {
+			long total = results.size();
+			long pass = results.stream().filter(r -> "PASS".equals(r.getStatus())).count();
+			long fail = total - pass;
+			String endTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+			Properties props = new Properties();
+			props.setProperty("TEST_TOTAL", String.valueOf(total));
+			props.setProperty("TEST_PASS", String.valueOf(pass));
+			props.setProperty("TEST_FAIL", String.valueOf(fail));
+			props.setProperty("TEST_END_TIME", endTime);
+
+			// 프로젝트 루트 경로에 저장 (Github Actions가 읽기 편하게)
+			FileOutputStream out = new FileOutputStream("test_summary.properties");
+			props.store(out, "Test Execution Summary");
+			out.close();
+
+			System.out.println("✅ [TestReportManager] 요약 파일 생성 완료: test_summary.properties");
+
+		} catch (Exception e) {
+			System.err.println("❌ 요약 파일 생성 실패: " + e.getMessage());
+		}
 
 		long passCount = results.stream().filter(r -> "PASS".equals(r.getStatus())).count();
-		DiscordNotificationSender.TestStatistics stats =
-				new DiscordNotificationSender.TestStatistics(
-						results.size(), passCount, results.size() - passCount);
+		DiscordNotificationSender.TestStatistics stats = new DiscordNotificationSender.TestStatistics(
+				results.size(), passCount, results.size() - passCount);
 
 		discordSender.send(webhookUrl, excelFile, stats);
 	}
