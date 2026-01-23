@@ -37,12 +37,12 @@ public record AdminApplicationEtcQuestionsResponse(
 						.map(
 								dp ->
 										new DiscoveryPathQuestion.DiscoveryPathOption(
-												dp.getDescription()))
+												dp.name(), dp.getDescription()))
 						.toList();
 
 		// 3. DiscoveryPathQuestion 객체 생성
 		String selectedDiscoveryPath =
-				etcData.discoveryPath() != null ? etcData.discoveryPath().getDescription() : null;
+				etcData.discoveryPath() != null ? etcData.discoveryPath().name() : null;
 		DiscoveryPathQuestion discoveryPathQuestion =
 				new DiscoveryPathQuestion(discoveryPathOptions, selectedDiscoveryPath);
 
@@ -61,10 +61,11 @@ public record AdminApplicationEtcQuestionsResponse(
 	@Schema(description = "동아리를 알게 된 경로 질문 및 답변")
 	public record DiscoveryPathQuestion(
 			@Schema(description = "선택 가능한 경로 목록") List<DiscoveryPathOption> options,
-			@Schema(description = "선택한 경로", example = "인스타그램", nullable = true)
+			@Schema(description = "선택한 경로", example = "INSTAGRAM", nullable = true)
 					String selectedAnswer) {
 		@Schema(description = "경로 옵션")
 		public record DiscoveryPathOption(
-				@Schema(description = "옵션 값", example = "인스타그램") String value) {}
+				@Schema(description = "enum 값", example = "INSTAGRAM") String value,
+				@Schema(description = "표시 라벨", example = "인스타그램") String label) {}
 	}
 }
