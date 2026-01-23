@@ -1,0 +1,67 @@
+name: Integrated Test & Report
+
+# 1. 트리거 조건: PR 생성(opened), 업데이트(synchronize) 시 실행
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: ["main", "develop"] # 타겟 브랜치 설정
+
+jobs:
+  test-and-report:
+    runs-on: ubuntu-latest
+
+    # 2. Redis 서비스 컨테이너 (이게 없으면 테스트에서 Redis 연결 에러 남!)
+    services:
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: 체크아웃 (코드 가져오기)
+        uses: actions/checkout@v4
+
+      - name: JDK 17 설정
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Gradle 권한 부여
+        run: chmod +x gradlew
+
+      # 3. 테스트 실행 (환경변수 주입)
+      - name: 통합 테스트 실행
+        env:
+          # application.yml에서 읽을 변수를 여기서 주입
+          TEST_DISCORD_WEBHOOK_URL: ${{ secrets.TEST_DISCORD_WEBHOOK_URL }}
+        run: ./gradlew test
+
+      # 4. 엑셀 파일 존재 확인 (디버깅용)
+      - name: 엑셀 파일 확인
+        run: |
+          echo "엑셀 파일 위치를 찾습니다..."
+          # 엑셀 파일이 생성되는 정확한 경로를 알아야 합니다.
+          # 보통 build/reports/ 혹은 프로젝트 루트에 생길 겁니다.
+          find . -name "*.xlsx"
+
+      # 5. 디스코드로 엑셀 전송 (curl 사용)
+      # 테스트가 성공하든 실패하든(if: always) 리포트를 보내고 싶다면 조건 추가 가능
+      - name: 디스코드로 리포트 전송
+        if: always() # 테스트가 실패해도 엑셀이 만들어졌으면 보냄
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.TEST_DISCORD_WEBHOOK_URL }}
+        run: |
+          # 엑셀 파일 경로 (TestReportManager가 저장하는 실제 경로로 수정 필요!)
+          FILE_PATH="./test-report.xlsx"
+
+          if [ -f "$FILE_PATH" ]; then
+            echo "엑셀 파일을 디스코드로 전송합니다."
+
+            # curl로 파일 업로드
+            curl -v -F "payload_json={\"content\": \"📢 **통합 테스트 결과 리포트**가 도착했습니다! (PR: #${{ github.event.pull_request.number }})\"}" \
+                 -F "file=@$FILE_PATH" \
+                 "$DISCORD_WEBHOOK_URL"
+          else
+            echo "⚠️ 엑셀 파일이 발견되지 않아 전송을 건너뜁니다."
+          fi
