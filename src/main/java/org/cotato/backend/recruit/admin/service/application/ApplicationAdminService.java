@@ -58,4 +58,8 @@ public class ApplicationAdminService {
 				.findById(applicationId)
 				.orElseThrow(() -> new AdminException(AdminErrorCode.APPLICATION_NOT_FOUND));
 	}
+
+	public boolean isApplicationExistInThisGeneration(Long generationId) {
+		return applicationRepository.existsByGenerationId(generationId);
+	}
 }

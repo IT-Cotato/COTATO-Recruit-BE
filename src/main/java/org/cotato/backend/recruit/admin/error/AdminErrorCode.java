@@ -25,6 +25,10 @@ public enum AdminErrorCode {
 	// Application
 	APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "AP001", "지원서를 찾을 수 없습니다."),
 
+	// Question
+	QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "QU001", "해당 질문을 찾을 수 없습니다."),
+	QUESTION_CANNOT_UPDATE(HttpStatus.BAD_REQUEST, "QU002", "질문을 수정할 수 없습니다, 이미 제출된 지원서가 있습니다."),
+
 	// Part Type
 	PART_TYPE_NOT_FOUND(HttpStatus.NOT_FOUND, "PT001", "해당 파트 타입을 찾을 수 없습니다."),
 
