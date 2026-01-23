@@ -28,7 +28,8 @@ public class WebConfig implements WebMvcConfigurer {
 		registry.addMapping("/**")
 				.allowedOrigins(
 						"http://localhost:3000",
-						"https://cotato-recruit-git-develop-kimminas-projects.vercel.app")
+						"https://cotato-recruit-git-develop-kimminas-projects.vercel.app",
+						"https://recruit.cotato.kr/")
 				.allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
 				.allowedHeaders("*")
 				.allowCredentials(true)
