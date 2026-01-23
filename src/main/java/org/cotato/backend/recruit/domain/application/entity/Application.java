@@ -86,7 +86,7 @@ public class Application {
 	@Column(name = "pdf_file_key")
 	private String pdfFileKey;
 
-	@Column(name = "pdf_file_url")
+	@Column(name = "pdf_file_url", columnDefinition = "TEXT")
 	private String pdfFileUrl;
 
 	// 정적 팩토리 메서드 - 새 지원서 생성

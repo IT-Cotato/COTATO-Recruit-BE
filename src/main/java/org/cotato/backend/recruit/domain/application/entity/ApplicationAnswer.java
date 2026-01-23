@@ -32,7 +32,7 @@ public class ApplicationAnswer {
 	@JoinColumn(name = "question_id", nullable = false)
 	private Question question;
 
-	@Column(name = "content")
+	@Column(name = "content", columnDefinition = "TEXT")
 	private String content;
 
 	// 정적 팩토리 메서드 - 새 답변 생성
