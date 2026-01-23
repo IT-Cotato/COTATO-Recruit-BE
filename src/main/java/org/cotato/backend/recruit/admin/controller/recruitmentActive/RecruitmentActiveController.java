@@ -32,9 +32,7 @@ public class RecruitmentActiveController {
 	public ApiResponse<Void> activateRecruitment(@Valid @RequestBody ActivationRequest request) {
 		recruitmentActiveService.activateRecruitment(
 				request.generationId(),
-				request.isAdditionalRecruitmentActive(),
-				request.startDate(),
-				request.endDate());
+				request.isAdditionalRecruitmentActive());
 		return ApiResponse.success();
 	}
 
