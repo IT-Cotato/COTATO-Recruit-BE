@@ -57,10 +57,10 @@ public record EtcAnswerResponse(
 	@Schema(description = "동아리를 알게 된 경로 질문 및 답변")
 	public record DiscoveryPathQuestion(
 			@Schema(description = "선택 가능한 경로 목록") List<DiscoveryPathOption> options,
-			@Schema(description = "선택한 경로", example = "SNS", nullable = true)
+			@Schema(description = "선택한 경로", example = "인스타그램", nullable = true)
 					String selectedAnswer) {
 		@Schema(description = "경로 옵션")
 		public record DiscoveryPathOption(
-				@Schema(description = "옵션 값", example = "SNS") String value) {}
+				@Schema(description = "옵션 값", example = "인스타그램") String value) {}
 	}
 }

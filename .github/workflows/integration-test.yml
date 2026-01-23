@@ -56,7 +56,7 @@ jobs:
 
           if [ -f "$SUMMARY_FILE" ]; then
             echo "📄 요약 파일을 로드합니다."
-            
+
             # grep으로 변수에 할당 (cat >> $GITHUB_ENV 삭제함)
             TOTAL=$(grep "TEST_TOTAL" $SUMMARY_FILE | cut -d'=' -f2)
             PASS=$(grep "TEST_PASS" $SUMMARY_FILE | cut -d'=' -f2)
@@ -80,7 +80,7 @@ jobs:
 
             # [핵심 수정] 줄바꿈을 위해 \\n 사용 (JSON 깨짐 방지)
             CONTENT="📢 **통합 테스트 결과 리포트** (PR: #${{ github.event.pull_request.number }})\\n\\n⏰ **종료 시간**: $END_TIME\\n📊 **테스트 요약**\\n- 🔢 전체: **$TOTAL**건\\n- ✅ 성공: **$PASS**건\\n- ❌ 실패: **$FAIL**건"
-            
+
             # curl 전송
             curl -v -F "payload_json={\"content\": \"$CONTENT\"}" \
                  -F "file=@$FILE_PATH" \
