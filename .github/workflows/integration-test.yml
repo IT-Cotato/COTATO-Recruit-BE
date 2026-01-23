@@ -51,25 +51,22 @@ jobs:
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.TEST_DISCORD_WEBHOOK_URL }}
         run: |
-          # 1. Java가 만든 요약 파일 읽어서 환경변수로 등록
+          # 1. Java가 만든 요약 파일 읽기
           SUMMARY_FILE="test_summary.properties"
 
           if [ -f "$SUMMARY_FILE" ]; then
             echo "📄 요약 파일을 로드합니다."
-            # 파일 내용을 읽어 export (KEY=VALUE 형태이므로 바로 source 가능하지만, 깃헙 액션 전용 방식 권장)
-            cat $SUMMARY_FILE >> $GITHUB_ENV
             
-            # 현재 쉘에서도 쓸 수 있게 source 처리 (혹은 직접 변수 할당)
-            # 간단하게 grep으로 변수에 담습니다 for displaying in this step
+            # grep으로 변수에 할당 (cat >> $GITHUB_ENV 삭제함)
             TOTAL=$(grep "TEST_TOTAL" $SUMMARY_FILE | cut -d'=' -f2)
             PASS=$(grep "TEST_PASS" $SUMMARY_FILE | cut -d'=' -f2)
             FAIL=$(grep "TEST_FAIL" $SUMMARY_FILE | cut -d'=' -f2)
             END_TIME=$(grep "TEST_END_TIME" $SUMMARY_FILE | cut -d'=' -f2)
           else
             echo "⚠️ 요약 파일이 없습니다. 기본값으로 설정합니다."
-            TOTAL="Unknown"
-            PASS="-"
-            FAIL="-"
+            TOTAL="0"
+            PASS="0"
+            FAIL="0"
             END_TIME="-"
           fi
 
@@ -81,17 +78,13 @@ jobs:
           if [ -f "$FILE_PATH" ]; then
             echo "🚀 엑셀 파일을 디스코드로 전송합니다."
 
-            # 메시지 구성 (Java가 준 데이터 활용)
-            # 줄바꿈 처리를 위해 변수에 미리 담습니다.
-            CONTENT="📢 **통합 테스트 결과 리포트** (PR: #${{ github.event.pull_request.number }})\n\n⏰ **종료 시간**: $END_TIME\n📊 **테스트 요약**\n- 🔢 전체: **$TOTAL**건\n- ✅ 성공: **$PASS**건\n- ❌ 실패: **$FAIL**건"
+            # [핵심 수정] 줄바꿈을 위해 \\n 사용 (JSON 깨짐 방지)
+            CONTENT="📢 **통합 테스트 결과 리포트** (PR: #${{ github.event.pull_request.number }})\\n\\n⏰ **종료 시간**: $END_TIME\\n📊 **테스트 요약**\\n- 🔢 전체: **$TOTAL**건\\n- ✅ 성공: **$PASS**건\\n- ❌ 실패: **$FAIL**건"
             
+            # curl 전송
             curl -v -F "payload_json={\"content\": \"$CONTENT\"}" \
                  -F "file=@$FILE_PATH" \
                  "$DISCORD_WEBHOOK_URL"
           else
             echo "⚠️ 엑셀 파일이 발견되지 않아 전송을 건너뜁니다."
-            # 실패 시에도 알림을 받고 싶다면 아래 주석 해제
-            # curl -H "Content-Type: application/json" \
-            #      -d "{\"content\": \"🚨 **테스트 실패**\n테스트가 비정상 종료되어 리포트가 없습니다.\n(실패 건수: $FAIL)\"}" \
-            #      "$DISCORD_WEBHOOK_URL"
           fi

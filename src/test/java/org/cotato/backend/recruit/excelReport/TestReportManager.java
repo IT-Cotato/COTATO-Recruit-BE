@@ -1,14 +1,15 @@
 package org.cotato.backend.recruit.excelReport;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-
 import org.cotato.backend.recruit.testsupport.ApiMetadata;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestWatcher;
@@ -94,26 +95,24 @@ public class TestReportManager implements TestWatcher {
 		if (excelFile == null)
 			return;
 
-		// 통계 요약 파일(test_summary.properties) 생성
-		try {
+		// 통계 요약 파일 생성
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter("test_summary.properties"))) {
 			long total = results.size();
 			long pass = results.stream().filter(r -> "PASS".equals(r.getStatus())).count();
 			long fail = total - pass;
 			String endTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-			Properties props = new Properties();
-			props.setProperty("TEST_TOTAL", String.valueOf(total));
-			props.setProperty("TEST_PASS", String.valueOf(pass));
-			props.setProperty("TEST_FAIL", String.valueOf(fail));
-			props.setProperty("TEST_END_TIME", endTime);
-
-			// 프로젝트 루트 경로에 저장 (Github Actions가 읽기 편하게)
-			FileOutputStream out = new FileOutputStream("test_summary.properties");
-			props.store(out, "Test Execution Summary");
-			out.close();
+			// KEY=VALUE 형식으로 깔끔하게 작성
+			writer.write("TEST_TOTAL=" + total);
+			writer.newLine();
+			writer.write("TEST_PASS=" + pass);
+			writer.newLine();
+			writer.write("TEST_FAIL=" + fail);
+			writer.newLine();
+			writer.write("TEST_END_TIME=" + endTime);
+			writer.newLine();
 
 			System.out.println("✅ [TestReportManager] 요약 파일 생성 완료: test_summary.properties");
-
 		} catch (Exception e) {
 			System.err.println("❌ 요약 파일 생성 실패: " + e.getMessage());
 		}
