@@ -45,21 +45,44 @@ jobs:
           # 보통 build/reports/ 혹은 프로젝트 루트에 생길 겁니다.
           find . -name "*.xlsx"
 
-      # 5. 디스코드로 엑셀 전송 (curl 사용)
-      # 테스트가 성공하든 실패하든(if: always) 리포트를 보내고 싶다면 조건 추가 가능
+      # 5. 디스코드로 리포트 전송
       - name: 디스코드로 리포트 전송
-        if: always() # 테스트가 실패해도 엑셀이 만들어졌으면 보냄
+        if: always()
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.TEST_DISCORD_WEBHOOK_URL }}
         run: |
-          # 엑셀 파일 경로 (TestReportManager가 저장하는 실제 경로로 수정 필요!)
-          FILE_PATH="./test-report.xlsx"
+          # 1. Java가 만든 요약 파일 읽기
+          SUMMARY_FILE="test_summary.properties"
+
+          if [ -f "$SUMMARY_FILE" ]; then
+            echo "📄 요약 파일을 로드합니다."
+            
+            # grep으로 변수에 할당 (cat >> $GITHUB_ENV 삭제함)
+            TOTAL=$(grep "TEST_TOTAL" $SUMMARY_FILE | cut -d'=' -f2)
+            PASS=$(grep "TEST_PASS" $SUMMARY_FILE | cut -d'=' -f2)
+            FAIL=$(grep "TEST_FAIL" $SUMMARY_FILE | cut -d'=' -f2)
+            END_TIME=$(grep "TEST_END_TIME" $SUMMARY_FILE | cut -d'=' -f2)
+          else
+            echo "⚠️ 요약 파일이 없습니다. 기본값으로 설정합니다."
+            TOTAL="0"
+            PASS="0"
+            FAIL="0"
+            END_TIME="-"
+          fi
+
+          echo "📊 로드된 데이터 -> 전체: $TOTAL, 성공: $PASS, 실패: $FAIL"
+
+          # 2. 엑셀 파일 경로
+          FILE_PATH="./integration_test_report.xlsx"
 
           if [ -f "$FILE_PATH" ]; then
-            echo "엑셀 파일을 디스코드로 전송합니다."
+            echo "🚀 엑셀 파일을 디스코드로 전송합니다."
 
-            # curl로 파일 업로드
-            curl -v -F "payload_json={\"content\": \"📢 **통합 테스트 결과 리포트**가 도착했습니다! (PR: #${{ github.event.pull_request.number }})\"}" \
+            # [핵심 수정] 줄바꿈을 위해 \\n 사용 (JSON 깨짐 방지)
+            CONTENT="📢 **통합 테스트 결과 리포트** (PR: #${{ github.event.pull_request.number }})\\n\\n⏰ **종료 시간**: $END_TIME\\n📊 **테스트 요약**\\n- 🔢 전체: **$TOTAL**건\\n- ✅ 성공: **$PASS**건\\n- ❌ 실패: **$FAIL**건"
+            
+            # curl 전송
+            curl -v -F "payload_json={\"content\": \"$CONTENT\"}" \
                  -F "file=@$FILE_PATH" \
                  "$DISCORD_WEBHOOK_URL"
           else
