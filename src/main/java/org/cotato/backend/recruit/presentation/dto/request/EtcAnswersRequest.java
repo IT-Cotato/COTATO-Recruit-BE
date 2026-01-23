@@ -8,8 +8,17 @@ import org.cotato.backend.recruit.domain.application.enums.DiscoveryPath;
 public record EtcAnswersRequest(
 		@Schema(
 						description = "알게 된 경로",
-						example = "SNS",
-						allowableValues = {"SNS", "FRIEND_REFERRAL", "SCHOOL_PROMOTION", "OTHER"},
+						example = "INSTAGRAM",
+						allowableValues = {
+							"INSTAGRAM",
+							"NAVER_CAFE",
+							"OTHER_SNS",
+							"EVERYTIME",
+							"CAMPUSPICK",
+							"FRIEND_REFERRAL",
+							"JIKHAENG",
+							"NONE"
+						},
 						requiredMode = Schema.RequiredMode.REQUIRED)
 				DiscoveryPath discoveryPath,
 		@Schema(description = "병행 활동 (600자 이내)", example = "다른 동아리 활동 중입니다.")

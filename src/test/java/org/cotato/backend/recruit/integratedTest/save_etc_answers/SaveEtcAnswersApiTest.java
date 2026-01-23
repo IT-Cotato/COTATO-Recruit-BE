@@ -71,7 +71,7 @@ class SaveEtcAnswersApiTest extends IntegrationTestSupport {
 		var auth = setupMemberAndSyncAuth();
 		EtcAnswersRequest request =
 				new EtcAnswersRequest(
-						DiscoveryPath.SNS, "No activity", "No time", true, true, true);
+						DiscoveryPath.INSTAGRAM, "No activity", "No time", true, true, true);
 
 		// when & then
 		performAndLog(
@@ -110,7 +110,7 @@ class SaveEtcAnswersApiTest extends IntegrationTestSupport {
 
 		EtcAnswersRequest request =
 				new EtcAnswersRequest(
-						DiscoveryPath.SNS, "No activity", "No time", true, true, true);
+						DiscoveryPath.INSTAGRAM, "No activity", "No time", true, true, true);
 
 		// when & then
 		mockMvc.perform(
@@ -143,7 +143,7 @@ class SaveEtcAnswersApiTest extends IntegrationTestSupport {
 
 		EtcAnswersRequest request =
 				new EtcAnswersRequest(
-						DiscoveryPath.SNS, "No activity", "No time", true, true, true);
+						DiscoveryPath.INSTAGRAM, "No activity", "No time", true, true, true);
 
 		// Force serialization error
 		given(objectMapper.writeValueAsString(any(ApplicationEtcData.class)))
@@ -209,7 +209,8 @@ class SaveEtcAnswersApiTest extends IntegrationTestSupport {
 		applicationRepository.saveAndFlush(app);
 
 		EtcAnswersRequest request =
-				new EtcAnswersRequest(DiscoveryPath.SNS, "Activity", "Time", true, true, true);
+				new EtcAnswersRequest(
+						DiscoveryPath.INSTAGRAM, "Activity", "Time", true, true, true);
 
 		// when & then
 		performAndLog(
