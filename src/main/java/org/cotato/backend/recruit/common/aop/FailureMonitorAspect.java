@@ -25,8 +25,6 @@ public class FailureMonitorAspect {
 
 	@Around("@annotation(org.cotato.backend.recruit.common.annotation.MonitorFailure) || "
 			+ "@within(org.cotato.backend.recruit.common.annotation.MonitorFailure)")
-	@Around("@annotation(org.cotato.backend.recruit.common.annotation.MonitorFailure) || "
-			+ "@within(org.cotato.backend.recruit.common.annotation.MonitorFailure)")
 	public Object handleFailure(ProceedingJoinPoint joinPoint) throws Throwable {
 		try {
 			return joinPoint.proceed();
@@ -65,7 +63,6 @@ public class FailureMonitorAspect {
 
 		try {
 			Object[] args = joinPoint.getArgs(); // 파라미터 값들
-			String[] argNames = ((MethodSignature) joinPoint.getSignature()).getParameterNames(); // 파라미터 이름들
 			String[] argNames = ((MethodSignature) joinPoint.getSignature()).getParameterNames(); // 파라미터 이름들
 
 			for (int i = 0; i < args.length; i++) {
