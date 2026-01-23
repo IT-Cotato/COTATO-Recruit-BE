@@ -52,8 +52,8 @@ jobs:
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.TEST_DISCORD_WEBHOOK_URL }}
         run: |
-          # 엑셀 파일 경로 (TestReportManager가 저장하는 실제 경로로 수정 필요!)
-          FILE_PATH="./test-report.xlsx"
+          # 엑셀 파일 경로
+          FILE_PATH="./integration_test_report.xlsx"
 
           if [ -f "$FILE_PATH" ]; then
             echo "엑셀 파일을 디스코드로 전송합니다."
