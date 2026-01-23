@@ -1,8 +1,6 @@
 spring:
   application:
     name: recruit-test
-  profiles:
-    active: local
 
   # H2 In-Memory Database for Testing
   datasource:
