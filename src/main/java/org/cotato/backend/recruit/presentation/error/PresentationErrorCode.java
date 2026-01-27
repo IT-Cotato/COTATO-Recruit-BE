@@ -31,6 +31,7 @@ public enum PresentationErrorCode {
 
 	// Answer
 	ANSWER_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "AN001", "질문의 답변 타입과 제출한 답변 타입이 일치하지 않습니다."),
+	ANSWER_CONTENT_TOO_LONG(HttpStatus.BAD_REQUEST, "AN002", "답변 내용이 너무 깁니다."),
 
 	// Subscription
 	ALREADY_SUBSCRIBED(HttpStatus.BAD_REQUEST, "SU001", "이미 구독 신청된 이메일입니다.");

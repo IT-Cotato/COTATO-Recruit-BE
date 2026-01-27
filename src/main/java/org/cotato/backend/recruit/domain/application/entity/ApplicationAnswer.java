@@ -13,6 +13,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.backend.recruit.domain.question.entity.Question;
+import org.cotato.backend.recruit.presentation.error.PresentationErrorCode;
+import org.cotato.backend.recruit.presentation.exception.PresentationException;
 
 @Entity
 @Getter
@@ -37,6 +39,9 @@ public class ApplicationAnswer {
 
 	// 정적 팩토리 메서드 - 새 답변 생성
 	public static ApplicationAnswer of(Application application, Question question, String content) {
+		if (content.length() > question.getMaxLength()) {
+			throw new PresentationException(PresentationErrorCode.ANSWER_CONTENT_TOO_LONG);
+		}
 		ApplicationAnswer answer = new ApplicationAnswer();
 		answer.application = application;
 		answer.question = question;
@@ -46,6 +51,9 @@ public class ApplicationAnswer {
 
 	// 답변 업데이트
 	public void update(String content) {
+		if (content.length() > question.getMaxLength()) {
+			throw new PresentationException(PresentationErrorCode.ANSWER_CONTENT_TOO_LONG);
+		}
 		this.content = content;
 	}
 }
