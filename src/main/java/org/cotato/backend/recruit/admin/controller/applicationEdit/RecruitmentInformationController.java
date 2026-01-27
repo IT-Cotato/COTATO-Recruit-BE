@@ -33,8 +33,8 @@ public class RecruitmentInformationController {
 	@GetMapping
 	public ApiResponse<RecruitmentInformationResponse> getRecruitmentInformation(
 			@RequestParam("generationId") Long generationId) {
-		RecruitmentInformationResponse response = recruitmentInformationAdminService
-				.getRecruitmentInformation(generationId);
+		RecruitmentInformationResponse response =
+				recruitmentInformationAdminService.getRecruitmentInformation(generationId);
 		return ApiResponse.success(response);
 	}
 

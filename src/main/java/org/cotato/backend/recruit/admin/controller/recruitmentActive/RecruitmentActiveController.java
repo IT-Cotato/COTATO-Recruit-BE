@@ -31,8 +31,7 @@ public class RecruitmentActiveController {
 	@PostMapping("/recruitment-activation")
 	public ApiResponse<Void> activateRecruitment(@Valid @RequestBody ActivationRequest request) {
 		recruitmentActiveService.activateRecruitment(
-				request.generationId(),
-				request.isAdditionalRecruitmentActive());
+				request.generationId(), request.isAdditionalRecruitmentActive());
 		return ApiResponse.success();
 	}
 

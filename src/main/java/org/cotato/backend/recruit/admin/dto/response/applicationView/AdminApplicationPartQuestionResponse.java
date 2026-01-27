@@ -3,7 +3,7 @@ package org.cotato.backend.recruit.admin.dto.response.applicationView;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import lombok.Builder;
-import org.cotato.backend.recruit.common.util.ByteManager;
+import org.cotato.backend.recruit.common.util.LengthManager;
 import org.cotato.backend.recruit.domain.application.entity.ApplicationAnswer;
 import org.cotato.backend.recruit.domain.question.entity.Question;
 
@@ -28,7 +28,8 @@ public record AdminApplicationPartQuestionResponse(
 			@Schema(description = "질문 순서") Integer sequence,
 			@Schema(description = "질문 내용") String questionContent,
 			@Schema(description = "작성된 답변 내용") String content,
-			@Schema(description = "답변 바이트 수") int byteSize) {
+			@Schema(description = "답변 글자수") int length,
+			@Schema(description = "최대 입력 글자수") int maxLength) {
 
 		public static AdminPartQuestionResponse from(Question question, ApplicationAnswer answer) {
 			String content = (answer != null ? answer.getContent() : null);
@@ -37,7 +38,8 @@ public record AdminApplicationPartQuestionResponse(
 					.sequence(question.getSequence())
 					.questionContent(question.getContent())
 					.content(content)
-					.byteSize(content != null ? ByteManager.getByteSize(content) : 0)
+					.length(content != null ? LengthManager.getCharacterCount(content) : 0)
+					.maxLength(question.getMaxLength())
 					.build();
 		}
 	}

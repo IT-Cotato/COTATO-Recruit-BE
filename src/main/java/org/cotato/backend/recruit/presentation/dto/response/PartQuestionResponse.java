@@ -2,6 +2,7 @@ package org.cotato.backend.recruit.presentation.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
+import org.cotato.backend.recruit.common.util.LengthManager;
 import org.cotato.backend.recruit.domain.question.entity.Question;
 
 @Schema(description = "파트별 질문 및 답변 목록 응답")
@@ -23,7 +24,8 @@ public record PartQuestionResponse(
 			@Schema(description = "질문 순서", example = "1") Integer sequence,
 			@Schema(description = "질문 내용", example = "COTATO에 지원하게 된 동기를 작성해 주세요.") String content,
 			@Schema(description = "파트 타입", example = "COMMON") String partType,
-			@Schema(description = "최대 입력 바이트 수", example = "500") Integer maxByte,
+			@Schema(description = "응답 글자수", example = "100") Integer length,
+			@Schema(description = "최대 입력 글자수", example = "500") Integer maxLength,
 			@Schema(description = "저장된 답변 (없으면 null)") AnswerResponse savedAnswer) {
 		public static QuestionWithAnswerResponse of(Question question, AnswerResponse savedAnswer) {
 			return new QuestionWithAnswerResponse(
@@ -31,7 +33,8 @@ public record PartQuestionResponse(
 					question.getSequence(),
 					question.getContent(),
 					question.getQuestionType().name(),
-					question.getMaxByte(),
+					LengthManager.getCharacterCount(savedAnswer.content()),
+					question.getMaxLength(),
 					savedAnswer);
 		}
 	}

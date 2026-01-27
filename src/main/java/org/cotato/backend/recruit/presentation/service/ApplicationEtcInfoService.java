@@ -30,12 +30,16 @@ public class ApplicationEtcInfoService {
 	/**
 	 * 기타 질문 조회 - 컨트롤러에서 호출
 	 *
-	 * @param userId 사용자 ID
+	 * @param userId        사용자 ID
 	 * @param applicationId 지원서 ID
 	 * @return 기타 질문 및 저장된 답변 응답
 	 */
 	public EtcAnswerResponse getEtcAnswers(Long userId, Long applicationId) {
 		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
+
+		if (application.getIsSubmitted()) {
+			throw new PresentationException(PresentationErrorCode.ALREADY_SUBMITTED);
+		}
 
 		// 모집 일정 조회
 		RecruitmentScheduleResponse schedule = recruitmentService.getRecruitmentSchedule();
@@ -54,23 +58,26 @@ public class ApplicationEtcInfoService {
 	/**
 	 * 기타 질문 임시 저장 - 컨트롤러에서 호출
 	 *
-	 * @param userId 사용자 ID
+	 * @param userId        사용자 ID
 	 * @param applicationId 지원서 ID
-	 * @param request 기타 질문 응답 및 추가 정보 요청
+	 * @param request       기타 질문 응답 및 추가 정보 요청
 	 */
 	@Transactional
 	public void saveEtcAnswers(Long userId, Long applicationId, EtcAnswersRequest request) {
 		Application application = applicationService.getApplicationWithAuth(applicationId, userId);
 
+		if (application.getIsSubmitted()) {
+			throw new PresentationException(PresentationErrorCode.ALREADY_SUBMITTED);
+		}
+
 		// EtcAnswersRequest를 ApplicationEtcData로 변환
-		ApplicationEtcData etcData =
-				ApplicationEtcData.of(
-						request.discoveryPath(),
-						request.parallelActivities(),
-						request.unavailableInterviewTimes(),
-						request.sessionAttendanceAgreed(),
-						request.mandatoryEventsAgreed(),
-						request.privacyPolicyAgreed());
+		ApplicationEtcData etcData = ApplicationEtcData.of(
+				request.discoveryPath(),
+				request.parallelActivities(),
+				request.unavailableInterviewTimes(),
+				request.sessionAttendanceAgreed(),
+				request.mandatoryEventsAgreed(),
+				request.privacyPolicyAgreed());
 
 		// ApplicationEtcData를 JSON으로 변환
 		String jsonData;
@@ -81,10 +88,9 @@ public class ApplicationEtcInfoService {
 		}
 
 		// ApplicationEtcInfo 조회 또는 생성
-		ApplicationEtcInfo etcInfo =
-				applicationEtcInfoRepository
-						.findByApplication(application)
-						.orElseGet(() -> ApplicationEtcInfo.createNew(application));
+		ApplicationEtcInfo etcInfo = applicationEtcInfoRepository
+				.findByApplication(application)
+				.orElseGet(() -> ApplicationEtcInfo.createNew(application));
 
 		// JSON 데이터 업데이트
 		etcInfo.updateEtcData(jsonData);
@@ -100,8 +106,7 @@ public class ApplicationEtcInfoService {
 	 * @return ApplicationEtcData (없으면 모든 필드 null인 객체 반환)
 	 */
 	private ApplicationEtcData getEtcData(Application application) {
-		Optional<ApplicationEtcInfo> etcInfoOpt =
-				applicationEtcInfoRepository.findByApplication(application);
+		Optional<ApplicationEtcInfo> etcInfoOpt = applicationEtcInfoRepository.findByApplication(application);
 
 		if (etcInfoOpt.isEmpty() || etcInfoOpt.get().getEtcData() == null) {
 			// 기타 정보가 없으면 모든 필드 null인 객체 반환
