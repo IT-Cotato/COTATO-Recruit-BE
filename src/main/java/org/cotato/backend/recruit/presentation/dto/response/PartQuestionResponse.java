@@ -24,7 +24,7 @@ public record PartQuestionResponse(
 			@Schema(description = "질문 순서", example = "1") Integer sequence,
 			@Schema(description = "질문 내용", example = "COTATO에 지원하게 된 동기를 작성해 주세요.") String content,
 			@Schema(description = "파트 타입", example = "COMMON") String partType,
-			@Schema(description = "응답 글자수", example = "TEXT") Integer length,
+			@Schema(description = "응답 글자수", example = "100") Integer length,
 			@Schema(description = "최대 입력 글자수", example = "500") Integer maxLength,
 			@Schema(description = "저장된 답변 (없으면 null)") AnswerResponse savedAnswer) {
 		public static QuestionWithAnswerResponse of(Question question, AnswerResponse savedAnswer) {
@@ -33,7 +33,7 @@ public record PartQuestionResponse(
 					question.getSequence(),
 					question.getContent(),
 					question.getQuestionType().name(),
-					LengthManager.getCharacterCount(question.getContent()),
+					LengthManager.getCharacterCount(savedAnswer.content()),
 					question.getMaxLength(),
 					savedAnswer);
 		}
