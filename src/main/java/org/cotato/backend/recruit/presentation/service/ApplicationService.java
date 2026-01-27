@@ -43,10 +43,6 @@ public class ApplicationService {
 
 		application.validateUser(userId);
 
-		if (application.getIsSubmitted()) {
-			throw new PresentationException(PresentationErrorCode.ALREADY_SUBMITTED);
-		}
-
 		return application;
 	}
 
