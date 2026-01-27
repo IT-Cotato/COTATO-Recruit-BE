@@ -43,8 +43,8 @@ public class Question {
 	@Column(name = "question_type", nullable = false)
 	private QuestionType questionType;
 
-	@Column(name = "max_byte", nullable = false)
-	private Integer maxByte;
+	@Column(name = "max_length", nullable = false)
+	private Integer maxLength;
 
 	@Builder
 	public Question(
@@ -52,11 +52,11 @@ public class Question {
 			Integer sequence,
 			String content,
 			QuestionType questionType,
-			Integer maxByte) {
+			Integer maxLength) {
 		this.generation = generation;
 		this.sequence = sequence;
 		this.content = content;
 		this.questionType = questionType;
-		this.maxByte = maxByte;
+		this.maxLength = maxLength;
 	}
 }

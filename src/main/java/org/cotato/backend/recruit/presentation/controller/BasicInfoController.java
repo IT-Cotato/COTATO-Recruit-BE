@@ -27,8 +27,10 @@ public class BasicInfoController {
 	@MonitorFailure(apiName = "기본 인적사항 조회")
 	public ApiResponse<BasicInfoResponse> getBasicInfo(
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
-			@Parameter(description = "지원서 ID", required = true) @PathVariable("applicationId") Long applicationId) {
-		BasicInfoResponse response = basicInfoService.getBasicInfo(userDetails.getUserId(), applicationId);
+			@Parameter(description = "지원서 ID", required = true) @PathVariable("applicationId")
+					Long applicationId) {
+		BasicInfoResponse response =
+				basicInfoService.getBasicInfo(userDetails.getUserId(), applicationId);
 		return ApiResponse.success(response);
 	}
 
@@ -37,8 +39,10 @@ public class BasicInfoController {
 	@MonitorFailure(apiName = "기본 인적사항 작성(임시저장)")
 	public ApiResponse<Void> saveBasicInfo(
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
-			@Parameter(description = "지원서 ID", required = true) @PathVariable("applicationId") Long applicationId,
-			@Parameter(description = "기본 인적사항", required = true) @Valid @RequestBody BasicInfoRequest request) {
+			@Parameter(description = "지원서 ID", required = true) @PathVariable("applicationId")
+					Long applicationId,
+			@Parameter(description = "기본 인적사항", required = true) @Valid @RequestBody
+					BasicInfoRequest request) {
 		basicInfoService.saveBasicInfo(userDetails.getUserId(), applicationId, request);
 		return ApiResponse.success();
 	}
