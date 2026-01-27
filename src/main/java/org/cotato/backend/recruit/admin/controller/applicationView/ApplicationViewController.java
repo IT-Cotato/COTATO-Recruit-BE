@@ -28,9 +28,8 @@ public class ApplicationViewController {
 	 */
 	@GetMapping("/{applicationId}/basic-info")
 	public ApiResponse<AdminApplicationBasicInfoResponse> getBasicInfo(
-			@PathVariable Long applicationId) {
-		AdminApplicationBasicInfoResponse response =
-				applicationViewService.getBasicInfo(applicationId);
+			@PathVariable("applicationId") Long applicationId) {
+		AdminApplicationBasicInfoResponse response = applicationViewService.getBasicInfo(applicationId);
 		return ApiResponse.success(response);
 	}
 
@@ -42,9 +41,9 @@ public class ApplicationViewController {
 	 */
 	@GetMapping("/{applicationId}/part-questions")
 	public ApiResponse<AdminApplicationPartQuestionResponse> getPartQuestions(
-			@PathVariable Long applicationId) {
-		AdminApplicationPartQuestionResponse responses =
-				applicationViewService.getPartQuestionsWithAnswers(applicationId);
+			@PathVariable("applicationId") Long applicationId) {
+		AdminApplicationPartQuestionResponse responses = applicationViewService
+				.getPartQuestionsWithAnswers(applicationId);
 		return ApiResponse.success(responses);
 	}
 
@@ -56,9 +55,9 @@ public class ApplicationViewController {
 	 */
 	@GetMapping("/{applicationId}/etc-questions")
 	public ApiResponse<AdminApplicationEtcQuestionsResponse> getEtcQuestions(
-			@PathVariable Long applicationId) {
-		AdminApplicationEtcQuestionsResponse response =
-				applicationViewService.getEtcQuestionsWithAnswers(applicationId);
+			@PathVariable("applicationId") Long applicationId) {
+		AdminApplicationEtcQuestionsResponse response = applicationViewService
+				.getEtcQuestionsWithAnswers(applicationId);
 		return ApiResponse.success(response);
 	}
 }

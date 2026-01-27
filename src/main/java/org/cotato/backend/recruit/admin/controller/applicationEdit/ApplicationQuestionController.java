@@ -37,9 +37,10 @@ public class ApplicationQuestionController {
 	@Operation(summary = "지원서 질문 조회", description = "해당 기수 및 파트의 지원서 질문을 조회합니다.")
 	@GetMapping
 	public ApiResponse<List<ApplicationQuestionResponse>> getQuestions(
-			@RequestParam Long generationId, @RequestParam QuestionType questionType) {
-		List<ApplicationQuestionResponse> response =
-				questionAdminService.getApplicationQuestions(generationId, questionType);
+			@RequestParam("generationId") Long generationId,
+			@RequestParam("questionType") QuestionType questionType) {
+		List<ApplicationQuestionResponse> response = questionAdminService.getApplicationQuestions(generationId,
+				questionType);
 		return ApiResponse.success(response);
 	}
 

@@ -24,7 +24,7 @@ public class ApplicationPassStatusController {
 	@Operation(summary = "지원서 합격 여부 변경", description = "지원서의 합격 여부를 변경합니다.")
 	@PostMapping("/{applicationId}/pass-status")
 	public ApiResponse<Void> updatePassStatus(
-			@PathVariable Long applicationId, @Valid @RequestBody PassStatusChangeRequest request) {
+			@PathVariable("applicationId") Long applicationId, @Valid @RequestBody PassStatusChangeRequest request) {
 		passStatusChangeService.updatePassStatus(applicationId, request);
 		return ApiResponse.success();
 	}
