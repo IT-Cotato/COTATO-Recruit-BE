@@ -149,7 +149,7 @@ class SaveAnswersApiTest extends IntegrationTestSupport {
 								.sequence(1)
 								.content("Q1")
 								.questionType(QuestionType.BE)
-								.maxByte(500)
+								.maxLength(500)
 								.build());
 
 		ApplicationAnswer ans1 = ApplicationAnswer.of(app, q1, "Old Answer");
@@ -210,7 +210,7 @@ class SaveAnswersApiTest extends IntegrationTestSupport {
 								.sequence(1)
 								.content("Q1")
 								.questionType(QuestionType.BE)
-								.maxByte(500) // Assumed default
+								.maxLength(500) // Assumed default
 								.build());
 
 		AnswerRequest answerRequest = new AnswerRequest(q1.getId(), "New Answer");

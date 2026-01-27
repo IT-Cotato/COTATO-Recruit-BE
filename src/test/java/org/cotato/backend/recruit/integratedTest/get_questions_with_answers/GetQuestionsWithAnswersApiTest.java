@@ -189,7 +189,7 @@ class GetQuestionsWithAnswersApiTest extends IntegrationTestSupport {
 								.sequence(1)
 								.content("Question 1")
 								.questionType(QuestionType.BE)
-								.maxByte(500)
+								.maxLength(500)
 								.build());
 
 		ApplicationAnswer ans1 = ApplicationAnswer.of(app, q1, "Answer 1");
