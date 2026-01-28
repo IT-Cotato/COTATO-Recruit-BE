@@ -13,6 +13,8 @@ services:
   blue:
     container_name: blue
     image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+    # [추가] 부하 테스트 중 죽으면 자동 재시작
+    restart: on-failure
     environment:
       SPRING_PROFILES_ACTIVE: qa
       TZ: "Asia/Seoul"
@@ -37,6 +39,9 @@ services:
       SENTRY_DSN: ${SENTRY_DSN}
     depends_on:
       - redis
+    # [추가] 컨테이너 내부 로그를 EC2 호스트로 공유 (Frontail용)
+    volumes:
+      - ./logs:/app/logs
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
@@ -49,6 +54,8 @@ services:
   green:
     container_name: green
     image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+    # [추가] 부하 테스트 중 죽으면 자동 재시작
+    restart: on-failure
     environment:
       SPRING_PROFILES_ACTIVE: qa
       TZ: "Asia/Seoul"
@@ -73,6 +80,9 @@ services:
       SENTRY_DSN: ${SENTRY_DSN}
     depends_on:
       - redis
+    # [추가] 컨테이너 내부 로그를 EC2 호스트로 공유 (Frontail용)
+    volumes:
+      - ./logs:/app/logs
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
