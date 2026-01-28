@@ -26,7 +26,8 @@ public class PasserController {
 	@GetMapping("/api/admin/pass-status")
 	public ApiResponse<List<PassStatusSummaryResponse>> getPassStatus(
 			@RequestParam("generationId") Long generationId) {
-		List<PassStatusSummaryResponse> response = passerSummaryService.getPasserSummary(generationId);
+		List<PassStatusSummaryResponse> response =
+				passerSummaryService.getPasserSummary(generationId);
 		return ApiResponse.success(response);
 	}
 }

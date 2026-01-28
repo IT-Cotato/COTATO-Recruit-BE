@@ -29,16 +29,25 @@ public class EmailController {
 	private final EmailTemplateService emailTemplateService;
 	private final EmailSendService emailSendService;
 
-	@Operation(summary = "메일 내용 및 대상자 수 조회", description = "지정된 타입(PASS, FAIL, PRELIMINARY)의 메일 템플릿과 대상자 수를 함께 조회합니다.")
+	@Operation(
+			summary = "메일 내용 및 대상자 수 조회",
+			description = "지정된 타입(PASS, FAIL, PRELIMINARY)의 메일 템플릿과 대상자 수를 함께 조회합니다.")
 	@GetMapping
 	public ApiResponse<EmailTemplateResponse> getEmailTemplate(
-			@Parameter(description = "템플릿 타입 (PASS, FAIL, PRELIMINARY)", required = true) @RequestParam("templateType") TemplateType templateType,
-			@Parameter(description = "기수 ID (미입력시 현재 모집 중인 기수)") @RequestParam(name = "generationId", required = false) Long generationId) {
-		EmailTemplateResponse response = emailTemplateService.getEmailTemplate(templateType, generationId);
+			@Parameter(description = "템플릿 타입 (PASS, FAIL, PRELIMINARY)", required = true)
+					@RequestParam("templateType")
+					TemplateType templateType,
+			@Parameter(description = "기수 ID (미입력시 현재 모집 중인 기수)")
+					@RequestParam(name = "generationId", required = false)
+					Long generationId) {
+		EmailTemplateResponse response =
+				emailTemplateService.getEmailTemplate(templateType, generationId);
 		return ApiResponse.success(response);
 	}
 
-	@Operation(summary = "메일 내용 저장", description = "메일 템플릿의 내용을 저장합니다. 존재하면 수정, 없으면 생성됩니다. 이미 전송된 메일은 수정할 수 없습니다.")
+	@Operation(
+			summary = "메일 내용 저장",
+			description = "메일 템플릿의 내용을 저장합니다. 존재하면 수정, 없으면 생성됩니다. 이미 전송된 메일은 수정할 수 없습니다.")
 	@PostMapping
 	public ApiResponse<Void> saveEmailContent(@Valid @RequestBody EmailSaveRequest request) {
 		emailTemplateService.saveEmailContent(
@@ -46,10 +55,13 @@ public class EmailController {
 		return ApiResponse.success();
 	}
 
-	@Operation(summary = "메일 전송", description = "지정된 타입의 메일을 대상자들에게 비동기로 전송합니다. 즉시 jobId를 반환하고 백그라운드에서 메일을 발송합니다.")
+	@Operation(
+			summary = "메일 전송",
+			description = "지정된 타입의 메일을 대상자들에게 비동기로 전송합니다. 즉시 jobId를 반환하고 백그라운드에서 메일을 발송합니다.")
 	@PostMapping("/send")
 	public ApiResponse<EmailSendResponse> sendEmails(@Valid @RequestBody EmailSendRequest request) {
-		EmailSendResponse response = emailSendService.sendEmails(request.templateType(), request.generationId());
+		EmailSendResponse response =
+				emailSendService.sendEmails(request.templateType(), request.generationId());
 		return ApiResponse.success(response);
 	}
 }

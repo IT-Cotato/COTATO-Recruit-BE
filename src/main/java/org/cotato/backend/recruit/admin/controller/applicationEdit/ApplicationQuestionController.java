@@ -39,8 +39,8 @@ public class ApplicationQuestionController {
 	public ApiResponse<List<ApplicationQuestionResponse>> getQuestions(
 			@RequestParam("generationId") Long generationId,
 			@RequestParam("questionType") QuestionType questionType) {
-		List<ApplicationQuestionResponse> response = questionAdminService.getApplicationQuestions(generationId,
-				questionType);
+		List<ApplicationQuestionResponse> response =
+				questionAdminService.getApplicationQuestions(generationId, questionType);
 		return ApiResponse.success(response);
 	}
 

@@ -1,12 +1,10 @@
 package org.cotato.backend.recruit.admin.service.recruitmentActive;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.admin.service.generation.GenerationAdminService;
 import org.cotato.backend.recruit.admin.service.recruitmentInformation.RecruitmentInformationUpserterManager;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
-import org.cotato.backend.recruit.domain.recruitmentInformation.enums.InformationType;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,10 +20,10 @@ public class RecruitmentActiveService {
 	private static final LocalTime END_OF_DAY = LocalTime.of(23, 59, 59);
 
 	@Transactional
-	@CacheEvict(value = { "activeGeneration", "recruitmentSchedule", "recruitmentStatus" }, allEntries = true)
-	public void activateRecruitment(
-			Long generationId,
-			boolean isAdditionalRecruitmentActive) {
+	@CacheEvict(
+			value = {"activeGeneration", "recruitmentSchedule", "recruitmentStatus"},
+			allEntries = true)
+	public void activateRecruitment(Long generationId, boolean isAdditionalRecruitmentActive) {
 
 		// 1. 기수 조회 혹은 생성
 		// 기수 생성할 때 모집 상태도 활성화
@@ -33,11 +31,12 @@ public class RecruitmentActiveService {
 
 		// 2. 모집 상태 업데이트 (활성화 및 추가모집 여부 설정)
 		generation.startRecruitment(isAdditionalRecruitmentActive);
-
 	}
 
 	@Transactional
-	@CacheEvict(value = { "activeGeneration", "recruitmentStatus" }, allEntries = true)
+	@CacheEvict(
+			value = {"activeGeneration", "recruitmentStatus"},
+			allEntries = true)
 	public void deactivateRecruitment(Long generationId) {
 		Generation generation = generationAdminService.findGeneration(generationId);
 		generation.endRecruitment();
@@ -47,8 +46,8 @@ public class RecruitmentActiveService {
 		return generationAdminService
 				.findGenerationOptional(generationId)
 				.orElseGet(
-						() -> generationAdminService.saveNewGenerationWithRecruitingActive(
-								generationId));
+						() ->
+								generationAdminService.saveNewGenerationWithRecruitingActive(
+										generationId));
 	}
-
 }

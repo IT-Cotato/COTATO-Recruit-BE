@@ -35,7 +35,8 @@ public class StaffEvaluationController {
 	public ApiResponse<StaffEvaluationResponse> getEvaluation(
 			@PathVariable("applicationId") Long applicationId,
 			@RequestParam("evaluatorType") EvaluatorType evaluatorType) {
-		StaffEvaluationResponse response = staffEvaluationService.getEvaluation(applicationId, evaluatorType);
+		StaffEvaluationResponse response =
+				staffEvaluationService.getEvaluation(applicationId, evaluatorType);
 		return ApiResponse.success(response);
 	}
 
@@ -43,7 +44,7 @@ public class StaffEvaluationController {
 	 * 운영진 평가를 생성하거나 수정합니다.
 	 *
 	 * @param applicationId 지원서 ID
-	 * @param request       평가 정보 (평가자 타입, 내용)
+	 * @param request 평가 정보 (평가자 타입, 내용)
 	 * @return 성공 응답
 	 */
 	@PostMapping

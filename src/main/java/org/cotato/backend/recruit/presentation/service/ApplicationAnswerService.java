@@ -30,25 +30,26 @@ public class ApplicationAnswerService {
 	/**
 	 * 질문 목록을 저장된 답변과 함께 매핑
 	 *
-	 * @param questions    질문 목록
+	 * @param questions 질문 목록
 	 * @param savedAnswers 저장된 답변 목록
 	 * @return 질문과 답변이 매핑된 응답 목록
 	 */
 	private List<PartQuestionResponse.QuestionWithAnswerResponse> mapQuestionsWithAnswers(
 			List<Question> questions, List<ApplicationAnswer> savedAnswers) {
 		// 질문 ID를 키로 하는 답변 맵 생성
-		Map<Long, ApplicationAnswer> answerMap = savedAnswers.stream()
-				.collect(
-						Collectors.toMap(
-								answer -> answer.getQuestion().getId(), answer -> answer));
+		Map<Long, ApplicationAnswer> answerMap =
+				savedAnswers.stream()
+						.collect(
+								Collectors.toMap(
+										answer -> answer.getQuestion().getId(), answer -> answer));
 
 		// 질문과 저장된 답변을 함께 반환
 		return questions.stream()
 				.map(
 						q -> {
 							ApplicationAnswer savedAnswer = answerMap.get(q.getId());
-							AnswerResponse answerResponse = savedAnswer != null ? AnswerResponse.from(savedAnswer)
-									: null;
+							AnswerResponse answerResponse =
+									savedAnswer != null ? AnswerResponse.from(savedAnswer) : null;
 
 							return PartQuestionResponse.QuestionWithAnswerResponse.of(
 									q, answerResponse);
@@ -59,7 +60,7 @@ public class ApplicationAnswerService {
 	/**
 	 * 파트별 질문 조회 (선택한 파트만) + 저장된 답변 포함 - 페이지 2용
 	 *
-	 * @param userId        사용자 ID
+	 * @param userId 사용자 ID
 	 * @param applicationId 지원서 ID
 	 * @return 질문 및 저장된 답변 목록
 	 */
@@ -78,14 +79,16 @@ public class ApplicationAnswerService {
 		QuestionType questionType = application.getApplicationPartType().toQuestionType();
 
 		// 선택한 파트 질문 조회
-		List<Question> partQuestions = questionService.getQuestionsByGenerationAndQuestionType(
-				application.getGeneration(), questionType);
+		List<Question> partQuestions =
+				questionService.getQuestionsByGenerationAndQuestionType(
+						application.getGeneration(), questionType);
 
 		// 저장된 답변 조회 및 매핑
-		List<ApplicationAnswer> savedAnswers = applicationAnswerRepository.findByApplication(application);
+		List<ApplicationAnswer> savedAnswers =
+				applicationAnswerRepository.findByApplication(application);
 
-		List<PartQuestionResponse.QuestionWithAnswerResponse> questionList = mapQuestionsWithAnswers(partQuestions,
-				savedAnswers);
+		List<PartQuestionResponse.QuestionWithAnswerResponse> questionList =
+				mapQuestionsWithAnswers(partQuestions, savedAnswers);
 
 		return PartQuestionResponse.of(
 				questionList, application.getPdfFileUrl(), application.getPdfFileKey());
@@ -94,9 +97,9 @@ public class ApplicationAnswerService {
 	/**
 	 * 질문 응답 작성(임시저장)
 	 *
-	 * @param userId        사용자 ID
+	 * @param userId 사용자 ID
 	 * @param applicationId 지원서 ID
-	 * @param requests      질문 응답 요청 목록
+	 * @param requests 질문 응답 요청 목록
 	 */
 	@Transactional
 	public void saveAnswers(
@@ -116,15 +119,17 @@ public class ApplicationAnswerService {
 				Question question = questionService.getQuestionById(request.questionId());
 
 				// 기존 답변이 있으면 업데이트, 없으면 새로 생성
-				Optional<ApplicationAnswer> existingAnswer = applicationAnswerRepository.findByApplicationAndQuestion(
-						application, question);
+				Optional<ApplicationAnswer> existingAnswer =
+						applicationAnswerRepository.findByApplicationAndQuestion(
+								application, question);
 
 				if (existingAnswer.isPresent()) {
 					// 기존 답변 업데이트
 					existingAnswer.get().update(request.content());
 				} else {
 					// 새 답변 생성
-					ApplicationAnswer newAnswer = ApplicationAnswer.of(application, question, request.content());
+					ApplicationAnswer newAnswer =
+							ApplicationAnswer.of(application, question, request.content());
 					applicationAnswerRepository.save(newAnswer);
 				}
 			}
