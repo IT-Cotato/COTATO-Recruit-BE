@@ -33,7 +33,9 @@ public record PartQuestionResponse(
 					question.getSequence(),
 					question.getContent(),
 					question.getQuestionType().name(),
-					LengthManager.getCharacterCount(savedAnswer.content()),
+					savedAnswer != null && savedAnswer.content() != null
+							? LengthManager.getCharacterCount(savedAnswer.content())
+							: 0,
 					question.getMaxLength(),
 					savedAnswer);
 		}
