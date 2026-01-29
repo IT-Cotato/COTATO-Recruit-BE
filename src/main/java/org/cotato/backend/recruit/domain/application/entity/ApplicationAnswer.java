@@ -39,6 +39,10 @@ public class ApplicationAnswer {
 
 	// 정적 팩토리 메서드 - 새 답변 생성
 	public static ApplicationAnswer of(Application application, Question question, String content) {
+		if (content == null) {
+			return null;
+		}
+
 		if (content.length() > question.getMaxLength()) {
 			throw new PresentationException(PresentationErrorCode.ANSWER_CONTENT_TOO_LONG);
 		}
@@ -51,6 +55,10 @@ public class ApplicationAnswer {
 
 	// 답변 업데이트
 	public void update(String content) {
+		if (content == null) {
+			return;
+		}
+
 		if (content.length() > question.getMaxLength()) {
 			throw new PresentationException(PresentationErrorCode.ANSWER_CONTENT_TOO_LONG);
 		}

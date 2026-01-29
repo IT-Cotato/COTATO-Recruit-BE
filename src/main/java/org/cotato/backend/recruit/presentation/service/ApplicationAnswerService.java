@@ -121,7 +121,9 @@ public class ApplicationAnswerService {
 
 				if (existingAnswer.isPresent()) {
 					// 기존 답변 업데이트
-					existingAnswer.get().update(request.content());
+					if (request.content() != null) {
+						existingAnswer.get().update(request.content());
+					}
 				} else {
 					// 새 답변 생성
 					ApplicationAnswer newAnswer = ApplicationAnswer.of(application, question, request.content());
