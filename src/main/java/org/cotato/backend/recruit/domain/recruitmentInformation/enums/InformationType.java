@@ -12,7 +12,9 @@ public enum InformationType {
 	INTERVIEW_START("면접평가시작"),
 	INTERVIEW_END("면접평가종료"),
 	FINAL_ANNOUNCEMENT("최종발표"),
-	OT("OT");
+	OT("OT"),
+	COKERTHON("코커톤"),
+	DEMO_DAY("데모데이");
 
 	private final String description;
 }
