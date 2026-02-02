@@ -25,6 +25,7 @@ public enum PresentationErrorCode {
 
 	// Generation
 	GENERATION_NOT_FOUND(HttpStatus.NOT_FOUND, "GE001", "모집 중인 기수를 찾을 수 없습니다."),
+	GENERATION_MULTIPLE_ACTIVE(HttpStatus.NOT_FOUND, "GE002", "활성화된 기수가 2개 이상 존재합니다."),
 
 	// Question
 	QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "QU001", "질문을 찾을 수 없습니다."),
