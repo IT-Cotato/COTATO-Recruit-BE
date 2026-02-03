@@ -18,14 +18,15 @@ public record RecruitmentInformationResponse(
 		LocalDate interviewStart,
 		LocalDate interviewEnd,
 		LocalDate finalAnnouncement,
-		LocalDate ot) {
+		LocalDate ot,
+		LocalDate cokerthon,
+		LocalDate demoDay) {
 	public static RecruitmentInformationResponse of(List<RecruitmentInformation> informations) {
-		Map<InformationType, RecruitmentInformation> infoMap =
-				informations.stream()
-						.collect(
-								Collectors.toMap(
-										RecruitmentInformation::getInformationType,
-										Function.identity()));
+		Map<InformationType, RecruitmentInformation> infoMap = informations.stream()
+				.collect(
+						Collectors.toMap(
+								RecruitmentInformation::getInformationType,
+								Function.identity()));
 
 		return RecruitmentInformationResponse.builder()
 				.recruitmentStart(getDateTime(infoMap, InformationType.RECRUITMENT_START))
@@ -35,6 +36,8 @@ public record RecruitmentInformationResponse(
 				.interviewEnd(getDate(infoMap, InformationType.INTERVIEW_END))
 				.finalAnnouncement(getDate(infoMap, InformationType.FINAL_ANNOUNCEMENT))
 				.ot(getDate(infoMap, InformationType.OT))
+				.cokerthon(getDate(infoMap, InformationType.COKERTHON))
+				.demoDay(getDate(infoMap, InformationType.DEMO_DAY))
 				.build();
 	}
 

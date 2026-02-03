@@ -12,4 +12,7 @@ public record RecruitmentInformationUpdateRequest(
 		@NotNull LocalDate interviewStart,
 		@NotNull LocalDate interviewEnd,
 		@NotNull LocalDate finalAnnouncement,
-		@NotNull LocalDate ot) {}
+		@NotNull LocalDate ot,
+		@NotNull LocalDate cokerthon,
+		@NotNull LocalDate demoDay) {
+}
