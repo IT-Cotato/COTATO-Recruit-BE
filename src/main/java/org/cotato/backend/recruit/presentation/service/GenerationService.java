@@ -1,5 +1,6 @@
 package org.cotato.backend.recruit.presentation.service;
 
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
@@ -21,25 +22,39 @@ public class GenerationService {
 	 * 현재 모집 중인 기수 조회 (캐시 적용) admin 서비스에서 모집 비활성화 시 캐시 만료 처리 필요
 	 *
 	 * @return 활성화된 기수
+	 * @throws PresentationException 활성화된 기수가 없거나 2개 이상일 때
 	 */
 	@Cacheable(value = "activeGeneration", key = "'current'")
 	public Generation getActiveGeneration() {
-		return generationRepository
-				.findByIsRecruitingActive(true)
-				.orElseThrow(
-						() ->
-								new PresentationException(
-										PresentationErrorCode.GENERATION_NOT_FOUND));
+		// 활성화된 기수가 2개 이상일때 예외처리
+		List<Generation> activeGenerations = generationRepository.findAllByIsRecruitingActive(true);
+
+		if (activeGenerations.isEmpty()) {
+			throw new PresentationException(PresentationErrorCode.GENERATION_NOT_FOUND);
+		}
+
+		if (activeGenerations.size() > 1) {
+			throw new PresentationException(PresentationErrorCode.GENERATION_MULTIPLE_ACTIVE);
+		}
+
+		return activeGenerations.get(0);
 	}
 
 	/**
 	 * 현재 활성화된 모집 기수 ID 조회 admin 서비스에서 모집 비활성화 시 캐시 만료 처리 필요
 	 *
-	 * @return 활성화된 기수 ID (활성화된 기수가 없으면 null)
+	 * @return Optional<Generation>
+	 * @throws PresentationException 활성화된 기수가 2개 이상일 때
 	 */
 	@Cacheable(value = "activeGeneration", key = "'generationId'")
 	public Optional<Generation> getActiveGenerationOptional() {
-		return generationRepository.findByIsRecruitingActive(true);
+		List<Generation> activeGenerations = generationRepository.findAllByIsRecruitingActive(true);
+
+		if (activeGenerations.size() > 1) {
+			throw new PresentationException(PresentationErrorCode.GENERATION_MULTIPLE_ACTIVE);
+		}
+
+		return activeGenerations.isEmpty() ? Optional.empty() : Optional.of(activeGenerations.get(0));
 	}
 
 	/**
@@ -52,9 +67,8 @@ public class GenerationService {
 		return generationRepository
 				.findFirstByOrderByIdDesc()
 				.orElseThrow(
-						() ->
-								new PresentationException(
-										PresentationErrorCode.GENERATION_NOT_FOUND));
+						() -> new PresentationException(
+								PresentationErrorCode.GENERATION_NOT_FOUND));
 	}
 
 	// Generation find
@@ -66,9 +80,8 @@ public class GenerationService {
 		return generationRepository
 				.findById(generationId)
 				.orElseThrow(
-						() ->
-								new PresentationException(
-										PresentationErrorCode.GENERATION_NOT_FOUND));
+						() -> new PresentationException(
+								PresentationErrorCode.GENERATION_NOT_FOUND));
 	}
 
 	// Generation save
