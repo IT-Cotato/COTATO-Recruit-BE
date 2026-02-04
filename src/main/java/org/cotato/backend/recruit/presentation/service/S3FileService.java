@@ -23,8 +23,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 /**
  * AWS S3를 이용한 파일 서비스 구현체
  *
- * <p>
- * Pre-signed URL을 생성하여 클라이언트가 S3에 직접 파일을 업로드/다운로드할 수 있도록 합니다.
+ * <p>Pre-signed URL을 생성하여 클라이언트가 S3에 직접 파일을 업로드/다운로드할 수 있도록 합니다.
  */
 @Slf4j
 @Service
@@ -53,7 +52,10 @@ public class S3FileService implements FileService {
 		} catch (GlobalException e) {
 			throw e;
 		} catch (Exception e) {
-			log.error("업로드용 Pre-signed URL 생성 실패 - UserId: {}, FileName: {}, Error: {}", userId, fileName,
+			log.error(
+					"업로드용 Pre-signed URL 생성 실패 - UserId: {}, FileName: {}, Error: {}",
+					userId,
+					fileName,
 					e.getMessage());
 			throw new GlobalException(ErrorCode.PRE_SIGNED_URL_GENERATION_FAILED);
 		}
@@ -81,16 +83,18 @@ public class S3FileService implements FileService {
 
 	/** PUT용 Pre-signed URL 생성 */
 	private String createPutPreSignedUrl(String key) {
-		PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-				.bucket(bucketName)
-				.key(key)
-				.contentType("application/pdf")
-				.build();
+		PutObjectRequest putObjectRequest =
+				PutObjectRequest.builder()
+						.bucket(bucketName)
+						.key(key)
+						.contentType("application/pdf")
+						.build();
 
-		PutObjectPresignRequest preSignRequest = PutObjectPresignRequest.builder()
-				.signatureDuration(Duration.ofSeconds(preSignedUrlExpiration))
-				.putObjectRequest(putObjectRequest)
-				.build();
+		PutObjectPresignRequest preSignRequest =
+				PutObjectPresignRequest.builder()
+						.signatureDuration(Duration.ofSeconds(preSignedUrlExpiration))
+						.putObjectRequest(putObjectRequest)
+						.build();
 
 		PresignedPutObjectRequest preSignedRequest = s3Presigner.presignPutObject(preSignRequest);
 
@@ -99,16 +103,18 @@ public class S3FileService implements FileService {
 
 	/** GET용 Pre-signed URL 생성 */
 	private String createGetPreSignedUrl(String key) {
-		GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-				.bucket(bucketName)
-				.key(key)
-				.responseContentType("application/pdf")
-				.build();
+		GetObjectRequest getObjectRequest =
+				GetObjectRequest.builder()
+						.bucket(bucketName)
+						.key(key)
+						.responseContentType("application/pdf")
+						.build();
 
-		GetObjectPresignRequest preSignRequest = GetObjectPresignRequest.builder()
-				.signatureDuration(Duration.ofSeconds(preSignedUrlExpiration))
-				.getObjectRequest(getObjectRequest)
-				.build();
+		GetObjectPresignRequest preSignRequest =
+				GetObjectPresignRequest.builder()
+						.signatureDuration(Duration.ofSeconds(preSignedUrlExpiration))
+						.getObjectRequest(getObjectRequest)
+						.build();
 
 		PresignedGetObjectRequest preSignedRequest = s3Presigner.presignGetObject(preSignRequest);
 

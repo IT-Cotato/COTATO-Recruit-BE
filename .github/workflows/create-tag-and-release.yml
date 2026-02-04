@@ -89,7 +89,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          RELEASE_TYPE="${{ steps.version.outputs.is_hotfix == 'true' && 'Hotfix' || 'Release' }}"
+          if [ "${{ steps.version.outputs.is_hotfix }}" = "true" ]; then
+            RELEASE_TYPE="Hotfix"
+          else
+            RELEASE_TYPE="Release"
+          fi
 
           gh release create ${{ steps.version.outputs.tag_name }} \
             --title "$RELEASE_TYPE ${{ steps.version.outputs.version }}" \
@@ -109,11 +113,16 @@ jobs:
       - name: Summary
         if: success()
         run: |
+          if [ "${{ steps.version.outputs.is_hotfix }}" = "true" ]; then
+            RELEASE_TYPE="Hotfix"
+          else
+            RELEASE_TYPE="Release"
+          fi
           echo "=========================================="
           echo "Tag and Release Created"
           echo "Tag: ${{ steps.version.outputs.tag_name }}"
           echo "Version: ${{ steps.version.outputs.version }}"
-          echo "Type: ${{ steps.version.outputs.is_hotfix == 'true' && 'Hotfix' || 'Release' }}"
+          echo "Type: $RELEASE_TYPE"
           echo "Synced: main -> develop"
           echo "Next: Triggering production deployment"
           echo "=========================================="
