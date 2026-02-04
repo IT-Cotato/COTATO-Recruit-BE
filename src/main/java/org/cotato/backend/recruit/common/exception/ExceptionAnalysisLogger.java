@@ -73,7 +73,7 @@ public class ExceptionAnalysisLogger {
 			log.error("🚨 [AI Analysis Data] \n{}", jsonLog);
 
 		} catch (Exception jsonError) {
-			log.error("JSON 변환 실패", jsonError);
+			log.error("JSON 변환 실패: {}", jsonError.getMessage());
 		}
 	}
 

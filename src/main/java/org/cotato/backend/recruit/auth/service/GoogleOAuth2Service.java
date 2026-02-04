@@ -36,15 +36,15 @@ public class GoogleOAuth2Service {
 	private String clientSecret;
 
 	private static final String GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
-	private static final String GOOGLE_USER_INFO_URL =
-			"https://www.googleapis.com/oauth2/v3/userinfo";
+	private static final String GOOGLE_USER_INFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo";
 
 	/**
 	 * Google OAuth2 로그인
 	 *
-	 * <p>플로우: Authorization Code → Google Access Token → 사용자 정보 조회 → DB 확인/저장 → JWT 발급
+	 * <p>
+	 * 플로우: Authorization Code → Google Access Token → 사용자 정보 조회 → DB 확인/저장 → JWT 발급
 	 *
-	 * @param code Authorization Code (프론트엔드에서 받은 코드)
+	 * @param code        Authorization Code (프론트엔드에서 받은 코드)
 	 * @param redirectUri 프론트엔드 Redirect URI
 	 * @return JWT 토큰 (Access Token, Refresh Token)
 	 */
@@ -67,7 +67,7 @@ public class GoogleOAuth2Service {
 	/**
 	 * Authorization Code로 Google Access Token 발급
 	 *
-	 * @param code Authorization Code
+	 * @param code        Authorization Code
 	 * @param redirectUri Redirect URI
 	 * @return Google Access Token
 	 */
@@ -85,9 +85,8 @@ public class GoogleOAuth2Service {
 		HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
 		try {
-			ResponseEntity<GoogleTokenResponse> response =
-					restTemplate.exchange(
-							GOOGLE_TOKEN_URL, HttpMethod.POST, request, GoogleTokenResponse.class);
+			ResponseEntity<GoogleTokenResponse> response = restTemplate.exchange(
+					GOOGLE_TOKEN_URL, HttpMethod.POST, request, GoogleTokenResponse.class);
 
 			if (response.getBody() == null || response.getBody().accessToken() == null) {
 				log.error("Failed to get Google access token - empty response");
@@ -97,7 +96,7 @@ public class GoogleOAuth2Service {
 			return response.getBody().accessToken();
 
 		} catch (Exception e) {
-			log.error("Failed to exchange authorization code for access token", e);
+			log.error("Failed to exchange authorization code for access token: {}", e.getMessage());
 			throw new GlobalException(ErrorCode.OAUTH2_AUTHENTICATION_FAILED);
 		}
 	}
@@ -115,9 +114,8 @@ public class GoogleOAuth2Service {
 		HttpEntity<Void> request = new HttpEntity<>(headers);
 
 		try {
-			ResponseEntity<GoogleUserInfo> response =
-					restTemplate.exchange(
-							GOOGLE_USER_INFO_URL, HttpMethod.GET, request, GoogleUserInfo.class);
+			ResponseEntity<GoogleUserInfo> response = restTemplate.exchange(
+					GOOGLE_USER_INFO_URL, HttpMethod.GET, request, GoogleUserInfo.class);
 
 			if (response.getBody() == null) {
 				log.error("Failed to get Google user info - empty response");
@@ -127,7 +125,7 @@ public class GoogleOAuth2Service {
 			return response.getBody();
 
 		} catch (Exception e) {
-			log.error("Failed to get user info from Google", e);
+			log.error("Failed to get user info from Google: {}", e.getMessage());
 			throw new GlobalException(ErrorCode.OAUTH2_AUTHENTICATION_FAILED);
 		}
 	}
@@ -148,9 +146,8 @@ public class GoogleOAuth2Service {
 						})
 				.orElseGet(
 						() -> {
-							User newUser =
-									User.createGoogleUser(
-											userInfo.email(), userInfo.name(), userInfo.id());
+							User newUser = User.createGoogleUser(
+									userInfo.email(), userInfo.name(), userInfo.id());
 							return userRepository.save(newUser);
 						});
 	}
