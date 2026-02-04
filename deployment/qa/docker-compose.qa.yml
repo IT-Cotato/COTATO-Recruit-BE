@@ -1,29 +1,27 @@
 services:
-  redis:
+  qa-redis:
     image: redis:7-alpine
-    container_name: redis
+    container_name: qa-redis
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
-      - redis_data:/data
+      - qa_redis_data:/data
     networks:
-      - app_network
+      - qa_network
     restart: unless-stopped
 
-  blue:
-    container_name: blue
+  qa-blue:
+    container_name: qa-blue
     image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
-    # [추가] 부하 테스트 중 죽으면 자동 재시작
     restart: on-failure
     environment:
       SPRING_PROFILES_ACTIVE: qa
       TZ: "Asia/Seoul"
-      # GitHub Secrets에서 주입될 환경변수들
       DB_URL: ${DB_URL}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
-      REDIS_HOST: redis
+      REDIS_HOST: qa-redis
       REDIS_PORT: 6379
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
@@ -38,8 +36,7 @@ services:
       AWS_S3_BUCKET: ${AWS_S3_BUCKET}
       SENTRY_DSN: ${SENTRY_DSN}
     depends_on:
-      - redis
-    # [추가] 컨테이너 내부 로그를 EC2 호스트로 공유 (Frontail용)
+      - qa-redis
     volumes:
       - ./logs:/app/logs
     healthcheck:
@@ -49,22 +46,20 @@ services:
       retries: 3
       start_period: 40s
     networks:
-      - app_network
+      - qa_network
 
-  green:
-    container_name: green
+  qa-green:
+    container_name: qa-green
     image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
-    # [추가] 부하 테스트 중 죽으면 자동 재시작
     restart: on-failure
     environment:
       SPRING_PROFILES_ACTIVE: qa
       TZ: "Asia/Seoul"
-      # GitHub Secrets에서 주입될 환경변수들
       DB_URL: ${DB_URL}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
-      REDIS_HOST: redis
+      REDIS_HOST: qa-redis
       REDIS_PORT: 6379
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
@@ -79,8 +74,7 @@ services:
       AWS_S3_BUCKET: ${AWS_S3_BUCKET}
       SENTRY_DSN: ${SENTRY_DSN}
     depends_on:
-      - redis
-    # [추가] 컨테이너 내부 로그를 EC2 호스트로 공유 (Frontail용)
+      - qa-redis
     volumes:
       - ./logs:/app/logs
     healthcheck:
@@ -90,25 +84,12 @@ services:
       retries: 3
       start_period: 40s
     networks:
-      - app_network
-
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx-blue.conf:/etc/nginx/templates/nginx-blue.conf:ro
-      - ./nginx-green.conf:/etc/nginx/templates/nginx-green.conf:ro
-      - ~/ssl:/etc/nginx/ssl:ro
-      - ~/certbot/www:/var/www/certbot:ro
-    networks:
-      - app_network
+      - qa_network
 
 networks:
-  app_network:
-    driver: bridge
+  qa_network:
+    external: true
+    name: qa_network
 
 volumes:
-  redis_data:
+  qa_redis_data:

@@ -1,0 +1,24 @@
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./conf.d:/etc/nginx/conf.d:ro
+      - ./templates:/etc/nginx/templates:ro
+      - ~/ssl:/etc/nginx/ssl:ro
+      - ~/certbot/www:/var/www/certbot:ro
+    networks:
+      - qa_network
+      - prod_network
+    restart: unless-stopped
+
+networks:
+  qa_network:
+    external: true
+    name: qa_network
+  prod_network:
+    external: true
+    name: prod_network

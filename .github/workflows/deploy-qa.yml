@@ -103,24 +103,24 @@ jobs:
       - name: Copy deployment files to server
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.QA_SERVER_HOST }}
-          username: ${{ secrets.QA_SERVER_USERNAME }}
-          key: ${{ secrets.QA_SERVER_SSH_KEY }}
-          port: ${{ secrets.QA_SERVER_PORT || 22 }}
-          source: "deployment/qa/docker-compose.qa.yml,deployment/qa/nginx-blue.conf,deployment/qa/nginx-green.conf,deployment/qa/deploy.sh"
-          target: "~/"
-          strip_components: 2
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          source: "deployment/qa/*,deployment/nginx/*"
+          target: "~/deployment"
+          strip_components: 1
           rm: false
 
       - name: Deploy with Blue-Green strategy
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.QA_SERVER_HOST }}
-          username: ${{ secrets.QA_SERVER_USERNAME }}
-          key: ${{ secrets.QA_SERVER_SSH_KEY }}
-          port: ${{ secrets.QA_SERVER_PORT || 22 }}
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
-            cd ~
+            cd ~/deployment/qa
 
             # 환경변수 설정
             export DOCKER_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}
@@ -131,7 +131,7 @@ jobs:
             export JWT_SECRET=${{ secrets.JWT_SECRET }}
             export GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
             export GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
-            export SERVER_URL=${{ secrets.QA_SERVER_URL }}
+            export SERVER_URL=${{ secrets.SERVER_URL }}
             export MAIL_HOST=${{ secrets.MAIL_HOST }}
             export MAIL_PORT=${{ secrets.MAIL_PORT }}
             export MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}

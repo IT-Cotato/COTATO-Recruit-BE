@@ -41,14 +41,16 @@ public class RecruitmentService {
 	public RecruitmentScheduleResponse getRecruitmentSchedule() {
 		Generation activeGeneration = generationService.getActiveGeneration();
 
-		List<RecruitmentInformation> informations = recruitmentInformationRepository.findByGeneration(activeGeneration);
+		List<RecruitmentInformation> informations =
+				recruitmentInformationRepository.findByGeneration(activeGeneration);
 
 		// InformationType별로 그룹화
-		Map<InformationType, LocalDateTime> scheduleMap = informations.stream()
-				.collect(
-						Collectors.toMap(
-								RecruitmentInformation::getInformationType,
-								RecruitmentInformation::getEventDatetime));
+		Map<InformationType, LocalDateTime> scheduleMap =
+				informations.stream()
+						.collect(
+								Collectors.toMap(
+										RecruitmentInformation::getInformationType,
+										RecruitmentInformation::getEventDatetime));
 
 		return RecruitmentScheduleResponse.of(activeGeneration.getId(), scheduleMap);
 	}
@@ -79,20 +81,24 @@ public class RecruitmentService {
 		// 1. 최신 기수 정보 및 일정 가져오기 (활성화 여부와 관계없이)
 		Generation latestGeneration = generationService.getLatestGeneration();
 
-		List<RecruitmentInformation> informations = recruitmentInformationRepository.findByGeneration(latestGeneration);
+		List<RecruitmentInformation> informations =
+				recruitmentInformationRepository.findByGeneration(latestGeneration);
 
 		// InformationType별로 그룹화
-		Map<InformationType, LocalDateTime> scheduleMap = informations.stream()
-				.collect(
-						Collectors.toMap(
-								RecruitmentInformation::getInformationType,
-								RecruitmentInformation::getEventDatetime));
+		Map<InformationType, LocalDateTime> scheduleMap =
+				informations.stream()
+						.collect(
+								Collectors.toMap(
+										RecruitmentInformation::getInformationType,
+										RecruitmentInformation::getEventDatetime));
 
 		// 2. 데이터 조회 및 그룹화
-		List<RecruitmentNotice> notices = noticeRepository.findAllByGenerationId(latestGeneration.getId());
-		Map<NoticeType, List<RecruitmentNotice>> grouped = notices.stream()
-				.sorted(Comparator.comparing(RecruitmentNotice::getId))
-				.collect(Collectors.groupingBy(RecruitmentNotice::getNoticeType));
+		List<RecruitmentNotice> notices =
+				noticeRepository.findAllByGenerationId(latestGeneration.getId());
+		Map<NoticeType, List<RecruitmentNotice>> grouped =
+				notices.stream()
+						.sorted(Comparator.comparing(RecruitmentNotice::getId))
+						.collect(Collectors.groupingBy(RecruitmentNotice::getNoticeType));
 
 		// 3. 응답
 		return new RecruitmentResponse(
@@ -120,12 +126,14 @@ public class RecruitmentService {
 	 * @param generation 기수
 	 */
 	public void validateRecruitmentEnd(Generation generation) {
-		RecruitmentInformation recruitmentEnd = recruitmentInformationRepository
-				.findByGenerationAndInformationType(
-						generation, InformationType.RECRUITMENT_END)
-				.orElseThrow(
-						() -> new PresentationException(
-								PresentationErrorCode.RECRUITMENT_INFO_NOT_FOUND));
+		RecruitmentInformation recruitmentEnd =
+				recruitmentInformationRepository
+						.findByGenerationAndInformationType(
+								generation, InformationType.RECRUITMENT_END)
+						.orElseThrow(
+								() ->
+										new PresentationException(
+												PresentationErrorCode.RECRUITMENT_INFO_NOT_FOUND));
 
 		LocalDateTime now = LocalDateTime.now();
 		if (now.isAfter(recruitmentEnd.getEventDatetime())) {
@@ -139,12 +147,14 @@ public class RecruitmentService {
 	 * @param generation 기수
 	 */
 	public void validateRecruitmentStart(Generation generation) {
-		RecruitmentInformation recruitmentStart = recruitmentInformationRepository
-				.findByGenerationAndInformationType(
-						generation, InformationType.RECRUITMENT_START)
-				.orElseThrow(
-						() -> new PresentationException(
-								PresentationErrorCode.RECRUITMENT_INFO_NOT_FOUND));
+		RecruitmentInformation recruitmentStart =
+				recruitmentInformationRepository
+						.findByGenerationAndInformationType(
+								generation, InformationType.RECRUITMENT_START)
+						.orElseThrow(
+								() ->
+										new PresentationException(
+												PresentationErrorCode.RECRUITMENT_INFO_NOT_FOUND));
 
 		LocalDateTime now = LocalDateTime.now();
 		if (now.isBefore(recruitmentStart.getEventDatetime())) {

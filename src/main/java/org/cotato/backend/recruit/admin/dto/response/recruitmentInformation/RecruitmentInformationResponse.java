@@ -22,11 +22,12 @@ public record RecruitmentInformationResponse(
 		LocalDate cokerthon,
 		LocalDate demoDay) {
 	public static RecruitmentInformationResponse of(List<RecruitmentInformation> informations) {
-		Map<InformationType, RecruitmentInformation> infoMap = informations.stream()
-				.collect(
-						Collectors.toMap(
-								RecruitmentInformation::getInformationType,
-								Function.identity()));
+		Map<InformationType, RecruitmentInformation> infoMap =
+				informations.stream()
+						.collect(
+								Collectors.toMap(
+										RecruitmentInformation::getInformationType,
+										Function.identity()));
 
 		return RecruitmentInformationResponse.builder()
 				.recruitmentStart(getDateTime(infoMap, InformationType.RECRUITMENT_START))
