@@ -2,6 +2,9 @@ package org.cotato.backend.recruit.common.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -9,21 +12,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Exception 분석을 위한 AI 로깅 서비스
- * 
+ *
  * <p>
  * 발생한 예외를 AI가 분석할 수 있도록 구조화된 JSON 로그를 생성합니다.
- * </p>
- * 
+ *
  * <ul>
- * <li>Error Summary: 예외 타입, 메시지, 근본 원인</li>
- * <li>Request Context: HTTP 메서드, URL, 사용자 ID, 요청 페이로드</li>
- * <li>Code Context: 프로젝트 내 예외 발생 위치 (파일, 클래스, 라인, 메서드)</li>
+ * <li>Error Summary: 예외 타입, 메시지, 근본 원인
+ * <li>Request Context: HTTP 메서드, URL, 사용자 ID, 요청 페이로드
+ * <li>Code Context: 프로젝트 내 예외 발생 위치 (파일, 클래스, 라인, 메서드)
  * </ul>
  */
 @Slf4j
@@ -35,7 +33,7 @@ public class ExceptionAnalysisLogger {
 
     /**
      * AI에게 보낼 문맥 데이터 생성 및 로그 출력
-     * 
+     *
      * @param e       발생한 예외
      * @param request HTTP 요청 객체
      */
@@ -75,15 +73,13 @@ public class ExceptionAnalysisLogger {
             log.error("🚨 [AI Analysis Data] \n{}", jsonLog);
 
         } catch (Exception jsonError) {
-            log.error("JSON 변환 실패", jsonError);
+            log.error("JSON 변환 실패: {}", jsonError.getMessage());
         }
     }
 
     // --- Helper Methods ---
 
-    /**
-     * 근본 원인(Root Cause) 찾기
-     */
+    /** 근본 원인(Root Cause) 찾기 */
     private Throwable getRootCause(Exception e) {
         Throwable cause = e;
         while (cause.getCause() != null) {
@@ -92,9 +88,7 @@ public class ExceptionAnalysisLogger {
         return cause;
     }
 
-    /**
-     * 내 프로젝트 패키지(org.cotato)에서 발생한 에러 위치 찾기
-     */
+    /** 내 프로젝트 패키지(org.cotato)에서 발생한 에러 위치 찾기 */
     private StackTraceElement findMyCodeTrace(Exception e) {
         for (StackTraceElement element : e.getStackTrace()) {
             if (element.getClassName().startsWith("org.cotato")) {
@@ -104,9 +98,7 @@ public class ExceptionAnalysisLogger {
         return e.getStackTrace().length > 0 ? e.getStackTrace()[0] : null;
     }
 
-    /**
-     * Request Body 읽어오기 (ContentCachingRequestWrapper 필요)
-     */
+    /** Request Body 읽어오기 (ContentCachingRequestWrapper 필요) */
     private String getRequestBody(HttpServletRequest request) {
         ContentCachingRequestWrapper wrapper = null;
         if (request instanceof ContentCachingRequestWrapper) {
@@ -126,9 +118,7 @@ public class ExceptionAnalysisLogger {
         return "Empty or Not Readable";
     }
 
-    /**
-     * SecurityContext에서 유저 ID 꺼내기
-     */
+    /** SecurityContext에서 유저 ID 꺼내기 */
     private String getUserId() {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
