@@ -10,7 +10,6 @@ import org.cotato.backend.recruit.admin.error.AdminErrorCode;
 import org.cotato.backend.recruit.admin.exception.AdminException;
 import org.cotato.backend.recruit.common.error.ErrorCode;
 import org.cotato.backend.recruit.common.response.ApiResponse;
-
 import org.cotato.backend.recruit.presentation.error.PresentationErrorCode;
 import org.cotato.backend.recruit.presentation.exception.PresentationException;
 import org.springframework.validation.FieldError;
@@ -73,7 +72,9 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	protected ApiResponse<Map<String, String>> handleMethodArgumentNotValidException(
-			MethodArgumentNotValidException e, HttpServletRequest request, HttpServletResponse response) {
+			MethodArgumentNotValidException e,
+			HttpServletRequest request,
+			HttpServletResponse response) {
 		exceptionAnalysisLogger.logAiAnalysisData(e, request);
 
 		Map<String, String> errors = new HashMap<>();
@@ -96,7 +97,9 @@ public class GlobalExceptionHandler {
 	/** 파라미터 타입 불일치 */
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
 	protected ApiResponse<Void> handleMethodArgumentTypeMismatchException(
-			MethodArgumentTypeMismatchException e, HttpServletRequest request, HttpServletResponse response) {
+			MethodArgumentTypeMismatchException e,
+			HttpServletRequest request,
+			HttpServletResponse response) {
 		exceptionAnalysisLogger.logAiAnalysisData(e, request);
 		response.setStatus(ErrorCode.INVALID_TYPE_VALUE.getStatus().value());
 		return ApiResponse.error(
@@ -106,7 +109,9 @@ public class GlobalExceptionHandler {
 	/** 필수 파라미터 누락 */
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	protected ApiResponse<Void> handleMissingServletRequestParameterException(
-			MissingServletRequestParameterException e, HttpServletRequest request, HttpServletResponse response) {
+			MissingServletRequestParameterException e,
+			HttpServletRequest request,
+			HttpServletResponse response) {
 		exceptionAnalysisLogger.logAiAnalysisData(e, request);
 		response.setStatus(ErrorCode.MISSING_REQUEST_PARAMETER.getStatus().value());
 		return ApiResponse.error(
@@ -117,7 +122,9 @@ public class GlobalExceptionHandler {
 	/** 지원하지 않는 HTTP 메서드 */
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
 	protected ApiResponse<Void> handleHttpRequestMethodNotSupportedException(
-			HttpRequestMethodNotSupportedException e, HttpServletRequest request, HttpServletResponse response) {
+			HttpRequestMethodNotSupportedException e,
+			HttpServletRequest request,
+			HttpServletResponse response) {
 		exceptionAnalysisLogger.logAiAnalysisData(e, request);
 		response.setStatus(ErrorCode.METHOD_NOT_ALLOWED.getStatus().value());
 		return ApiResponse.error(
@@ -126,7 +133,8 @@ public class GlobalExceptionHandler {
 
 	/** 그 외 모든 예외 처리 */
 	@ExceptionHandler(Exception.class)
-	protected ApiResponse<Void> handleException(Exception e, HttpServletRequest request, HttpServletResponse response) {
+	protected ApiResponse<Void> handleException(
+			Exception e, HttpServletRequest request, HttpServletResponse response) {
 		exceptionAnalysisLogger.logAiAnalysisData(e, request);
 		response.setStatus(ErrorCode.INTERNAL_SERVER_ERROR.getStatus().value());
 		return ApiResponse.error(

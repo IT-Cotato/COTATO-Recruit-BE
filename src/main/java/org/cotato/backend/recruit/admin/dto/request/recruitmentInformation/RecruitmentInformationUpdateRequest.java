@@ -14,5 +14,4 @@ public record RecruitmentInformationUpdateRequest(
 		@NotNull LocalDate finalAnnouncement,
 		@NotNull LocalDate ot,
 		@NotNull LocalDate cokerthon,
-		@NotNull LocalDate demoDay) {
-}
+		@NotNull LocalDate demoDay) {}
