@@ -26,11 +26,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+/** JWT 인증 필터, 모든 요청에 대해 JWT 토큰을 검사하고, 유효한 경우 인증 정보를 SecurityContext에 설정한다 */
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-	private static final String AUTHORIZATION_HEADER = "Authorization";
-	private static final String BEARER_PREFIX = "Bearer ";
-	private static final String MASTER_TOKEN = "1234"; // 마스터 토큰 상수
+	private static final String AUTHORIZATION_HEADER = "Authorization"; // HTTP 헤더 이름
+	private static final String BEARER_PREFIX = "Bearer "; // 접두사
 
 	private final JwtTokenProvider jwtTokenProvider;
 	private final UserRepository userRepository;
@@ -42,32 +42,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 		try {
 			String jwt = extractJwtFromRequest(request);
-
-			// ==========================================
-			// [DEV] 마스터 토큰(1234) 프리패스 로직 추가
-			// Header: Authorization: Bearer 1234
-			// ==========================================
-			if (MASTER_TOKEN.equals(jwt)) {
-				// 가짜 관리자(STAFF) 유저 생성 (DB 조회 X)
-				User masterUser = User.createAdmin(
-						"master@cotato.com", "MasterAdmin", User.Provider.GOOGLE, "999999");
-
-				CustomUserDetails userDetails = CustomUserDetails.from(masterUser);
-
-				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-						userDetails, null, userDetails.getAuthorities());
-
-				authentication.setDetails(
-						new WebAuthenticationDetailsSource().buildDetails(request));
-
-				SecurityContextHolder.getContext().setAuthentication(authentication);
-				log.info("🔓 Master Token Login Success: ROLE_STAFF assigned.");
-
-				// 다음 필터로 진행 후 리턴 (JWT 검증 로직 스킵)
-				filterChain.doFilter(request, response);
-				return;
-			}
-			// ==========================================
 
 			if (StringUtils.hasText(jwt)) {
 				// JWT 유효성 검증
@@ -96,6 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
 						userDetails, null, userDetails.getAuthorities());
 
+				// 인증 세부 정보 설정, 요청 정보 포함, 예: IP 주소, 세션 ID 등
 				authentication.setDetails(
 						new WebAuthenticationDetailsSource().buildDetails(request));
 
@@ -107,7 +82,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			handleException(response, ex.getErrorCode());
 			return;
 		} catch (Exception ex) {
-			log.error("Could not set user authentication in security context: {}", ex.getMessage());
+			log.error("Could not set user authentication in security context", ex);
 			handleException(response, ErrorCode.INVALID_TOKEN);
 			return;
 		}
