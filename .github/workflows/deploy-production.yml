@@ -91,24 +91,24 @@ jobs:
       - name: Copy deployment files to server
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.PROD_SERVER_HOST }}
-          username: ${{ secrets.PROD_SERVER_USERNAME }}
-          key: ${{ secrets.PROD_SERVER_SSH_KEY }}
-          port: ${{ secrets.PROD_SERVER_PORT || 22 }}
-          source: "deployment/production/docker-compose.prod.yml,deployment/production/nginx-blue.conf,deployment/production/nginx-green.conf,deployment/production/deploy.sh"
-          target: "~/"
-          strip_components: 2
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          source: "deployment/production/*,deployment/nginx/*"
+          target: "~/deployment"
+          strip_components: 1
           rm: false
 
       - name: Deploy with Blue-Green strategy
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.PROD_SERVER_HOST }}
-          username: ${{ secrets.PROD_SERVER_USERNAME }}
-          key: ${{ secrets.PROD_SERVER_SSH_KEY }}
-          port: ${{ secrets.PROD_SERVER_PORT || 22 }}
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
-            cd ~
+            cd ~/deployment/production
 
             # 환경변수 설정
             export DOCKER_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}
@@ -120,13 +120,13 @@ jobs:
             export GOOGLE_CLIENT_ID=${{ secrets.PROD_GOOGLE_CLIENT_ID }}
             export GOOGLE_CLIENT_SECRET=${{ secrets.PROD_GOOGLE_CLIENT_SECRET }}
             export SERVER_URL=${{ secrets.PROD_SERVER_URL }}
-            export MAIL_HOST=${{ secrets.PROD_MAIL_HOST }}
-            export MAIL_PORT=${{ secrets.PROD_MAIL_PORT }}
-            export MAIL_USERNAME=${{ secrets.PROD_MAIL_USERNAME }}
-            export MAIL_PASSWORD=${{ secrets.PROD_MAIL_PASSWORD }}
-            export AWS_ACCESS_KEY=${{ secrets.PROD_AWS_ACCESS_KEY }}
-            export AWS_SECRET_KEY=${{ secrets.PROD_AWS_SECRET_KEY }}
-            export AWS_REGION=${{ secrets.PROD_AWS_REGION }}
+            export MAIL_HOST=${{ secrets.MAIL_HOST }}
+            export MAIL_PORT=${{ secrets.MAIL_PORT }}
+            export MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+            export MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+            export AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
+            export AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
+            export AWS_REGION=${{ secrets.AWS_REGION }}
             export AWS_S3_BUCKET=${{ secrets.PROD_AWS_S3_BUCKET }}
             export SENTRY_DSN=${{ secrets.SENTRY_DSN }}
 
