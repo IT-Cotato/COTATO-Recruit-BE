@@ -1,0 +1,90 @@
+name: Integrated Test & Report
+
+# 1. 트리거 조건: PR 생성(opened), 업데이트(synchronize) 시 실행
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: ["main", "develop"] # 타겟 브랜치 설정
+
+jobs:
+  test-and-report:
+    runs-on: ubuntu-latest
+
+    # 2. Redis 서비스 컨테이너 (이게 없으면 테스트에서 Redis 연결 에러 남!)
+    services:
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: 체크아웃 (코드 가져오기)
+        uses: actions/checkout@v4
+
+      - name: JDK 17 설정
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Gradle 권한 부여
+        run: chmod +x gradlew
+
+      # 3. 테스트 실행 (환경변수 주입)
+      - name: 통합 테스트 실행
+        env:
+          # application.yml에서 읽을 변수를 여기서 주입
+          TEST_DISCORD_WEBHOOK_URL: ${{ secrets.TEST_DISCORD_WEBHOOK_URL }}
+        run: ./gradlew test
+
+      # 4. 엑셀 파일 존재 확인 (디버깅용)
+      - name: 엑셀 파일 확인
+        run: |
+          echo "엑셀 파일 위치를 찾습니다..."
+          # 엑셀 파일이 생성되는 정확한 경로를 알아야 합니다.
+          # 보통 build/reports/ 혹은 프로젝트 루트에 생길 겁니다.
+          find . -name "*.xlsx"
+
+      # 5. 디스코드로 리포트 전송
+      - name: 디스코드로 리포트 전송
+        if: always()
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.TEST_DISCORD_WEBHOOK_URL }}
+        run: |
+          # 1. Java가 만든 요약 파일 읽기
+          SUMMARY_FILE="test_summary.properties"
+
+          if [ -f "$SUMMARY_FILE" ]; then
+            echo "📄 요약 파일을 로드합니다."
+
+            # grep으로 변수에 할당 (cat >> $GITHUB_ENV 삭제함)
+            TOTAL=$(grep "TEST_TOTAL" $SUMMARY_FILE | cut -d'=' -f2)
+            PASS=$(grep "TEST_PASS" $SUMMARY_FILE | cut -d'=' -f2)
+            FAIL=$(grep "TEST_FAIL" $SUMMARY_FILE | cut -d'=' -f2)
+            END_TIME=$(grep "TEST_END_TIME" $SUMMARY_FILE | cut -d'=' -f2)
+          else
+            echo "⚠️ 요약 파일이 없습니다. 기본값으로 설정합니다."
+            TOTAL="0"
+            PASS="0"
+            FAIL="0"
+            END_TIME="-"
+          fi
+
+          echo "📊 로드된 데이터 -> 전체: $TOTAL, 성공: $PASS, 실패: $FAIL"
+
+          # 2. 엑셀 파일 경로
+          FILE_PATH="./integration_test_report.xlsx"
+
+          if [ -f "$FILE_PATH" ]; then
+            echo "🚀 엑셀 파일을 디스코드로 전송합니다."
+
+            # [핵심 수정] 줄바꿈을 위해 \\n 사용 (JSON 깨짐 방지)
+            CONTENT="📢 **통합 테스트 결과 리포트** (PR: #${{ github.event.pull_request.number }})\\n\\n⏰ **종료 시간**: $END_TIME\\n📊 **테스트 요약**\\n- 🔢 전체: **$TOTAL**건\\n- ✅ 성공: **$PASS**건\\n- ❌ 실패: **$FAIL**건"
+
+            # curl 전송
+            curl -v -F "payload_json={\"content\": \"$CONTENT\"}" \
+                 -F "file=@$FILE_PATH" \
+                 "$DISCORD_WEBHOOK_URL"
+          else
+            echo "⚠️ 엑셀 파일이 발견되지 않아 전송을 건너뜁니다."
+          fi

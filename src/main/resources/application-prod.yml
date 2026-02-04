@@ -3,6 +3,74 @@ spring:
     activate:
       on-profile: prod
 
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+        show_sql: false
+
+  # MySQL Database (Production Environment)
+  datasource:
+    url: ${DB_URL}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # Redis Configuration
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+
+  # OAuth2 Configuration
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+
+  # Mail Configuration
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+  # H2 Console (Disabled in Production)
+  h2:
+    console:
+      enabled: false
+
+# Swagger Configuration (Disabled in Production)
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+  server-url: ${SERVER_URL:https://api.cotato.com} # 추후 도메인 변경 예정
+  server-description: Production Server
+
 server:
   port: 8080
 
@@ -20,3 +88,6 @@ management:
   endpoint:
     health:
       show-details: never
+  health:
+    mail:
+      enabled: false

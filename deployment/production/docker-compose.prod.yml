@@ -1,56 +1,89 @@
 services:
-  blue:
-    container_name: blue
-    image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
-    environment:
-      SPRING_PROFILES_ACTIVE: prod
-      TZ: "Asia/Seoul"
-      DB_URL: ${DB_URL}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    networks:
-      - app_network
-
-  green:
-    container_name: green
-    image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
-    environment:
-      SPRING_PROFILES_ACTIVE: prod
-      TZ: "Asia/Seoul"
-      DB_URL: ${DB_URL}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    networks:
-      - app_network
-
-  nginx:
-    image: nginx:latest
-    container_name: nginx
+  prod-redis:
+    image: redis:7-alpine
+    container_name: prod-redis
     ports:
-      - "80:80"
-      - "443:443"
+      - "6379:6379"
     volumes:
-      - ./nginx-blue.conf:/etc/nginx/templates/nginx-blue.conf:ro
-      - ./nginx-green.conf:/etc/nginx/templates/nginx-green.conf:ro
-      - ~/ssl:/etc/nginx/ssl:ro
-      - ~/certbot/www:/var/www/certbot:ro
+      - prod_redis_data:/data
     networks:
-      - app_network
+      - prod_network
+    restart: unless-stopped
+
+  prod-blue:
+    container_name: prod-blue
+    image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      TZ: "Asia/Seoul"
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      REDIS_HOST: prod-redis
+      REDIS_PORT: 6379
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      SERVER_URL: ${SERVER_URL}
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+      AWS_REGION: ${AWS_REGION}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      SENTRY_DSN: ${SENTRY_DSN}
+    depends_on:
+      - prod-redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - prod_network
+
+  prod-green:
+    container_name: prod-green
+    image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      TZ: "Asia/Seoul"
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      REDIS_HOST: prod-redis
+      REDIS_PORT: 6379
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      SERVER_URL: ${SERVER_URL}
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+      AWS_REGION: ${AWS_REGION}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      SENTRY_DSN: ${SENTRY_DSN}
+    depends_on:
+      - prod-redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - prod_network
 
 networks:
-  app_network:
-    driver: bridge
+  prod_network:
+    external: true
+    name: prod_network
+
+volumes:
+  prod_redis_data:

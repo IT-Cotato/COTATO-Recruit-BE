@@ -3,17 +3,17 @@ name: Deploy to Production Server
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
     inputs:
       tag:
-        description: '배포할 Tag (예: v2025.12.01)'
+        description: "배포할 Tag (예: v2025.12.01)"
         required: true
         type: string
-  workflow_call:  # 다른 워크플로우에서 호출 가능
+  workflow_call: # 다른 워크플로우에서 호출 가능
     inputs:
       tag:
-        description: '배포할 Tag'
+        description: "배포할 Tag"
         required: true
         type: string
 
@@ -91,24 +91,24 @@ jobs:
       - name: Copy deployment files to server
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.PROD_SERVER_HOST }}
-          username: ${{ secrets.PROD_SERVER_USERNAME }}
-          key: ${{ secrets.PROD_SERVER_SSH_KEY }}
-          port: ${{ secrets.PROD_SERVER_PORT || 22 }}
-          source: "deployment/production/docker-compose.prod.yml,deployment/production/nginx-blue.conf,deployment/production/nginx-green.conf,deployment/production/deploy.sh"
-          target: "~/"
-          strip_components: 2
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          source: "deployment/production/*,deployment/nginx/*"
+          target: "~/deployment"
+          strip_components: 1
           rm: false
 
       - name: Deploy with Blue-Green strategy
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.PROD_SERVER_HOST }}
-          username: ${{ secrets.PROD_SERVER_USERNAME }}
-          key: ${{ secrets.PROD_SERVER_SSH_KEY }}
-          port: ${{ secrets.PROD_SERVER_PORT || 22 }}
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
-            cd ~
+            cd ~/deployment/production
 
             # 환경변수 설정
             export DOCKER_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}
@@ -117,6 +117,18 @@ jobs:
             export DB_USERNAME=${{ secrets.PROD_DB_USERNAME }}
             export DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
             export JWT_SECRET=${{ secrets.PROD_JWT_SECRET }}
+            export GOOGLE_CLIENT_ID=${{ secrets.PROD_GOOGLE_CLIENT_ID }}
+            export GOOGLE_CLIENT_SECRET=${{ secrets.PROD_GOOGLE_CLIENT_SECRET }}
+            export SERVER_URL=${{ secrets.PROD_SERVER_URL }}
+            export MAIL_HOST=${{ secrets.MAIL_HOST }}
+            export MAIL_PORT=${{ secrets.MAIL_PORT }}
+            export MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+            export MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+            export AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
+            export AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
+            export AWS_REGION=${{ secrets.AWS_REGION }}
+            export AWS_S3_BUCKET=${{ secrets.PROD_AWS_S3_BUCKET }}
+            export SENTRY_DSN=${{ secrets.SENTRY_DSN }}
 
             # 환경변수 .env 파일로 저장
             cat > .env << EOF
@@ -126,31 +138,22 @@ jobs:
             DB_USERNAME=$DB_USERNAME
             DB_PASSWORD=$DB_PASSWORD
             JWT_SECRET=$JWT_SECRET
+            GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
+            GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
+            SERVER_URL=$SERVER_URL
+            MAIL_HOST=$MAIL_HOST
+            MAIL_PORT=$MAIL_PORT
+            MAIL_USERNAME=$MAIL_USERNAME
+            MAIL_PASSWORD=$MAIL_PASSWORD
+            AWS_ACCESS_KEY=$AWS_ACCESS_KEY
+            AWS_SECRET_KEY=$AWS_SECRET_KEY
+            AWS_REGION=$AWS_REGION
+            AWS_S3_BUCKET=$AWS_S3_BUCKET
+            SENTRY_DSN=$SENTRY_DSN
             EOF
 
             # Docker 로그인
             echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-
-            # certbot 디렉토리 생성
-            mkdir -p ~/certbot/www
-
-            # SSL 인증서 확인
-            if [ ! -f ~/ssl/fullchain.pem ] || [ ! -f ~/ssl/privkey.pem ]; then
-              echo "❌ SSL 인증서 없음. 서버에서 인증서를 먼저 발급받으세요."
-              exit 1
-            fi
-
-            # Nginx 컨테이너 시작
-            if ! docker ps --format '{{.Names}}' | grep -q "nginx"; then
-              docker compose -f ./docker-compose.prod.yml up -d nginx
-              sleep 5
-            fi
-
-            # default.conf 초기화 (Blue)
-            if ! docker exec nginx test -f /etc/nginx/conf.d/default.conf 2>/dev/null; then
-              docker exec nginx cp /etc/nginx/templates/nginx-blue.conf /etc/nginx/conf.d/default.conf
-              docker exec nginx nginx -s reload
-            fi
 
             # 배포 실행
             chmod +x ./deploy.sh
@@ -159,9 +162,14 @@ jobs:
       - name: Notify deployment success
         if: success()
         run: |
-          echo "✅ Production 배포 성공!"
+          echo "=========================================="
+          echo "Production Deployment Succeeded"
           echo "Tag: ${{ needs.retag-image.outputs.tag }}"
+          echo "=========================================="
 
       - name: Notify deployment failure
         if: failure()
-        run: echo "❌ Production 배포 실패!"
+        run: |
+          echo "=========================================="
+          echo "[ERROR] Production Deployment Failed"
+          echo "=========================================="

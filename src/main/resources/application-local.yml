@@ -3,14 +3,80 @@ spring:
     activate:
       on-profile: local
 
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+
+  # MySQL Database (Local Development)
+  datasource:
+    url: jdbc:mysql://localhost:3306/recruit?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  # Redis Configuration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  # OAuth2 Configuration
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+
+  # Mail Configuration
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+# Swagger Configuration
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+    disable-swagger-default-url: true
+    display-request-duration: true
+  show-actuator: false
+  server-url: http://localhost:8080
+  server-description: Local Server
+
 server:
   port: 8080
 
 logging:
   level:
-    root: DEBUG
-    org.cotato.backend: DEBUG
-    org.springframework.web: DEBUG
+    root: INFO
+    org.cotato.backend: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
 management:
   endpoints:
@@ -20,3 +86,6 @@ management:
   endpoint:
     health:
       show-details: always
+  health:
+    mail:
+      enabled: false
