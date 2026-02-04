@@ -80,11 +80,12 @@ public class JwtTokenProvider {
 	 * @return 사용자 ID
 	 */
 	public String getUserIdFromToken(String token) {
-		Claims claims = Jwts.parser()
-				.verifyWith(key) // 서명 검증
-				.build()
-				.parseSignedClaims(token) // 토큰 파싱
-				.getPayload(); // 클레임(페이로드) 추출
+		Claims claims =
+				Jwts.parser()
+						.verifyWith(key) // 서명 검증
+						.build()
+						.parseSignedClaims(token) // 토큰 파싱
+						.getPayload(); // 클레임(페이로드) 추출
 		return claims.getSubject();
 	}
 

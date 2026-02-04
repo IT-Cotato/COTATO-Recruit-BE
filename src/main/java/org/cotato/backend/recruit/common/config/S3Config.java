@@ -30,10 +30,11 @@ public class S3Config {
 	public S3Presigner s3Presigner() {
 		AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(accessKey, secretKey);
 
-		s3Presigner = S3Presigner.builder()
-				.region(Region.of(region))
-				.credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
-				.build();
+		s3Presigner =
+				S3Presigner.builder()
+						.region(Region.of(region))
+						.credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
+						.build();
 
 		return s3Presigner;
 	}
