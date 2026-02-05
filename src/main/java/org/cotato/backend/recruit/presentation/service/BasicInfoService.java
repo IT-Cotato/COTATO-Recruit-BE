@@ -21,9 +21,9 @@ public class BasicInfoService {
 	/**
 	 * 기본 인적사항 작성(임시저장)
 	 *
-	 * @param userId 사용자 ID
+	 * @param userId        사용자 ID
 	 * @param applicationId 지원서 ID
-	 * @param request 기본 인적사항 요청
+	 * @param request       기본 인적사항 요청
 	 */
 	@Transactional
 	public void saveBasicInfo(Long userId, Long applicationId, BasicInfoRequest request) {
@@ -38,7 +38,7 @@ public class BasicInfoService {
 				request.major(),
 				request.completedSemesters(),
 				request.isPrevActivity(),
-				request.isEnrolled() != null ? request.isEnrolled() : false,
+				request.isEnrolled(),
 				request.applicationPartType());
 
 		applicationRepository.save(application);
@@ -47,7 +47,7 @@ public class BasicInfoService {
 	/**
 	 * 기본 인적사항 조회
 	 *
-	 * @param userId 사용자 ID
+	 * @param userId        사용자 ID
 	 * @param applicationId 지원서 ID
 	 * @return 기본 인적사항 응답
 	 */
