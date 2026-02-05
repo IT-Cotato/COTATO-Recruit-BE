@@ -15,10 +15,10 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -97,7 +97,7 @@ public class Application {
 	private String pdfFileUrl;
 
 	@OneToMany(mappedBy = "application", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<ApplicationAnswer> applicationAnswers;
+	private List<ApplicationAnswer> applicationAnswers = new ArrayList<>();
 
 	// 정적 팩토리 메서드 - 새 지원서 생성
 	public static Application createNew(User user, Generation generation) {
@@ -191,8 +191,7 @@ public class Application {
 				.collect(Collectors.toSet());
 
 		// 필수 질문 중 하나라도 답변 ID 목록에 없다면 예외 발생
-		boolean allAnswered = questionsToValidate.stream()
-				.allMatch(q -> answeredQuestionIds.contains(q.getId()));
+		boolean allAnswered = questionsToValidate.stream().allMatch(q -> answeredQuestionIds.contains(q.getId()));
 
 		if (!allAnswered) {
 			throw new PresentationException(PresentationErrorCode.NOT_ALL_QUESTIONS_ANSWERED);
@@ -205,15 +204,16 @@ public class Application {
 				.collect(Collectors.groupingBy(Question::getQuestionType))
 				.values()
 				.stream()
-				.flatMap(questionsByType -> {
-					// 각 파트별 최대 sequence를 가진 질문 제외
-					int maxSequence = questionsByType.stream()
-							.mapToInt(Question::getSequence)
-							.max()
-							.orElse(-1);
-					return questionsByType.stream()
-							.filter(q -> q.getSequence() != maxSequence);
-				})
+				.flatMap(
+						questionsByType -> {
+							// 각 파트별 최대 sequence를 가진 질문 제외
+							int maxSequence = questionsByType.stream()
+									.mapToInt(Question::getSequence)
+									.max()
+									.orElse(-1);
+							return questionsByType.stream()
+									.filter(q -> q.getSequence() != maxSequence);
+						})
 				.collect(Collectors.toList());
 	}
 
