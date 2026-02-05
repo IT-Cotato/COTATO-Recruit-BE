@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.cotato.backend.recruit.auth.dto.CustomUserDetails;
 import org.cotato.backend.recruit.auth.jwt.JwtTokenProvider;
 import org.cotato.backend.recruit.domain.application.entity.Application;
@@ -46,14 +47,20 @@ import org.springframework.test.web.servlet.MockMvc;
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 class SubmitApplicationApiTest extends IntegrationTestSupport {
 
-	@Autowired private MockMvc mockMvc;
+	@Autowired
+	private MockMvc mockMvc;
 
-	@Autowired private UserRepository userRepository;
-	@Autowired private GenerationRepository generationRepository;
-	@Autowired private ApplicationRepository applicationRepository;
-	@Autowired private RecruitmentInformationRepository recruitmentInformationRepository;
+	@Autowired
+	private UserRepository userRepository;
+	@Autowired
+	private GenerationRepository generationRepository;
+	@Autowired
+	private ApplicationRepository applicationRepository;
+	@Autowired
+	private RecruitmentInformationRepository recruitmentInformationRepository;
 
-	@MockitoBean private JwtTokenProvider jwtTokenProvider;
+	@MockitoBean
+	private JwtTokenProvider jwtTokenProvider;
 
 	@Test
 	@DisplayName("01. 지원서를 찾지 못하면 예외처리해야한다")
@@ -64,13 +71,13 @@ class SubmitApplicationApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-						mockMvc.perform(
-								post("/api/applications/{applicationId}/submit", 9999L)
-										.with(
-												SecurityMockMvcRequestPostProcessors.authentication(
-														auth))
-										.with(SecurityMockMvcRequestPostProcessors.csrf())
-										.contentType(MediaType.APPLICATION_JSON)))
+				mockMvc.perform(
+						post("/api/applications/{applicationId}/submit", 9999L)
+								.with(
+										SecurityMockMvcRequestPostProcessors.authentication(
+												auth))
+								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.contentType(MediaType.APPLICATION_JSON)))
 				.andDo(print())
 				.andExpect(status().isNotFound())
 				.andExpect(
@@ -84,8 +91,7 @@ class SubmitApplicationApiTest extends IntegrationTestSupport {
 	void submitApplication_Forbidden() throws Exception {
 		// given
 		var auth = setupMemberAndSyncAuth();
-		User otherUser =
-				userRepository.save(User.createGoogleUser("other@gmail.com", "other", "123"));
+		User otherUser = userRepository.save(User.createGoogleUser("other@gmail.com", "other", "123"));
 		Generation gen = createGeneration();
 		createRecruitmentPeriod(gen);
 		Application app = Application.createNew(otherUser, gen);
@@ -93,13 +99,13 @@ class SubmitApplicationApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-						mockMvc.perform(
-								post("/api/applications/{applicationId}/submit", app.getId())
-										.with(
-												SecurityMockMvcRequestPostProcessors.authentication(
-														auth))
-										.with(SecurityMockMvcRequestPostProcessors.csrf())
-										.contentType(MediaType.APPLICATION_JSON)))
+				mockMvc.perform(
+						post("/api/applications/{applicationId}/submit", app.getId())
+								.with(
+										SecurityMockMvcRequestPostProcessors.authentication(
+												auth))
+								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.contentType(MediaType.APPLICATION_JSON)))
 				.andDo(print())
 				.andExpect(status().isForbidden())
 				.andExpect(
@@ -113,10 +119,9 @@ class SubmitApplicationApiTest extends IntegrationTestSupport {
 	void submitApplication_PeriodNotStarted() throws Exception {
 		// given
 		var auth = setupMemberAndSyncAuth();
-		User user =
-				userRepository
-						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
-						.orElseThrow();
+		User user = userRepository
+				.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+				.orElseThrow();
 		Generation gen = createGeneration();
 		// Set period in future
 		createRecruitmentPeriod(
@@ -127,13 +132,13 @@ class SubmitApplicationApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-						mockMvc.perform(
-								post("/api/applications/{applicationId}/submit", app.getId())
-										.with(
-												SecurityMockMvcRequestPostProcessors.authentication(
-														auth))
-										.with(SecurityMockMvcRequestPostProcessors.csrf())
-										.contentType(MediaType.APPLICATION_JSON)))
+				mockMvc.perform(
+						post("/api/applications/{applicationId}/submit", app.getId())
+								.with(
+										SecurityMockMvcRequestPostProcessors.authentication(
+												auth))
+								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.contentType(MediaType.APPLICATION_JSON)))
 				.andDo(print())
 				.andExpect(status().isBadRequest())
 				.andExpect(
@@ -149,10 +154,9 @@ class SubmitApplicationApiTest extends IntegrationTestSupport {
 	void submitApplication_PeriodEnded() throws Exception {
 		// given
 		var auth = setupMemberAndSyncAuth();
-		User user =
-				userRepository
-						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
-						.orElseThrow();
+		User user = userRepository
+				.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+				.orElseThrow();
 		Generation gen = createGeneration();
 		// Set period in past
 		createRecruitmentPeriod(
@@ -163,13 +167,13 @@ class SubmitApplicationApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-						mockMvc.perform(
-								post("/api/applications/{applicationId}/submit", app.getId())
-										.with(
-												SecurityMockMvcRequestPostProcessors.authentication(
-														auth))
-										.with(SecurityMockMvcRequestPostProcessors.csrf())
-										.contentType(MediaType.APPLICATION_JSON)))
+				mockMvc.perform(
+						post("/api/applications/{applicationId}/submit", app.getId())
+								.with(
+										SecurityMockMvcRequestPostProcessors.authentication(
+												auth))
+								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.contentType(MediaType.APPLICATION_JSON)))
 				.andDo(print())
 				.andExpect(status().isBadRequest())
 				.andExpect(
@@ -183,10 +187,9 @@ class SubmitApplicationApiTest extends IntegrationTestSupport {
 	void submitApplication_AlreadySubmitted() throws Exception {
 		// given
 		var auth = setupMemberAndSyncAuth();
-		User user =
-				userRepository
-						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
-						.orElseThrow();
+		User user = userRepository
+				.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+				.orElseThrow();
 		Generation gen = createGeneration();
 		createRecruitmentPeriod(gen);
 
@@ -202,18 +205,18 @@ class SubmitApplicationApiTest extends IntegrationTestSupport {
 				false,
 				true,
 				ApplicationPartType.BE);
-		app.submit(); // Submit first
+		app.submit(List.of()); // Submit first
 		applicationRepository.save(app);
 
 		// when & then
 		performAndLog(
-						mockMvc.perform(
-								post("/api/applications/{applicationId}/submit", app.getId())
-										.with(
-												SecurityMockMvcRequestPostProcessors.authentication(
-														auth))
-										.with(SecurityMockMvcRequestPostProcessors.csrf())
-										.contentType(MediaType.APPLICATION_JSON)))
+				mockMvc.perform(
+						post("/api/applications/{applicationId}/submit", app.getId())
+								.with(
+										SecurityMockMvcRequestPostProcessors.authentication(
+												auth))
+								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.contentType(MediaType.APPLICATION_JSON)))
 				.andDo(print())
 				.andExpect(status().isBadRequest())
 				.andExpect(
@@ -222,34 +225,73 @@ class SubmitApplicationApiTest extends IntegrationTestSupport {
 	}
 
 	@Test
-	@DisplayName("06. 필수 필드가 누락되면 예외처리해야한다")
+	@DisplayName("06. 지원 파트가 선택되지 않으면 예외처리해야한다")
 	@WithMockCustomUser
-	void submitApplication_RequiredFieldMissing() throws Exception {
+	void submitApplication_PartTypeNotSelected() throws Exception {
 		// given
 		var auth = setupMemberAndSyncAuth();
-		User user =
-				userRepository
-						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
-						.orElseThrow();
+		User user = userRepository
+				.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+				.orElseThrow();
 		Generation gen = createGeneration();
 		createRecruitmentPeriod(gen);
 
+		// applicationPartType을 설정하지 않음 (null 상태)
 		Application app = Application.createNew(user, gen);
-		if (app.getPhoneNumber() != null) {
-			throw new IllegalStateException("테스트 전제 조건 실패: 이 테스트는 전화번호가 비어있어야 합니다.");
-		}
-
 		applicationRepository.save(app);
 
 		// when & then
 		performAndLog(
-						mockMvc.perform(
-								post("/api/applications/{applicationId}/submit", app.getId())
-										.with(
-												SecurityMockMvcRequestPostProcessors.authentication(
-														auth))
-										.with(SecurityMockMvcRequestPostProcessors.csrf())
-										.contentType(MediaType.APPLICATION_JSON)))
+				mockMvc.perform(
+						post("/api/applications/{applicationId}/submit", app.getId())
+								.with(
+										SecurityMockMvcRequestPostProcessors.authentication(
+												auth))
+								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.contentType(MediaType.APPLICATION_JSON)))
+				.andDo(print())
+				.andExpect(status().isBadRequest())
+				.andExpect(
+						jsonPath("$.code")
+								.value(PresentationErrorCode.PART_TYPE_NOT_SELECTED.getCode()));
+	}
+
+	@Test
+	@DisplayName("07. 필수 필드가 누락되면 예외처리해야한다")
+	@WithMockCustomUser
+	void submitApplication_RequiredFieldMissing() throws Exception {
+		// given
+		var auth = setupMemberAndSyncAuth();
+		User user = userRepository
+				.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+				.orElseThrow();
+		Generation gen = createGeneration();
+		createRecruitmentPeriod(gen);
+
+		Application app = Application.createNew(user, gen);
+		// phoneNumber는 설정하지 않지만, applicationPartType은 설정
+		app.updateBasicInfo(
+				"test",
+				"MALE",
+				LocalDate.of(2000, 1, 1),
+				null, // phoneNumber를 null로 설정
+				"Univ",
+				"Major",
+				1,
+				false,
+				true,
+				ApplicationPartType.BE);
+		applicationRepository.save(app);
+
+		// when & then
+		performAndLog(
+				mockMvc.perform(
+						post("/api/applications/{applicationId}/submit", app.getId())
+								.with(
+										SecurityMockMvcRequestPostProcessors.authentication(
+												auth))
+								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.contentType(MediaType.APPLICATION_JSON)))
 				.andDo(print())
 				.andExpect(status().isBadRequest())
 				.andExpect(
@@ -258,15 +300,14 @@ class SubmitApplicationApiTest extends IntegrationTestSupport {
 	}
 
 	@Test
-	@DisplayName("07. 지원서 제출시 PassStatus.PENDING, isSubmitted=True가 되야한다")
+	@DisplayName("08. 지원서 제출시 PassStatus.PENDING, isSubmitted=True가 되야한다")
 	@WithMockCustomUser
 	void submitApplication_Success() throws Exception {
 		// given
 		var auth = setupMemberAndSyncAuth();
-		User user =
-				userRepository
-						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
-						.orElseThrow();
+		User user = userRepository
+				.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+				.orElseThrow();
 		Generation gen = createGeneration();
 		createRecruitmentPeriod(gen);
 
@@ -286,13 +327,13 @@ class SubmitApplicationApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-						mockMvc.perform(
-								post("/api/applications/{applicationId}/submit", app.getId())
-										.with(
-												SecurityMockMvcRequestPostProcessors.authentication(
-														auth))
-										.with(SecurityMockMvcRequestPostProcessors.csrf())
-										.contentType(MediaType.APPLICATION_JSON)))
+				mockMvc.perform(
+						post("/api/applications/{applicationId}/submit", app.getId())
+								.with(
+										SecurityMockMvcRequestPostProcessors.authentication(
+												auth))
+								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.contentType(MediaType.APPLICATION_JSON)))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.code").value("SUCCESS"));
@@ -304,21 +345,18 @@ class SubmitApplicationApiTest extends IntegrationTestSupport {
 	}
 
 	private UsernamePasswordAuthenticationToken setupMemberAndSyncAuth() {
-		User user =
-				userRepository.save(User.createGoogleUser("test@gmail.com", "testUser", "123456"));
-		CustomUserDetails userDetails =
-				new CustomUserDetails(user.getId(), user.getEmail(), User.Role.APPLICANT);
+		User user = userRepository.save(User.createGoogleUser("test@gmail.com", "testUser", "123456"));
+		CustomUserDetails userDetails = new CustomUserDetails(user.getId(), user.getEmail(), User.Role.APPLICANT);
 		return new UsernamePasswordAuthenticationToken(
 				userDetails, null, userDetails.getAuthorities());
 	}
 
 	private Generation createGeneration() {
-		Generation newGeneration =
-				Generation.builder()
-						.id(1L)
-						.isRecruitingActive(true)
-						.isAdditionalRecruitmentActive(false)
-						.build();
+		Generation newGeneration = Generation.builder()
+				.id(1L)
+				.isRecruitingActive(true)
+				.isAdditionalRecruitmentActive(false)
+				.build();
 		return generationRepository.saveAndFlush(newGeneration);
 	}
 

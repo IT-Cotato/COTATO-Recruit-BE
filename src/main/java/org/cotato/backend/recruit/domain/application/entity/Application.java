@@ -1,5 +1,6 @@
 package org.cotato.backend.recruit.domain.application.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,15 +11,21 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.backend.recruit.domain.application.enums.ApplicationPartType;
 import org.cotato.backend.recruit.domain.application.enums.PassStatus;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
+import org.cotato.backend.recruit.domain.question.entity.Question;
 import org.cotato.backend.recruit.domain.user.entity.User;
 import org.cotato.backend.recruit.presentation.error.PresentationErrorCode;
 import org.cotato.backend.recruit.presentation.exception.PresentationException;
@@ -89,6 +96,9 @@ public class Application {
 	@Column(name = "pdf_file_url", columnDefinition = "TEXT")
 	private String pdfFileUrl;
 
+	@OneToMany(mappedBy = "application", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ApplicationAnswer> applicationAnswers = new ArrayList<>();
+
 	// 정적 팩토리 메서드 - 새 지원서 생성
 	public static Application createNew(User user, Generation generation) {
 		Application application = new Application();
@@ -149,14 +159,14 @@ public class Application {
 	}
 
 	// 제출 처리
-	public void submit() {
+	public void submit(List<Question> partQuestions) {
 		// 이미 제출된 지원서인지 확인
 		if (this.isSubmitted) {
 			throw new PresentationException(PresentationErrorCode.ALREADY_SUBMITTED);
 		}
 
 		// 필수 항목 검증
-		validateRequiredFields();
+		validateRequiredFields(partQuestions);
 
 		this.passStatus = PassStatus.PENDING;
 		this.isSubmitted = true;
@@ -164,8 +174,47 @@ public class Application {
 	}
 
 	// 제출 전 필수 항목 검증
-	private void validateRequiredFields() {
+	private void validateRequiredFields(List<Question> partQuestions) {
+		// 기본 인적사항 검증
 		validateBasicInfo();
+		// 질문 답변 검증 - 포트폴리오 질문은 제외
+		validateQuestionAnswers(partQuestions);
+	}
+
+	private void validateQuestionAnswers(List<Question> partQuestions) {
+		// 포트폴리오 질문(각 파트별 마지막 질문) 제외
+		// 검증할 질문들만 남겨둠
+		List<Question> questionsToValidate = excludePortfolioQuestions(partQuestions);
+
+		Set<Long> answeredQuestionIds = this.applicationAnswers.stream()
+				.map(answer -> answer.getQuestion().getId())
+				.collect(Collectors.toSet());
+
+		// 필수 질문 중 하나라도 답변 ID 목록에 없다면 예외 발생
+		boolean allAnswered = questionsToValidate.stream().allMatch(q -> answeredQuestionIds.contains(q.getId()));
+
+		if (!allAnswered) {
+			throw new PresentationException(PresentationErrorCode.NOT_ALL_QUESTIONS_ANSWERED);
+		}
+	}
+
+	// 포트폴리오 질문 제외 - 각 파트별 가장 마지막 질문(sequence가 가장 큰 질문)
+	private List<Question> excludePortfolioQuestions(List<Question> questions) {
+		return questions.stream()
+				.collect(Collectors.groupingBy(Question::getQuestionType))
+				.values()
+				.stream()
+				.flatMap(
+						questionsByType -> {
+							// 각 파트별 최대 sequence를 가진 질문 제외
+							int maxSequence = questionsByType.stream()
+									.mapToInt(Question::getSequence)
+									.max()
+									.orElse(-1);
+							return questionsByType.stream()
+									.filter(q -> q.getSequence() != maxSequence);
+						})
+				.collect(Collectors.toList());
 	}
 
 	private void validateBasicInfo() {

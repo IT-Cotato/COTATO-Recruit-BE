@@ -1,5 +1,6 @@
 package org.cotato.backend.recruit.presentation.service;
 
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,8 @@ import org.cotato.backend.recruit.common.exception.GlobalException;
 import org.cotato.backend.recruit.domain.application.entity.Application;
 import org.cotato.backend.recruit.domain.application.repository.ApplicationRepository;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
+import org.cotato.backend.recruit.domain.question.entity.Question;
+import org.cotato.backend.recruit.domain.question.enums.QuestionType;
 import org.cotato.backend.recruit.domain.user.entity.User;
 import org.cotato.backend.recruit.domain.user.repository.UserRepository;
 import org.cotato.backend.recruit.presentation.dto.response.ApplicationStartResponse;
@@ -26,22 +29,21 @@ public class ApplicationService {
 	private final UserRepository userRepository;
 	private final GenerationService generationService;
 	private final RecruitmentService recruitmentService;
+	private final QuestionService questionService;
 
 	/**
 	 * 지원서 권한 확인 및 조회
 	 *
 	 * @param applicationId 지원서 ID
-	 * @param userId 사용자 ID
+	 * @param userId        사용자 ID
 	 * @return 지원서
 	 */
 	public Application getApplicationWithAuth(Long applicationId, Long userId) {
-		Application application =
-				applicationRepository
-						.findById(applicationId)
-						.orElseThrow(
-								() ->
-										new PresentationException(
-												PresentationErrorCode.APPLICATION_NOT_FOUND));
+		Application application = applicationRepository
+				.findById(applicationId)
+				.orElseThrow(
+						() -> new PresentationException(
+								PresentationErrorCode.APPLICATION_NOT_FOUND));
 
 		application.validateUser(userId);
 
@@ -56,10 +58,9 @@ public class ApplicationService {
 	 */
 	@Transactional
 	public ApplicationStartResponse startApplication(Long userId) {
-		User user =
-				userRepository
-						.findById(userId)
-						.orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+		User user = userRepository
+				.findById(userId)
+				.orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
 
 		// 현재 모집 중인 기수 조회
 		Generation activeGeneration = generationService.getActiveGeneration();
@@ -68,8 +69,8 @@ public class ApplicationService {
 		recruitmentService.validateRecruitmentPeriod(activeGeneration);
 
 		// 이미 해당 기수에 지원서가 있는지 확인
-		Optional<Application> existingApplication =
-				applicationRepository.findByUserAndGeneration(user, activeGeneration);
+		Optional<Application> existingApplication = applicationRepository.findByUserAndGeneration(user,
+				activeGeneration);
 
 		if (existingApplication.isPresent()) {
 			// 기존 지원서가 있으면 해당 ID와 제출 여부 반환
@@ -93,7 +94,7 @@ public class ApplicationService {
 	/**
 	 * 지원서 최종 제출
 	 *
-	 * @param userId 사용자 ID
+	 * @param userId        사용자 ID
 	 * @param applicationId 지원서 ID
 	 */
 	@Transactional
@@ -103,7 +104,23 @@ public class ApplicationService {
 		// 지원 기간 검증 (시작 + 종료)
 		recruitmentService.validateRecruitmentPeriod(application.getGeneration());
 
-		application.submit();
+		// 지원한 파트의 질문 조회
+		List<Question> partQuestions = getRequiredQuestions(application);
+
+		application.submit(partQuestions);
 		applicationRepository.save(application);
+	}
+
+	private List<Question> getRequiredQuestions(Application application) {
+		// If applicationPartType is null (required field missing), return empty list
+		// This will allow submit() validation to throw REQUIRED_FIELD_MISSING error
+		if (application.getApplicationPartType() == null) {
+			throw new PresentationException(PresentationErrorCode.PART_TYPE_NOT_SELECTED);
+		}
+
+		QuestionType questionType = application.getApplicationPartType().toQuestionType();
+
+		return questionService.getQuestionsByGenerationAndQuestionType(
+				application.getGeneration(), questionType);
 	}
 }

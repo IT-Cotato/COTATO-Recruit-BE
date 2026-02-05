@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.cotato.backend.recruit.auth.dto.CustomUserDetails;
 import org.cotato.backend.recruit.auth.jwt.JwtTokenProvider;
 import org.cotato.backend.recruit.domain.application.entity.Application;
@@ -146,7 +147,7 @@ class StartApplicationApiTest extends IntegrationTestSupport {
 				false,
 				true,
 				ApplicationPartType.DE);
-		app.submit();
+		app.submit(List.of());
 		applicationRepository.saveAndFlush(app);
 
 		// when & then
