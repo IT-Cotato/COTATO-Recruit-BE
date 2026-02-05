@@ -4,13 +4,12 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import org.cotato.backend.recruit.domain.question.entity.Question;
 import org.cotato.backend.recruit.common.error.ErrorCode;
 import org.cotato.backend.recruit.common.exception.GlobalException;
 import org.cotato.backend.recruit.domain.application.entity.Application;
 import org.cotato.backend.recruit.domain.application.repository.ApplicationRepository;
 import org.cotato.backend.recruit.domain.generation.entity.Generation;
+import org.cotato.backend.recruit.domain.question.entity.Question;
 import org.cotato.backend.recruit.domain.question.enums.QuestionType;
 import org.cotato.backend.recruit.domain.user.entity.User;
 import org.cotato.backend.recruit.domain.user.repository.UserRepository;
@@ -113,10 +112,15 @@ public class ApplicationService {
 	}
 
 	private List<Question> getRequiredQuestions(Application application) {
+		// If applicationPartType is null (required field missing), return empty list
+		// This will allow submit() validation to throw REQUIRED_FIELD_MISSING error
+		if (application.getApplicationPartType() == null) {
+			throw new PresentationException(PresentationErrorCode.PART_TYPE_NOT_SELECTED);
+		}
+
 		QuestionType questionType = application.getApplicationPartType().toQuestionType();
 
 		return questionService.getQuestionsByGenerationAndQuestionType(
-				application.getGeneration(),
-				questionType);
+				application.getGeneration(), questionType);
 	}
 }
