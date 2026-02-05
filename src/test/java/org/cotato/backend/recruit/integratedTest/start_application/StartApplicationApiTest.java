@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.cotato.backend.recruit.auth.dto.CustomUserDetails;
 import org.cotato.backend.recruit.auth.jwt.JwtTokenProvider;
 import org.cotato.backend.recruit.domain.application.entity.Application;
@@ -41,15 +42,21 @@ import org.springframework.test.web.servlet.MockMvc;
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 class StartApplicationApiTest extends IntegrationTestSupport {
 
-	@Autowired private MockMvc mockMvc;
+	@Autowired
+	private MockMvc mockMvc;
 
-	@Autowired private UserRepository userRepository;
-	@Autowired private GenerationRepository generationRepository;
-	@Autowired private ApplicationRepository applicationRepository;
-	@Autowired private RecruitmentInformationRepository recruitmentInformationRepository;
+	@Autowired
+	private UserRepository userRepository;
+	@Autowired
+	private GenerationRepository generationRepository;
+	@Autowired
+	private ApplicationRepository applicationRepository;
+	@Autowired
+	private RecruitmentInformationRepository recruitmentInformationRepository;
 
 	// 필터 통과를 위해 Mock 처리
-	@MockitoBean private JwtTokenProvider jwtTokenProvider;
+	@MockitoBean
+	private JwtTokenProvider jwtTokenProvider;
 
 	@Test
 	@DisplayName("01. 현재 활성화 된 기수가 없으면 예외처리해야한다")
@@ -60,12 +67,12 @@ class StartApplicationApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-						mockMvc.perform(
-								post("/api/applications/start")
-										.contentType(MediaType.APPLICATION_JSON)
-										.with(
-												SecurityMockMvcRequestPostProcessors.authentication(
-														auth))))
+				mockMvc.perform(
+						post("/api/applications/start")
+								.contentType(MediaType.APPLICATION_JSON)
+								.with(
+										SecurityMockMvcRequestPostProcessors.authentication(
+												auth))))
 				.andDo(print())
 				.andExpect(status().isNotFound()) // 404
 				.andExpect(jsonPath("$.code").value("RE002"));
@@ -83,12 +90,12 @@ class StartApplicationApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-						mockMvc.perform(
-								post("/api/applications/start")
-										.contentType(MediaType.APPLICATION_JSON)
-										.with(
-												SecurityMockMvcRequestPostProcessors.authentication(
-														auth))))
+				mockMvc.perform(
+						post("/api/applications/start")
+								.contentType(MediaType.APPLICATION_JSON)
+								.with(
+										SecurityMockMvcRequestPostProcessors.authentication(
+												auth))))
 				.andDo(print())
 				.andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.code").value("AP007"));
@@ -106,12 +113,12 @@ class StartApplicationApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-						mockMvc.perform(
-								post("/api/applications/start")
-										.contentType(MediaType.APPLICATION_JSON)
-										.with(
-												SecurityMockMvcRequestPostProcessors.authentication(
-														auth))))
+				mockMvc.perform(
+						post("/api/applications/start")
+								.contentType(MediaType.APPLICATION_JSON)
+								.with(
+										SecurityMockMvcRequestPostProcessors.authentication(
+												auth))))
 				.andDo(print())
 				.andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.code").value("AP005"));
@@ -123,10 +130,9 @@ class StartApplicationApiTest extends IntegrationTestSupport {
 	void startApplication_AlreadySubmitted() throws Exception {
 		// given
 		var auth = setupMemberAndSyncAuth();
-		User userEntity =
-				userRepository
-						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
-						.orElseThrow();
+		User userEntity = userRepository
+				.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+				.orElseThrow();
 
 		Generation gen = createGeneration();
 		createRecruitmentPeriod(
@@ -146,17 +152,17 @@ class StartApplicationApiTest extends IntegrationTestSupport {
 				false,
 				true,
 				ApplicationPartType.DE);
-		app.submit();
+		app.submit(List.of());
 		applicationRepository.saveAndFlush(app);
 
 		// when & then
 		performAndLog(
-						mockMvc.perform(
-								post("/api/applications/start")
-										.contentType(MediaType.APPLICATION_JSON)
-										.with(
-												SecurityMockMvcRequestPostProcessors.authentication(
-														auth))))
+				mockMvc.perform(
+						post("/api/applications/start")
+								.contentType(MediaType.APPLICATION_JSON)
+								.with(
+										SecurityMockMvcRequestPostProcessors.authentication(
+												auth))))
 				.andDo(print())
 				.andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.code").value("AP002"));
@@ -168,10 +174,9 @@ class StartApplicationApiTest extends IntegrationTestSupport {
 	void startApplication_ReturnExisting() throws Exception {
 		// given
 		var auth = setupMemberAndSyncAuth();
-		User userEntity =
-				userRepository
-						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
-						.orElseThrow();
+		User userEntity = userRepository
+				.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+				.orElseThrow();
 		Generation gen = createGeneration();
 		createRecruitmentPeriod(
 				gen, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1));
@@ -182,12 +187,12 @@ class StartApplicationApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-						mockMvc.perform(
-								post("/api/applications/start")
-										.contentType(MediaType.APPLICATION_JSON)
-										.with(
-												SecurityMockMvcRequestPostProcessors.authentication(
-														auth))))
+				mockMvc.perform(
+						post("/api/applications/start")
+								.contentType(MediaType.APPLICATION_JSON)
+								.with(
+										SecurityMockMvcRequestPostProcessors.authentication(
+												auth))))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.code").value("SUCCESS"))
@@ -209,12 +214,12 @@ class StartApplicationApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-						mockMvc.perform(
-								post("/api/applications/start")
-										.contentType(MediaType.APPLICATION_JSON)
-										.with(
-												SecurityMockMvcRequestPostProcessors.authentication(
-														auth))))
+				mockMvc.perform(
+						post("/api/applications/start")
+								.contentType(MediaType.APPLICATION_JSON)
+								.with(
+										SecurityMockMvcRequestPostProcessors.authentication(
+												auth))))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.code").value("SUCCESS"))
@@ -229,16 +234,14 @@ class StartApplicationApiTest extends IntegrationTestSupport {
 	/** 멤버를 DB에 저장하고, 생성된 진짜 ID로 Authentication을 반환합니다. */
 	private UsernamePasswordAuthenticationToken setupMemberAndSyncAuth() {
 		// 1. 실제 DB 저장 (여기서 ID 자동 생성)
-		User user =
-				userRepository.saveAndFlush(
-						User.createGoogleUser("test@gmail.com", "testUser", "123456"));
+		User user = userRepository.saveAndFlush(
+				User.createGoogleUser("test@gmail.com", "testUser", "123456"));
 
 		// 2. CustomUserDetails 생성 (진짜 ID 주입)
-		CustomUserDetails userDetails =
-				new CustomUserDetails(
-						user.getId(),
-						user.getEmail(), // 혹은 username
-						User.Role.APPLICANT);
+		CustomUserDetails userDetails = new CustomUserDetails(
+				user.getId(),
+				user.getEmail(), // 혹은 username
+				User.Role.APPLICANT);
 
 		// 3. Auth Token 생성
 		return new UsernamePasswordAuthenticationToken(
@@ -246,12 +249,11 @@ class StartApplicationApiTest extends IntegrationTestSupport {
 	}
 
 	private Generation createGeneration() {
-		Generation newGeneration =
-				Generation.builder()
-						.id(1L)
-						.isRecruitingActive(true)
-						.isAdditionalRecruitmentActive(false)
-						.build();
+		Generation newGeneration = Generation.builder()
+				.id(1L)
+				.isRecruitingActive(true)
+				.isAdditionalRecruitmentActive(false)
+				.build();
 		return generationRepository.saveAndFlush(newGeneration);
 	}
 
