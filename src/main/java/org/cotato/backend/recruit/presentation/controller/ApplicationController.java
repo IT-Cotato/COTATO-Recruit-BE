@@ -10,7 +10,7 @@ import org.cotato.backend.recruit.common.annotation.MonitorFailure;
 import org.cotato.backend.recruit.common.response.ApiResponse;
 import org.cotato.backend.recruit.presentation.dto.request.EtcAnswersRequest;
 import org.cotato.backend.recruit.presentation.dto.request.PartAnswerRequest;
-import org.cotato.backend.recruit.presentation.dto.response.ApplicationStartResponse;
+import org.cotato.backend.recruit.presentation.dto.response.ApplicationSubmitStatusResponse;
 import org.cotato.backend.recruit.presentation.dto.response.EtcAnswerResponse;
 import org.cotato.backend.recruit.presentation.dto.response.PartQuestionResponse;
 import org.cotato.backend.recruit.presentation.service.ApplicationAnswerService;
@@ -34,10 +34,22 @@ public class ApplicationController {
 			description = "지원하기 버튼 클릭 시 호출됩니다. 이미 해당 기수에 지원서가 있으면 기존 지원서 ID 반환, 없으면 새로 생성합니다.")
 	@PostMapping("/start")
 	@MonitorFailure(apiName = "지원서 시작")
-	public ApiResponse<ApplicationStartResponse> startApplication(
+	public ApiResponse<Void> startApplication(
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails) {
-		ApplicationStartResponse response =
-				applicationService.startApplication(userDetails.getUserId());
+		applicationService.startApplication(userDetails.getUserId());
+		return ApiResponse.success();
+	}
+
+	@Operation(
+			summary = "지원서 상태 조회",
+			description =
+					"현재 활성 기수에 대한 지원서 상태를 조회합니다. 지원서가 없으면 null을 반환하고, 있으면 지원서 ID와 제출 여부를 반환합니다.")
+	@GetMapping("/status")
+	@MonitorFailure(apiName = "지원서 상태 조회")
+	public ApiResponse<ApplicationSubmitStatusResponse> getApplicationStatus(
+			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails) {
+		ApplicationSubmitStatusResponse response =
+				applicationService.getApplicationStatus(userDetails.getUserId());
 		return ApiResponse.success(response);
 	}
 

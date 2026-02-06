@@ -163,6 +163,26 @@ public class RecruitmentService {
 	}
 
 	/**
+	 * 지원 모집 종료 여부 확인 (예외 발생 없이 boolean 반환)
+	 *
+	 * @param generation 기수
+	 * @return 모집이 종료되었으면 true, 아니면 false
+	 */
+	public Boolean isRecruitmentEnded(Generation generation) {
+		RecruitmentInformation recruitmentEnd =
+				recruitmentInformationRepository
+						.findByGenerationAndInformationType(
+								generation, InformationType.RECRUITMENT_END)
+						.orElseThrow(
+								() ->
+										new PresentationException(
+												PresentationErrorCode.RECRUITMENT_INFO_NOT_FOUND));
+
+		LocalDateTime now = LocalDateTime.now();
+		return now.isAfter(recruitmentEnd.getEventDatetime());
+	}
+
+	/**
 	 * 지원 기간 전체 검증 (시작 + 종료)
 	 *
 	 * @param generation 기수

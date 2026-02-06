@@ -13,7 +13,7 @@ import org.cotato.backend.recruit.domain.question.entity.Question;
 import org.cotato.backend.recruit.domain.question.enums.QuestionType;
 import org.cotato.backend.recruit.domain.user.entity.User;
 import org.cotato.backend.recruit.domain.user.repository.UserRepository;
-import org.cotato.backend.recruit.presentation.dto.response.ApplicationStartResponse;
+import org.cotato.backend.recruit.presentation.dto.response.ApplicationSubmitStatusResponse;
 import org.cotato.backend.recruit.presentation.error.PresentationErrorCode;
 import org.cotato.backend.recruit.presentation.exception.PresentationException;
 import org.springframework.stereotype.Service;
@@ -54,10 +54,9 @@ public class ApplicationService {
 	 * 지원서 시작 (지원하기 버튼 클릭) 이미 해당 기수에 지원서가 있으면 기존 지원서 반환, 없으면 새로 생성
 	 *
 	 * @param userId 사용자 ID
-	 * @return 지원서 시작 응답 (지원서 ID, 신규 생성 여부)
 	 */
 	@Transactional
-	public ApplicationStartResponse startApplication(Long userId) {
+	public void startApplication(Long userId) {
 		User user = userRepository
 				.findById(userId)
 				.orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
@@ -73,22 +72,45 @@ public class ApplicationService {
 				activeGeneration);
 
 		if (existingApplication.isPresent()) {
-			// 기존 지원서가 있으면 해당 ID와 제출 여부 반환
-			Application application = existingApplication.get();
-
-			// 이미 제출한 경우 예외 발생
-			if (application.getIsSubmitted()) {
+			if (existingApplication.get().getIsSubmitted()) {
 				throw new PresentationException(PresentationErrorCode.ALREADY_SUBMITTED);
 			}
-
-			return ApplicationStartResponse.from(application);
+			return;
 		}
 
 		// 지원서가 없으면 새로 생성
 		Application newApplication = Application.createNew(user, activeGeneration);
-		Application savedApplication = applicationRepository.save(newApplication);
+		applicationRepository.save(newApplication);
+	}
 
-		return ApplicationStartResponse.from(savedApplication);
+	/**
+	 * 지원서 상태 조회
+	 *
+	 * @param userId 사용자 ID
+	 * @return 지원서 상태 응답 (지원서 ID, 제출 여부, 모집 종료 여부)
+	 */
+	public ApplicationSubmitStatusResponse getApplicationStatus(Long userId) {
+		User user = userRepository
+				.findById(userId)
+				.orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+
+		// 현재 모집 중인 기수 조회
+		Generation activeGeneration = generationService.getActiveGeneration();
+
+		// 모집 종료 여부 확인
+		Boolean isEnd = recruitmentService.isRecruitmentEnded(activeGeneration);
+
+		// 이미 해당 기수에 지원서가 있는지 확인
+		Optional<Application> existingApplication = applicationRepository.findByUserAndGeneration(user,
+				activeGeneration);
+
+		if (existingApplication.isEmpty()) {
+			// 지원서가 없으면 null 반환
+			return ApplicationSubmitStatusResponse.noApplication(isEnd);
+		}
+
+		// 지원서가 있으면 ID와 제출 여부 반환
+		return ApplicationSubmitStatusResponse.from(existingApplication.get(), isEnd);
 	}
 
 	/**
@@ -112,8 +134,7 @@ public class ApplicationService {
 	}
 
 	private List<Question> getRequiredQuestions(Application application) {
-		// If applicationPartType is null (required field missing), return empty list
-		// This will allow submit() validation to throw REQUIRED_FIELD_MISSING error
+
 		if (application.getApplicationPartType() == null) {
 			throw new PresentationException(PresentationErrorCode.PART_TYPE_NOT_SELECTED);
 		}
