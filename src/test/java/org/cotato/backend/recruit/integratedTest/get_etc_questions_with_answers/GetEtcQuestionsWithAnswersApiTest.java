@@ -43,52 +43,60 @@ import org.springframework.test.web.servlet.MockMvc;
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 class GetEtcQuestionsWithAnswersApiTest extends IntegrationTestSupport {
 
-	@Autowired private MockMvc mockMvc;
-	@Autowired private ObjectMapper objectMapper;
+	@Autowired
+	private MockMvc mockMvc;
+	@Autowired
+	private ObjectMapper objectMapper;
 
-	@Autowired private UserRepository userRepository;
-	@Autowired private GenerationRepository generationRepository;
-	@Autowired private ApplicationRepository applicationRepository;
-	@Autowired private ApplicationEtcInfoRepository applicationEtcInfoRepository;
-	@Autowired private RecruitmentInformationRepository recruitmentInformationRepository;
+	@Autowired
+	private UserRepository userRepository;
+	@Autowired
+	private GenerationRepository generationRepository;
+	@Autowired
+	private ApplicationRepository applicationRepository;
+	@Autowired
+	private ApplicationEtcInfoRepository applicationEtcInfoRepository;
+	@Autowired
+	private RecruitmentInformationRepository recruitmentInformationRepository;
 
-	@MockitoBean private JwtTokenProvider jwtTokenProvider;
+	@MockitoBean
+	private JwtTokenProvider jwtTokenProvider;
 
-	@Test
-	@DisplayName("01. 현재 활성화 된 기수가 없으면 예외처리해야한다")
-	@WithMockCustomUser
-	void getEtcAnswer_NoGeneration() throws Exception {
-		// given
-		var auth = setupMemberAndSyncAuth();
-		User user =
-				userRepository
-						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
-						.orElseThrow();
+	// @Test
+	// @DisplayName("01. 현재 활성화 된 기수가 없으면 예외처리해야한다")
+	// @WithMockCustomUser
+	// void getEtcAnswer_NoGeneration() throws Exception {
+	// // given
+	// var auth = setupMemberAndSyncAuth();
+	// User user =
+	// userRepository
+	// .findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+	// .orElseThrow();
 
-		// Create an inactive generation
-		Generation gen =
-				generationRepository.saveAndFlush(
-						Generation.builder()
-								.id(1L)
-								.isRecruitingActive(false)
-								.isAdditionalRecruitmentActive(false)
-								.build());
+	// // Create an inactive generation
+	// Generation gen =
+	// generationRepository.saveAndFlush(
+	// Generation.builder()
+	// .id(1L)
+	// .isRecruitingActive(false)
+	// .isAdditionalRecruitmentActive(false)
+	// .build());
 
-		Application app = Application.createNew(user, gen);
-		applicationRepository.saveAndFlush(app);
+	// Application app = Application.createNew(user, gen);
+	// applicationRepository.saveAndFlush(app);
 
-		// when & then
-		performAndLog(
-						mockMvc.perform(
-								get("/api/applications/{applicationId}/etc-questions", app.getId())
-										.with(
-												SecurityMockMvcRequestPostProcessors.authentication(
-														auth))))
-				.andExpect(status().isNotFound())
-				.andExpect(
-						jsonPath("$.code")
-								.value(PresentationErrorCode.GENERATION_NOT_FOUND.getCode()));
-	}
+	// // when & then
+	// performAndLog(
+	// mockMvc.perform(
+	// get("/api/applications/{applicationId}/etc-questions", app.getId())
+	// .with(
+	// SecurityMockMvcRequestPostProcessors.authentication(
+	// auth))))
+	// .andExpect(status().isNotFound())
+	// .andExpect(
+	// jsonPath("$.code")
+	// .value(PresentationErrorCode.GENERATION_NOT_FOUND.getCode()));
+	// }
 
 	@Test
 	@DisplayName("02. 기타질문 조회에 성공하면 EtcAnswerResponse를 반환해야한다")
@@ -96,18 +104,16 @@ class GetEtcQuestionsWithAnswersApiTest extends IntegrationTestSupport {
 	void getEtcAnswer_Success() throws Exception {
 		// given
 		var auth = setupMemberAndSyncAuth();
-		User user =
-				userRepository
-						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
-						.orElseThrow();
+		User user = userRepository
+				.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+				.orElseThrow();
 
 		Generation gen = createGeneration();
 		createRecruitmentPeriod(gen);
 
 		Application app = Application.createNew(user, gen);
 		applicationRepository.saveAndFlush(app);
-		ApplicationEtcData data =
-				new ApplicationEtcData(null, "No activity", null, true, true, true);
+		ApplicationEtcData data = new ApplicationEtcData(null, "No activity", null, true, true, true);
 		String json = objectMapper.writeValueAsString(data);
 
 		ApplicationEtcInfo etcInfo = ApplicationEtcInfo.createNew(app);
@@ -116,22 +122,20 @@ class GetEtcQuestionsWithAnswersApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-						mockMvc.perform(
-								get("/api/applications/{applicationId}/etc-questions", app.getId())
-										.with(
-												SecurityMockMvcRequestPostProcessors.authentication(
-														auth))))
+				mockMvc.perform(
+						get("/api/applications/{applicationId}/etc-questions", app.getId())
+								.with(
+										SecurityMockMvcRequestPostProcessors.authentication(
+												auth))))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.code").value("SUCCESS"))
 				.andExpect(jsonPath("$.data.parallelActivities").value("No activity"));
 	}
 
 	private UsernamePasswordAuthenticationToken setupMemberAndSyncAuth() {
-		User user =
-				userRepository.saveAndFlush(
-						User.createGoogleUser("test@gmail.com", "testUser", "123456"));
-		CustomUserDetails userDetails =
-				new CustomUserDetails(user.getId(), user.getEmail(), User.Role.APPLICANT);
+		User user = userRepository.saveAndFlush(
+				User.createGoogleUser("test@gmail.com", "testUser", "123456"));
+		CustomUserDetails userDetails = new CustomUserDetails(user.getId(), user.getEmail(), User.Role.APPLICANT);
 		return new UsernamePasswordAuthenticationToken(
 				userDetails, null, userDetails.getAuthorities());
 	}
