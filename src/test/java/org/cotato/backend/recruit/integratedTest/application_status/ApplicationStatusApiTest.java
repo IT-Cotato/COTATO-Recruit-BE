@@ -42,21 +42,15 @@ import org.springframework.test.web.servlet.MockMvc;
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 class ApplicationStatusApiTest extends IntegrationTestSupport {
 
-	@Autowired
-	private MockMvc mockMvc;
+	@Autowired private MockMvc mockMvc;
 
-	@Autowired
-	private UserRepository userRepository;
-	@Autowired
-	private GenerationRepository generationRepository;
-	@Autowired
-	private ApplicationRepository applicationRepository;
-	@Autowired
-	private RecruitmentInformationRepository recruitmentInformationRepository;
+	@Autowired private UserRepository userRepository;
+	@Autowired private GenerationRepository generationRepository;
+	@Autowired private ApplicationRepository applicationRepository;
+	@Autowired private RecruitmentInformationRepository recruitmentInformationRepository;
 
 	// 필터 통과를 위해 Mock 처리
-	@MockitoBean
-	private JwtTokenProvider jwtTokenProvider;
+	@MockitoBean private JwtTokenProvider jwtTokenProvider;
 
 	@Test
 	@DisplayName("01. 활성 기수가 없으면 예외처리해야한다")
@@ -67,19 +61,20 @@ class ApplicationStatusApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-				mockMvc.perform(
-						get("/api/applications/status")
-								.contentType(MediaType.APPLICATION_JSON)
-								.with(
-										SecurityMockMvcRequestPostProcessors.authentication(
-												auth))))
+						mockMvc.perform(
+								get("/api/applications/status")
+										.contentType(MediaType.APPLICATION_JSON)
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
 				.andDo(print())
 				.andExpect(status().isNotFound())
 				.andExpect(jsonPath("$.code").value("GE001"));
 	}
 
 	@Test
-	@DisplayName("02. 지원서가 없고 모집이 종료된 경우 applicationId는 null, isSubmitted는 false, isEnd는 true를 반환해야한다")
+	@DisplayName(
+			"02. 지원서가 없고 모집이 종료된 경우 applicationId는 null, isSubmitted는 false, isEnd는 true를 반환해야한다")
 	@WithMockCustomUser
 	void getApplicationStatus_NoApplication_RecruitmentEnded() throws Exception {
 		// given
@@ -90,12 +85,12 @@ class ApplicationStatusApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-				mockMvc.perform(
-						get("/api/applications/status")
-								.contentType(MediaType.APPLICATION_JSON)
-								.with(
-										SecurityMockMvcRequestPostProcessors.authentication(
-												auth))))
+						mockMvc.perform(
+								get("/api/applications/status")
+										.contentType(MediaType.APPLICATION_JSON)
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.code").value("SUCCESS"))
@@ -116,12 +111,12 @@ class ApplicationStatusApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-				mockMvc.perform(
-						get("/api/applications/status")
-								.contentType(MediaType.APPLICATION_JSON)
-								.with(
-										SecurityMockMvcRequestPostProcessors.authentication(
-												auth))))
+						mockMvc.perform(
+								get("/api/applications/status")
+										.contentType(MediaType.APPLICATION_JSON)
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.code").value("SUCCESS"))
@@ -131,14 +126,16 @@ class ApplicationStatusApiTest extends IntegrationTestSupport {
 	}
 
 	@Test
-	@DisplayName("04. 작성 중인 지원서가 있고 모집 기간이 남은 경우 applicationId와 isSubmitted=false, isEnd=false를 반환해야한다")
+	@DisplayName(
+			"04. 작성 중인 지원서가 있고 모집 기간이 남은 경우 applicationId와 isSubmitted=false, isEnd=false를 반환해야한다")
 	@WithMockCustomUser
 	void getApplicationStatus_InProgress() throws Exception {
 		// given
 		var auth = setupMemberAndSyncAuth();
-		User userEntity = userRepository
-				.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
-				.orElseThrow();
+		User userEntity =
+				userRepository
+						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+						.orElseThrow();
 		Generation gen = createGeneration();
 		createRecruitmentPeriod(
 				gen, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(10));
@@ -149,12 +146,12 @@ class ApplicationStatusApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-				mockMvc.perform(
-						get("/api/applications/status")
-								.contentType(MediaType.APPLICATION_JSON)
-								.with(
-										SecurityMockMvcRequestPostProcessors.authentication(
-												auth))))
+						mockMvc.perform(
+								get("/api/applications/status")
+										.contentType(MediaType.APPLICATION_JSON)
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.code").value("SUCCESS"))
@@ -164,14 +161,16 @@ class ApplicationStatusApiTest extends IntegrationTestSupport {
 	}
 
 	@Test
-	@DisplayName("05. 제출 완료된 지원서가 있고 모집이 종료된 경우 applicationId와 isSubmitted=true, isEnd=true를 반환해야한다")
+	@DisplayName(
+			"05. 제출 완료된 지원서가 있고 모집이 종료된 경우 applicationId와 isSubmitted=true, isEnd=true를 반환해야한다")
 	@WithMockCustomUser
 	void getApplicationStatus_Submitted() throws Exception {
 		// given
 		var auth = setupMemberAndSyncAuth();
-		User userEntity = userRepository
-				.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
-				.orElseThrow();
+		User userEntity =
+				userRepository
+						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+						.orElseThrow();
 		Generation gen = createGeneration();
 		createRecruitmentPeriod(
 				gen, LocalDateTime.now().minusDays(10), LocalDateTime.now().minusDays(1));
@@ -194,12 +193,12 @@ class ApplicationStatusApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-				mockMvc.perform(
-						get("/api/applications/status")
-								.contentType(MediaType.APPLICATION_JSON)
-								.with(
-										SecurityMockMvcRequestPostProcessors.authentication(
-												auth))))
+						mockMvc.perform(
+								get("/api/applications/status")
+										.contentType(MediaType.APPLICATION_JSON)
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.code").value("SUCCESS"))
@@ -215,14 +214,16 @@ class ApplicationStatusApiTest extends IntegrationTestSupport {
 	/** 멤버를 DB에 저장하고, 생성된 진짜 ID로 Authentication을 반환합니다. */
 	private UsernamePasswordAuthenticationToken setupMemberAndSyncAuth() {
 		// 1. 실제 DB 저장 (여기서 ID 자동 생성)
-		User user = userRepository.saveAndFlush(
-				User.createGoogleUser("test@gmail.com", "testUser", "123456"));
+		User user =
+				userRepository.saveAndFlush(
+						User.createGoogleUser("test@gmail.com", "testUser", "123456"));
 
 		// 2. CustomUserDetails 생성 (진짜 ID 주입)
-		CustomUserDetails userDetails = new CustomUserDetails(
-				user.getId(),
-				user.getEmail(), // 혹은 username
-				User.Role.APPLICANT);
+		CustomUserDetails userDetails =
+				new CustomUserDetails(
+						user.getId(),
+						user.getEmail(), // 혹은 username
+						User.Role.APPLICANT);
 
 		// 3. Auth Token 생성
 		return new UsernamePasswordAuthenticationToken(
@@ -230,11 +231,12 @@ class ApplicationStatusApiTest extends IntegrationTestSupport {
 	}
 
 	private Generation createGeneration() {
-		Generation newGeneration = Generation.builder()
-				.id(1L)
-				.isRecruitingActive(true)
-				.isAdditionalRecruitmentActive(false)
-				.build();
+		Generation newGeneration =
+				Generation.builder()
+						.id(1L)
+						.isRecruitingActive(true)
+						.isAdditionalRecruitmentActive(false)
+						.build();
 		return generationRepository.saveAndFlush(newGeneration);
 	}
 
