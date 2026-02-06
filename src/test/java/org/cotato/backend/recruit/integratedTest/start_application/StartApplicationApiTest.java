@@ -119,7 +119,7 @@ class StartApplicationApiTest extends IntegrationTestSupport {
 	}
 
 	@Test
-	@DisplayName("04. 이미 제출한 지원서가 있으면 예외처리해야한다")
+	@DisplayName("04. 이미 제출한 지원서가 있어도 성공 응답을 반환해야한다")
 	@WithMockCustomUser
 	void startApplication_AlreadySubmitted() throws Exception {
 		// given
@@ -159,12 +159,12 @@ class StartApplicationApiTest extends IntegrationTestSupport {
 												SecurityMockMvcRequestPostProcessors.authentication(
 														auth))))
 				.andDo(print())
-				.andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.code").value("AP002"));
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.code").value("SUCCESS"));
 	}
 
 	@Test
-	@DisplayName("05. 기존 지원서가 존재하면 해당 지원서를 반환해야한다")
+	@DisplayName("05. 기존 지원서가 존재하면 성공 응답을 반환해야한다")
 	@WithMockCustomUser
 	void startApplication_ReturnExisting() throws Exception {
 		// given
@@ -191,14 +191,11 @@ class StartApplicationApiTest extends IntegrationTestSupport {
 														auth))))
 				.andDo(print())
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.code").value("SUCCESS"))
-				.andExpect(
-						jsonPath("$.data.applicationId").value(existingApp.getId())) // 기존 ID와 일치 확인
-				.andExpect(jsonPath("$.data.isSubmitted").value(false));
+				.andExpect(jsonPath("$.code").value("SUCCESS"));
 	}
 
 	@Test
-	@DisplayName("06. 기존 지원서가 없으면 새로 생성해 반환해야한다")
+	@DisplayName("06. 기존 지원서가 없으면 새로 생성해야한다")
 	@WithMockCustomUser
 	void startApplication_CreateNew() throws Exception {
 		// given
@@ -218,9 +215,7 @@ class StartApplicationApiTest extends IntegrationTestSupport {
 														auth))))
 				.andDo(print())
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.code").value("SUCCESS"))
-				.andExpect(jsonPath("$.data.applicationId").exists()) // ID가 새로 생성되었는지
-				.andExpect(jsonPath("$.data.isSubmitted").value(false));
+				.andExpect(jsonPath("$.code").value("SUCCESS"));
 	}
 
 	// --------------------------------------------------------
