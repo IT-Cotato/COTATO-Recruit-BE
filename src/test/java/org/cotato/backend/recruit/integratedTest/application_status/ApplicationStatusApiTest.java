@@ -207,6 +207,88 @@ class ApplicationStatusApiTest extends IntegrationTestSupport {
 				.andExpect(jsonPath("$.data.isEnd").value(true));
 	}
 
+	@Test
+	@DisplayName(
+			"06. 작성 중인 지원서가 있고 모집이 종료된 경우 applicationId와 isSubmitted=false, isEnd=true를 반환해야한다")
+	@WithMockCustomUser
+	void getApplicationStatus_InProgress_RecruitmentEnded() throws Exception {
+		// given
+		var auth = setupMemberAndSyncAuth();
+		User userEntity =
+				userRepository
+						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+						.orElseThrow();
+		Generation gen = createGeneration();
+		createRecruitmentPeriod(
+				gen, LocalDateTime.now().minusDays(10), LocalDateTime.now().minusDays(1));
+
+		// 작성 중 상태의 지원서 저장 (제출하지 않음)
+		Application app = Application.createNew(userEntity, gen);
+		applicationRepository.saveAndFlush(app);
+
+		// when & then
+		performAndLog(
+						mockMvc.perform(
+								get("/api/applications/status")
+										.contentType(MediaType.APPLICATION_JSON)
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.code").value("SUCCESS"))
+				.andExpect(jsonPath("$.data.applicationId").value(app.getId()))
+				.andExpect(jsonPath("$.data.isSubmitted").value(false))
+				.andExpect(jsonPath("$.data.isEnd").value(true));
+	}
+
+	@Test
+	@DisplayName(
+			"07. 제출 완료된 지원서가 있고 모집이 진행 중인 경우 applicationId와 isSubmitted=true, isEnd=false를 반환해야한다")
+	@WithMockCustomUser
+	void getApplicationStatus_Submitted_RecruitmentOngoing() throws Exception {
+		// given
+		var auth = setupMemberAndSyncAuth();
+		User userEntity =
+				userRepository
+						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+						.orElseThrow();
+		Generation gen = createGeneration();
+		createRecruitmentPeriod(
+				gen, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(10));
+
+		// 제출 완료 상태의 지원서 저장
+		Application app = Application.createNew(userEntity, gen);
+		app.updateBasicInfo(
+				"test",
+				"MALE",
+				LocalDate.of(2000, 1, 1),
+				"010-0000-0000",
+				"Univ",
+				"Major",
+				1,
+				false,
+				true,
+				ApplicationPartType.DE);
+		app.submit(List.of());
+		applicationRepository.saveAndFlush(app);
+
+		// when & then
+		performAndLog(
+						mockMvc.perform(
+								get("/api/applications/status")
+										.contentType(MediaType.APPLICATION_JSON)
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.code").value("SUCCESS"))
+				.andExpect(jsonPath("$.data.applicationId").value(app.getId()))
+				.andExpect(jsonPath("$.data.isSubmitted").value(true))
+				.andExpect(jsonPath("$.data.isEnd").value(false));
+	}
+
 	// --------------------------------------------------------
 	// Helper Methods
 	// --------------------------------------------------------
