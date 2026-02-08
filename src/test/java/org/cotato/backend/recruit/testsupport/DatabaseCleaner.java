@@ -12,25 +12,26 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class DatabaseCleaner implements InitializingBean {
 
-	@PersistenceContext
-	private EntityManager entityManager;
+	@PersistenceContext private EntityManager entityManager;
 
 	private List<String> tableNames;
 
 	@Override
 	public void afterPropertiesSet() {
 		// JPA 메타모델을 이용해 모든 테이블 이름을 추출
-		tableNames = entityManager.getMetamodel().getEntities().stream()
-				.filter(e -> e.getJavaType().getAnnotation(Table.class) != null)
-				.map(
-						e -> {
-							// @Table 어노테이션에서 name 속성을 가져오거나, 없으면 엔티티 이름을 스네이크 케이스로 변환
-							String tableName = e.getJavaType().getAnnotation(Table.class).name();
-							return tableName.isEmpty()
-									? camelToSnake(e.getName())
-									: tableName;
-						})
-				.collect(Collectors.toList());
+		tableNames =
+				entityManager.getMetamodel().getEntities().stream()
+						.filter(e -> e.getJavaType().getAnnotation(Table.class) != null)
+						.map(
+								e -> {
+									// @Table 어노테이션에서 name 속성을 가져오거나, 없으면 엔티티 이름을 스네이크 케이스로 변환
+									String tableName =
+											e.getJavaType().getAnnotation(Table.class).name();
+									return tableName.isEmpty()
+											? camelToSnake(e.getName())
+											: tableName;
+								})
+						.collect(Collectors.toList());
 	}
 
 	@Transactional

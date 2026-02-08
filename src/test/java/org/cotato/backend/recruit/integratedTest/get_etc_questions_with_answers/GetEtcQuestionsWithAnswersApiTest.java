@@ -21,7 +21,6 @@ import org.cotato.backend.recruit.domain.recruitmentInformation.repository.Recru
 import org.cotato.backend.recruit.domain.user.entity.User;
 import org.cotato.backend.recruit.domain.user.repository.UserRepository;
 import org.cotato.backend.recruit.excelReport.TestReportManager;
-import org.cotato.backend.recruit.presentation.error.PresentationErrorCode;
 import org.cotato.backend.recruit.testsupport.ApiMetadata;
 import org.cotato.backend.recruit.testsupport.IntegrationTestSupport;
 import org.cotato.backend.recruit.testsupport.WithMockCustomUser;
@@ -43,24 +42,16 @@ import org.springframework.test.web.servlet.MockMvc;
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 class GetEtcQuestionsWithAnswersApiTest extends IntegrationTestSupport {
 
-	@Autowired
-	private MockMvc mockMvc;
-	@Autowired
-	private ObjectMapper objectMapper;
+	@Autowired private MockMvc mockMvc;
+	@Autowired private ObjectMapper objectMapper;
 
-	@Autowired
-	private UserRepository userRepository;
-	@Autowired
-	private GenerationRepository generationRepository;
-	@Autowired
-	private ApplicationRepository applicationRepository;
-	@Autowired
-	private ApplicationEtcInfoRepository applicationEtcInfoRepository;
-	@Autowired
-	private RecruitmentInformationRepository recruitmentInformationRepository;
+	@Autowired private UserRepository userRepository;
+	@Autowired private GenerationRepository generationRepository;
+	@Autowired private ApplicationRepository applicationRepository;
+	@Autowired private ApplicationEtcInfoRepository applicationEtcInfoRepository;
+	@Autowired private RecruitmentInformationRepository recruitmentInformationRepository;
 
-	@MockitoBean
-	private JwtTokenProvider jwtTokenProvider;
+	@MockitoBean private JwtTokenProvider jwtTokenProvider;
 
 	// @Test
 	// @DisplayName("01. 현재 활성화 된 기수가 없으면 예외처리해야한다")
@@ -104,16 +95,18 @@ class GetEtcQuestionsWithAnswersApiTest extends IntegrationTestSupport {
 	void getEtcAnswer_Success() throws Exception {
 		// given
 		var auth = setupMemberAndSyncAuth();
-		User user = userRepository
-				.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
-				.orElseThrow();
+		User user =
+				userRepository
+						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+						.orElseThrow();
 
 		Generation gen = createGeneration();
 		createRecruitmentPeriod(gen);
 
 		Application app = Application.createNew(user, gen);
 		applicationRepository.saveAndFlush(app);
-		ApplicationEtcData data = new ApplicationEtcData(null, "No activity", null, true, true, true);
+		ApplicationEtcData data =
+				new ApplicationEtcData(null, "No activity", null, true, true, true);
 		String json = objectMapper.writeValueAsString(data);
 
 		ApplicationEtcInfo etcInfo = ApplicationEtcInfo.createNew(app);
@@ -122,20 +115,22 @@ class GetEtcQuestionsWithAnswersApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-				mockMvc.perform(
-						get("/api/applications/{applicationId}/etc-questions", app.getId())
-								.with(
-										SecurityMockMvcRequestPostProcessors.authentication(
-												auth))))
+						mockMvc.perform(
+								get("/api/applications/{applicationId}/etc-questions", app.getId())
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.code").value("SUCCESS"))
 				.andExpect(jsonPath("$.data.parallelActivities").value("No activity"));
 	}
 
 	private UsernamePasswordAuthenticationToken setupMemberAndSyncAuth() {
-		User user = userRepository.saveAndFlush(
-				User.createGoogleUser("test@gmail.com", "testUser", "123456"));
-		CustomUserDetails userDetails = new CustomUserDetails(user.getId(), user.getEmail(), User.Role.APPLICANT);
+		User user =
+				userRepository.saveAndFlush(
+						User.createGoogleUser("test@gmail.com", "testUser", "123456"));
+		CustomUserDetails userDetails =
+				new CustomUserDetails(user.getId(), user.getEmail(), User.Role.APPLICANT);
 		return new UsernamePasswordAuthenticationToken(
 				userDetails, null, userDetails.getAuthorities());
 	}
