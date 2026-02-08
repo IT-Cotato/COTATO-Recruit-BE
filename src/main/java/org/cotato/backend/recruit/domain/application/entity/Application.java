@@ -96,7 +96,11 @@ public class Application {
 	@Column(name = "pdf_file_url", columnDefinition = "TEXT")
 	private String pdfFileUrl;
 
-	@OneToMany(mappedBy = "application", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(
+			mappedBy = "application",
+			fetch = FetchType.LAZY,
+			cascade = CascadeType.ALL,
+			orphanRemoval = true)
 	private List<ApplicationAnswer> applicationAnswers = new ArrayList<>();
 
 	// 정적 팩토리 메서드 - 새 지원서 생성
@@ -186,12 +190,14 @@ public class Application {
 		// 검증할 질문들만 남겨둠
 		List<Question> questionsToValidate = excludePortfolioQuestions(partQuestions);
 
-		Set<Long> answeredQuestionIds = this.applicationAnswers.stream()
-				.map(answer -> answer.getQuestion().getId())
-				.collect(Collectors.toSet());
+		Set<Long> answeredQuestionIds =
+				this.applicationAnswers.stream()
+						.map(answer -> answer.getQuestion().getId())
+						.collect(Collectors.toSet());
 
 		// 필수 질문 중 하나라도 답변 ID 목록에 없다면 예외 발생
-		boolean allAnswered = questionsToValidate.stream().allMatch(q -> answeredQuestionIds.contains(q.getId()));
+		boolean allAnswered =
+				questionsToValidate.stream().allMatch(q -> answeredQuestionIds.contains(q.getId()));
 
 		if (!allAnswered) {
 			throw new PresentationException(PresentationErrorCode.NOT_ALL_QUESTIONS_ANSWERED);
@@ -207,10 +213,11 @@ public class Application {
 				.flatMap(
 						questionsByType -> {
 							// 각 파트별 최대 sequence를 가진 질문 제외
-							int maxSequence = questionsByType.stream()
-									.mapToInt(Question::getSequence)
-									.max()
-									.orElse(-1);
+							int maxSequence =
+									questionsByType.stream()
+											.mapToInt(Question::getSequence)
+											.max()
+											.orElse(-1);
 							return questionsByType.stream()
 									.filter(q -> q.getSequence() != maxSequence);
 						})

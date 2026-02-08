@@ -14,5 +14,4 @@ public record BasicInfoRequest(
 		Integer completedSemesters,
 		Boolean isPrevActivity,
 		Boolean isEnrolled,
-		ApplicationPartType applicationPartType) {
-}
+		ApplicationPartType applicationPartType) {}

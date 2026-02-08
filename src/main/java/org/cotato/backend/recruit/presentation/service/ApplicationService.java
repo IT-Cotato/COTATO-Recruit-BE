@@ -35,15 +35,17 @@ public class ApplicationService {
 	 * 지원서 권한 확인 및 조회
 	 *
 	 * @param applicationId 지원서 ID
-	 * @param userId        사용자 ID
+	 * @param userId 사용자 ID
 	 * @return 지원서
 	 */
 	public Application getApplicationWithAuth(Long applicationId, Long userId) {
-		Application application = applicationRepository
-				.findById(applicationId)
-				.orElseThrow(
-						() -> new PresentationException(
-								PresentationErrorCode.APPLICATION_NOT_FOUND));
+		Application application =
+				applicationRepository
+						.findById(applicationId)
+						.orElseThrow(
+								() ->
+										new PresentationException(
+												PresentationErrorCode.APPLICATION_NOT_FOUND));
 
 		application.validateUser(userId);
 
@@ -57,9 +59,10 @@ public class ApplicationService {
 	 */
 	@Transactional
 	public void startApplication(Long userId) {
-		User user = userRepository
-				.findById(userId)
-				.orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+		User user =
+				userRepository
+						.findById(userId)
+						.orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
 
 		// 현재 모집 중인 기수 조회
 		Generation activeGeneration = generationService.getActiveGeneration();
@@ -68,8 +71,8 @@ public class ApplicationService {
 		recruitmentService.validateRecruitmentPeriod(activeGeneration);
 
 		// 이미 해당 기수에 지원서가 있는지 확인
-		Optional<Application> existingApplication = applicationRepository.findByUserAndGeneration(user,
-				activeGeneration);
+		Optional<Application> existingApplication =
+				applicationRepository.findByUserAndGeneration(user, activeGeneration);
 
 		if (existingApplication.isPresent()) {
 			if (existingApplication.get().getIsSubmitted()) {
@@ -90,9 +93,10 @@ public class ApplicationService {
 	 * @return 지원서 상태 응답 (지원서 ID, 제출 여부, 모집 종료 여부)
 	 */
 	public ApplicationSubmitStatusResponse getApplicationStatus(Long userId) {
-		User user = userRepository
-				.findById(userId)
-				.orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+		User user =
+				userRepository
+						.findById(userId)
+						.orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
 
 		// 현재 모집 중인 기수 조회
 		Generation activeGeneration = generationService.getActiveGeneration();
@@ -101,8 +105,8 @@ public class ApplicationService {
 		Boolean isEnd = recruitmentService.isRecruitmentEnded(activeGeneration);
 
 		// 이미 해당 기수에 지원서가 있는지 확인
-		Optional<Application> existingApplication = applicationRepository.findByUserAndGeneration(user,
-				activeGeneration);
+		Optional<Application> existingApplication =
+				applicationRepository.findByUserAndGeneration(user, activeGeneration);
 
 		if (existingApplication.isEmpty()) {
 			// 지원서가 없으면 null 반환
@@ -116,7 +120,7 @@ public class ApplicationService {
 	/**
 	 * 지원서 최종 제출
 	 *
-	 * @param userId        사용자 ID
+	 * @param userId 사용자 ID
 	 * @param applicationId 지원서 ID
 	 */
 	@Transactional
