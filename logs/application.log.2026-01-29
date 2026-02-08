@@ -1,6 +1,0 @@
-2026-01-29 00:55:28.311 [SpringApplicationShutdownHook] INFO  o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
-2026-01-29 00:55:28.320 [tomcat-shutdown] INFO  o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
-2026-01-29 00:55:28.450 [SpringApplicationShutdownHook] INFO  o.c.b.recruit.common.config.S3Config - S3Presigner 리소스가 정리되었습니다.
-2026-01-29 00:55:28.454 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
-2026-01-29 00:55:28.457 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
-2026-01-29 00:55:28.459 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
