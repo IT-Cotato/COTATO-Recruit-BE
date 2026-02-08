@@ -47,14 +47,11 @@ jobs:
         id: check_tag
         run: |
           if git rev-parse ${{ steps.version.outputs.tag_name }} >/dev/null 2>&1; then
-            echo "[INFO] Tag ${{ steps.version.outputs.tag_name }} already exists, skipping creation"
-            echo "tag_exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "tag_exists=false" >> $GITHUB_OUTPUT
+            echo "[ERROR] Tag ${{ steps.version.outputs.tag_name }} already exists"
+            exit 1
           fi
 
       - name: Create and push tag
-        if: steps.check_tag.outputs.tag_exists == 'false'
         run: |
           git tag -a ${{ steps.version.outputs.tag_name }} -m "Release ${{ steps.version.outputs.version }}"
           git push origin ${{ steps.version.outputs.tag_name }}
@@ -89,7 +86,6 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
-        if: steps.check_tag.outputs.tag_exists == 'false'
         env:
           GH_TOKEN: ${{ github.token }}
           CHANGELOG: ${{ steps.changelog.outputs.changelog }}
@@ -109,13 +105,13 @@ jobs:
             --target main
 
       - name: Sync main to develop
-        if: always()
+        if: success()
         run: |
           echo "[INFO] Syncing main to develop..."
           git fetch origin develop
           git checkout develop
-          git merge origin/main --no-edit || echo "[WARN] Merge conflict detected, skipping auto-sync"
-          git push origin develop || echo "[WARN] Push failed, manual sync may be required"
+          git merge origin/main --no-edit
+          git push origin develop
           echo "[INFO] Sync completed: main -> develop"
 
       - name: Summary
