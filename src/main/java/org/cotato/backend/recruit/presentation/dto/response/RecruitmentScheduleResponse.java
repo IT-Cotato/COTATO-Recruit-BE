@@ -1,6 +1,7 @@
 package org.cotato.backend.recruit.presentation.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
 import org.cotato.backend.recruit.domain.recruitmentInformation.enums.InformationType;
@@ -21,10 +22,8 @@ public record RecruitmentScheduleResponse(
 		@Schema(description = "최종 발표일자", example = "2025-01-17T18:00:00")
 				LocalDateTime finalAnnouncement,
 		@Schema(description = "OT 일자", example = "2025-01-20T14:00:00") LocalDateTime otDate,
-		@Schema(description = "코커톤 일자", example = "2025-01-20T14:00:00")
-				LocalDateTime cokerthonDate,
-		@Schema(description = "데모데이 일자", example = "2025-01-20T14:00:00")
-				LocalDateTime demoDayDate) {
+		@Schema(description = "코커톤 일자", example = "2025-01-20") LocalDate cokerthonDate,
+		@Schema(description = "데모데이 일자", example = "2025-01-20") LocalDate demoDayDate) {
 
 	public static RecruitmentScheduleResponse of(
 			Long generationId, Map<InformationType, LocalDateTime> scheduleMap) {
@@ -37,7 +36,11 @@ public record RecruitmentScheduleResponse(
 				scheduleMap.get(InformationType.INTERVIEW_END),
 				scheduleMap.get(InformationType.FINAL_ANNOUNCEMENT),
 				scheduleMap.get(InformationType.OT),
-				scheduleMap.get(InformationType.COKERTHON),
-				scheduleMap.get(InformationType.DEMO_DAY));
+				scheduleMap.get(InformationType.COKERTHON) != null
+						? scheduleMap.get(InformationType.COKERTHON).toLocalDate()
+						: null,
+				scheduleMap.get(InformationType.DEMO_DAY) != null
+						? scheduleMap.get(InformationType.DEMO_DAY).toLocalDate()
+						: null);
 	}
 }

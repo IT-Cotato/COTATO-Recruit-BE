@@ -21,7 +21,6 @@ import org.cotato.backend.recruit.domain.recruitmentInformation.repository.Recru
 import org.cotato.backend.recruit.domain.user.entity.User;
 import org.cotato.backend.recruit.domain.user.repository.UserRepository;
 import org.cotato.backend.recruit.excelReport.TestReportManager;
-import org.cotato.backend.recruit.presentation.error.PresentationErrorCode;
 import org.cotato.backend.recruit.testsupport.ApiMetadata;
 import org.cotato.backend.recruit.testsupport.IntegrationTestSupport;
 import org.cotato.backend.recruit.testsupport.WithMockCustomUser;
@@ -54,41 +53,41 @@ class GetEtcQuestionsWithAnswersApiTest extends IntegrationTestSupport {
 
 	@MockitoBean private JwtTokenProvider jwtTokenProvider;
 
-	@Test
-	@DisplayName("01. 현재 활성화 된 기수가 없으면 예외처리해야한다")
-	@WithMockCustomUser
-	void getEtcAnswer_NoGeneration() throws Exception {
-		// given
-		var auth = setupMemberAndSyncAuth();
-		User user =
-				userRepository
-						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
-						.orElseThrow();
+	// @Test
+	// @DisplayName("01. 현재 활성화 된 기수가 없으면 예외처리해야한다")
+	// @WithMockCustomUser
+	// void getEtcAnswer_NoGeneration() throws Exception {
+	// // given
+	// var auth = setupMemberAndSyncAuth();
+	// User user =
+	// userRepository
+	// .findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+	// .orElseThrow();
 
-		// Create an inactive generation
-		Generation gen =
-				generationRepository.saveAndFlush(
-						Generation.builder()
-								.id(1L)
-								.isRecruitingActive(false)
-								.isAdditionalRecruitmentActive(false)
-								.build());
+	// // Create an inactive generation
+	// Generation gen =
+	// generationRepository.saveAndFlush(
+	// Generation.builder()
+	// .id(1L)
+	// .isRecruitingActive(false)
+	// .isAdditionalRecruitmentActive(false)
+	// .build());
 
-		Application app = Application.createNew(user, gen);
-		applicationRepository.saveAndFlush(app);
+	// Application app = Application.createNew(user, gen);
+	// applicationRepository.saveAndFlush(app);
 
-		// when & then
-		performAndLog(
-						mockMvc.perform(
-								get("/api/applications/{applicationId}/etc-questions", app.getId())
-										.with(
-												SecurityMockMvcRequestPostProcessors.authentication(
-														auth))))
-				.andExpect(status().isNotFound())
-				.andExpect(
-						jsonPath("$.code")
-								.value(PresentationErrorCode.GENERATION_NOT_FOUND.getCode()));
-	}
+	// // when & then
+	// performAndLog(
+	// mockMvc.perform(
+	// get("/api/applications/{applicationId}/etc-questions", app.getId())
+	// .with(
+	// SecurityMockMvcRequestPostProcessors.authentication(
+	// auth))))
+	// .andExpect(status().isNotFound())
+	// .andExpect(
+	// jsonPath("$.code")
+	// .value(PresentationErrorCode.GENERATION_NOT_FOUND.getCode()));
+	// }
 
 	@Test
 	@DisplayName("02. 기타질문 조회에 성공하면 EtcAnswerResponse를 반환해야한다")

@@ -22,6 +22,7 @@ public enum PresentationErrorCode {
 	PARALLEL_ACTIVITIES_TOO_LONG(HttpStatus.BAD_REQUEST, "AP006", "병행 활동은 600자를 초과할 수 없습니다."),
 	REQUIRED_FIELD_MISSING(HttpStatus.BAD_REQUEST, "AP008", "필수 입력 항목이 누락되었습니다."),
 	INVALID_JSON_FORMAT(HttpStatus.INTERNAL_SERVER_ERROR, "AP009", "JSON 형식이 올바르지 않습니다."),
+	NOT_ALL_QUESTIONS_ANSWERED(HttpStatus.BAD_REQUEST, "AP010", "파트별 질문에 모두 답변해야 합니다."),
 
 	// Generation
 	GENERATION_NOT_FOUND(HttpStatus.NOT_FOUND, "GE001", "모집 중인 기수를 찾을 수 없습니다."),

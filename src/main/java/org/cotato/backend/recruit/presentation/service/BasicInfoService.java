@@ -38,7 +38,7 @@ public class BasicInfoService {
 				request.major(),
 				request.completedSemesters(),
 				request.isPrevActivity(),
-				request.isEnrolled() != null ? request.isEnrolled() : false,
+				request.isEnrolled(),
 				request.applicationPartType());
 
 		applicationRepository.save(application);

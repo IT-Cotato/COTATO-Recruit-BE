@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.cotato.backend.recruit.auth.dto.CustomUserDetails;
 import org.cotato.backend.recruit.auth.jwt.JwtTokenProvider;
 import org.cotato.backend.recruit.domain.application.entity.Application;
@@ -202,7 +203,7 @@ class SubmitApplicationApiTest extends IntegrationTestSupport {
 				false,
 				true,
 				ApplicationPartType.BE);
-		app.submit(); // Submit first
+		app.submit(List.of()); // Submit first
 		applicationRepository.save(app);
 
 		// when & then
@@ -222,7 +223,40 @@ class SubmitApplicationApiTest extends IntegrationTestSupport {
 	}
 
 	@Test
-	@DisplayName("06. 필수 필드가 누락되면 예외처리해야한다")
+	@DisplayName("06. 지원 파트가 선택되지 않으면 예외처리해야한다")
+	@WithMockCustomUser
+	void submitApplication_PartTypeNotSelected() throws Exception {
+		// given
+		var auth = setupMemberAndSyncAuth();
+		User user =
+				userRepository
+						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+						.orElseThrow();
+		Generation gen = createGeneration();
+		createRecruitmentPeriod(gen);
+
+		// applicationPartType을 설정하지 않음 (null 상태)
+		Application app = Application.createNew(user, gen);
+		applicationRepository.save(app);
+
+		// when & then
+		performAndLog(
+						mockMvc.perform(
+								post("/api/applications/{applicationId}/submit", app.getId())
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))
+										.with(SecurityMockMvcRequestPostProcessors.csrf())
+										.contentType(MediaType.APPLICATION_JSON)))
+				.andDo(print())
+				.andExpect(status().isBadRequest())
+				.andExpect(
+						jsonPath("$.code")
+								.value(PresentationErrorCode.PART_TYPE_NOT_SELECTED.getCode()));
+	}
+
+	@Test
+	@DisplayName("07. 필수 필드가 누락되면 예외처리해야한다")
 	@WithMockCustomUser
 	void submitApplication_RequiredFieldMissing() throws Exception {
 		// given
@@ -235,10 +269,18 @@ class SubmitApplicationApiTest extends IntegrationTestSupport {
 		createRecruitmentPeriod(gen);
 
 		Application app = Application.createNew(user, gen);
-		if (app.getPhoneNumber() != null) {
-			throw new IllegalStateException("테스트 전제 조건 실패: 이 테스트는 전화번호가 비어있어야 합니다.");
-		}
-
+		// phoneNumber는 설정하지 않지만, applicationPartType은 설정
+		app.updateBasicInfo(
+				"test",
+				"MALE",
+				LocalDate.of(2000, 1, 1),
+				null, // phoneNumber를 null로 설정
+				"Univ",
+				"Major",
+				1,
+				false,
+				true,
+				ApplicationPartType.BE);
 		applicationRepository.save(app);
 
 		// when & then
@@ -258,7 +300,7 @@ class SubmitApplicationApiTest extends IntegrationTestSupport {
 	}
 
 	@Test
-	@DisplayName("07. 지원서 제출시 PassStatus.PENDING, isSubmitted=True가 되야한다")
+	@DisplayName("08. 지원서 제출시 PassStatus.PENDING, isSubmitted=True가 되야한다")
 	@WithMockCustomUser
 	void submitApplication_Success() throws Exception {
 		// given
