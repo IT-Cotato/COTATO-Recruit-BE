@@ -132,6 +132,11 @@ public class Application {
 			throw new PresentationException(PresentationErrorCode.ALREADY_SUBMITTED);
 		}
 
+		// 필드 길이 검증
+		validateFieldLength(name, 10, PresentationErrorCode.NAME_TOO_LONG);
+		validateFieldLength(university, 20, PresentationErrorCode.UNIVERSITY_TOO_LONG);
+		validateFieldLength(major, 30, PresentationErrorCode.MAJOR_TOO_LONG);
+
 		this.name = name;
 		this.gender = gender;
 		this.birthDate = birthDate;
@@ -238,6 +243,12 @@ public class Application {
 	private void validateNotNull(Object value) {
 		if (value == null) {
 			throw new PresentationException(PresentationErrorCode.REQUIRED_FIELD_MISSING);
+		}
+	}
+
+	private void validateFieldLength(String value, int maxLength, PresentationErrorCode errorCode) {
+		if (value != null && value.length() > maxLength) {
+			throw new PresentationException(errorCode);
 		}
 	}
 }
