@@ -156,7 +156,7 @@ class SubmittedApplicationViewApiTest extends IntegrationTestSupport {
 				.andExpect(jsonPath("$.data.name").value("홍길동"))
 				.andExpect(jsonPath("$.data.gender").value("남"))
 				.andExpect(jsonPath("$.data.phoneNumber").value("010-1234-5678"))
-				.andExpect(jsonPath("$.data.university").value("코타토대학교"))
+				.andExpect(jsonPath("$.data.school").value("코타토대학교"))
 				.andExpect(jsonPath("$.data.major").value("컴퓨터공학"))
 				.andExpect(jsonPath("$.data.completedSemesters").value(4))
 				.andExpect(jsonPath("$.data.applicationPartType").value("BE"));
