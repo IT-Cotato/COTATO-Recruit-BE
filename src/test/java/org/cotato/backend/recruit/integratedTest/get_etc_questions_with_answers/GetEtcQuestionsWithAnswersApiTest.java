@@ -21,7 +21,6 @@ import org.cotato.backend.recruit.domain.recruitmentInformation.repository.Recru
 import org.cotato.backend.recruit.domain.user.entity.User;
 import org.cotato.backend.recruit.domain.user.repository.UserRepository;
 import org.cotato.backend.recruit.excelReport.TestReportManager;
-import org.cotato.backend.recruit.presentation.error.PresentationErrorCode;
 import org.cotato.backend.recruit.testsupport.ApiMetadata;
 import org.cotato.backend.recruit.testsupport.IntegrationTestSupport;
 import org.cotato.backend.recruit.testsupport.WithMockCustomUser;
