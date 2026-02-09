@@ -57,7 +57,7 @@ public class SubmittedApplicationService {
                 .findById(userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
 
-        return applicationRepository.findByUser(user).stream()
+        return applicationRepository.findByUserAndIsSubmittedTrue(user).stream()
                 .map(MyPageApplicationResponse::of)
                 .toList();
     }

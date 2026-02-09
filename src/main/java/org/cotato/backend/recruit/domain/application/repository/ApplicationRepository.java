@@ -19,7 +19,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 	/**
 	 * 사용자와 기수로 지원서 조회
 	 *
-	 * @param user 사용자
+	 * @param user       사용자
 	 * @param generation 기수
 	 * @return 지원서 (Optional)
 	 */
@@ -33,6 +33,14 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 	 */
 	List<Application> findByUser(User user);
 
+	/**
+	 * 사용자로 제출된 지원서 목록 조회
+	 *
+	 * @param user 사용자
+	 * @return 제출된 지원서 목록
+	 */
+	List<Application> findByUserAndIsSubmittedTrue(User user);
+
 	/** 특정 기수의 특정 합격 상태를 가진 지원서 목록 조회 */
 	List<Application> findByGenerationAndPassStatus(Generation generation, PassStatus passStatus);
 
@@ -43,9 +51,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 	boolean existsByGenerationId(Long generationId);
 
 	// 목록 조회 (필터링 + 페이징)
-	@Query(
-			value =
-					"""
+	@Query(value = """
 			SELECT *
 			FROM applications a
 			WHERE
@@ -58,9 +64,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 					OR a.university LIKE CONCAT('%', :keyword, '%')
 				)
 				AND a.is_submitted = true
-			""",
-			countQuery =
-					"""
+			""", countQuery = """
 			SELECT COUNT(*)
 			FROM applications a
 			WHERE
@@ -73,8 +77,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 					OR a.university LIKE CONCAT('%', :keyword, '%')
 				)
 				AND a.is_submitted = true
-			""",
-			nativeQuery = true)
+			""", nativeQuery = true)
 	Page<Application> findWithFilters(
 			@Param("generationId") Long generationId,
 			@Param("partViewType") String partViewType,
@@ -83,9 +86,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 			Pageable pageable);
 
 	// 파트별 통계 조회
-	@Query(
-			value =
-					"""
+	@Query(value = """
 			SELECT
 				a.application_part_type,
 				COUNT(*)
@@ -102,16 +103,14 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 				AND a.is_submitted = true
 			GROUP BY
 				a.application_part_type
-			""",
-			nativeQuery = true)
+			""", nativeQuery = true)
 	List<Object[]> countByFilterGroupByApplicationPartType(
 			@Param("generationId") Long generationId,
 			@Param("passViewStatuses") List<String> passViewStatuses,
 			@Param("keyword") String keyword);
 
 	// 합격 상태 및 파트별 통계 조회
-	@Query(
-			"""
+	@Query("""
 			SELECT a.passStatus, a.applicationPartType, COUNT(a)
 			FROM Application a
 			WHERE a.generation.id = :generationId
