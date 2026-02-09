@@ -117,7 +117,7 @@ public class SubmittedApplicationService {
         Application application = getApplicationWithAuth(applicationId, userId);
 
         // 모집 일정 조회
-        RecruitmentScheduleResponse schedule = recruitmentService.getRecruitmentSchedule();
+        RecruitmentScheduleResponse schedule = recruitmentService.getRecruitmentSchedule(application.getGeneration());
 
         // ApplicationEtcInfo에서 JSON 데이터 조회
         ApplicationEtcData etcData = getEtcData(application);
