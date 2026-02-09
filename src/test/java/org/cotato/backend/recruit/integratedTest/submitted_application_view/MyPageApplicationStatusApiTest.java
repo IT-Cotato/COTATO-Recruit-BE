@@ -37,197 +37,196 @@ import org.springframework.test.web.servlet.MockMvc;
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 class MyPageApplicationStatusApiTest extends IntegrationTestSupport {
 
-	@Autowired private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-	@Autowired private UserRepository userRepository;
-	@Autowired private GenerationRepository generationRepository;
-	@Autowired private ApplicationRepository applicationRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private GenerationRepository generationRepository;
+    @Autowired
+    private ApplicationRepository applicationRepository;
 
-	@MockitoBean private JwtTokenProvider jwtTokenProvider;
+    @MockitoBean
+    private JwtTokenProvider jwtTokenProvider;
 
-	@Test
-	@DisplayName("01. 지원서가 없는 경우 빈 리스트를 반환해야 한다")
-	@WithMockCustomUser
-	void getMyApplications_NoApplication() throws Exception {
-		// given
-		var auth = setupMemberAndSyncAuth();
+    @Test
+    @DisplayName("01. 지원서가 없는 경우 빈 리스트를 반환해야 한다")
+    @WithMockCustomUser
+    void getMyApplications_NoApplication() throws Exception {
+        // given
+        var auth = setupMemberAndSyncAuth();
 
-		// when & then
-		performAndLog(
-						mockMvc.perform(
-								get("/api/submitted-applications/mypage")
-										.with(
-												SecurityMockMvcRequestPostProcessors.authentication(
-														auth))))
-				.andDo(print())
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.code").value("SUCCESS"))
-				.andExpect(jsonPath("$.data").isEmpty());
-	}
+        // when & then
+        performAndLog(
+                mockMvc.perform(
+                        get("/api/submitted-applications/mypage")
+                                .with(
+                                        SecurityMockMvcRequestPostProcessors.authentication(
+                                                auth))))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("SUCCESS"))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
 
-	@Test
-	@DisplayName("02. 작성 중인 지원서가 있는 경우 '지원중' 상태로 반환해야 한다")
-	@WithMockCustomUser
-	void getMyApplications_Writing() throws Exception {
-		// given
-		var auth = setupMemberAndSyncAuth();
-		User user =
-				userRepository
-						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
-						.orElseThrow();
-		Generation gen = createGeneration(10); // 10기
+    @Test
+    @DisplayName("02. 작성 중인 지원서는 반환되지 않아야 한다")
+    @WithMockCustomUser
+    void getMyApplications_Writing() throws Exception {
+        // given
+        var auth = setupMemberAndSyncAuth();
+        User user = userRepository
+                .findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+                .orElseThrow();
+        Generation gen = createGeneration(10); // 10기
 
-		Application app = Application.createNew(user, gen);
-		app.updateBasicInfo(
-				"test",
-				"MALE",
-				java.time.LocalDate.now(),
-				"010-0000-0000",
-				"Univ",
-				"Major",
-				1,
-				false,
-				true,
-				ApplicationPartType.BE);
-		applicationRepository.save(app);
+        Application app = Application.createNew(user, gen);
+        app.updateBasicInfo(
+                "test",
+                "MALE",
+                java.time.LocalDate.now(),
+                "010-0000-0000",
+                "Univ",
+                "Major",
+                1,
+                false,
+                true,
+                ApplicationPartType.BE);
+        applicationRepository.save(app);
 
-		// when & then
-		performAndLog(
-						mockMvc.perform(
-								get("/api/submitted-applications/mypage")
-										.with(
-												SecurityMockMvcRequestPostProcessors.authentication(
-														auth))))
-				.andDo(print())
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.code").value("SUCCESS"))
-				.andExpect(jsonPath("$.data[0].applicationId").value(app.getId()))
-				.andExpect(jsonPath("$.data[0].generationNumber").value(10))
-				.andExpect(jsonPath("$.data[0].part").value("BE"))
-				.andExpect(jsonPath("$.data[0].status").value("지원중"));
-	}
+        // when & then
+        performAndLog(
+                mockMvc.perform(
+                        get("/api/submitted-applications/mypage")
+                                .with(
+                                        SecurityMockMvcRequestPostProcessors.authentication(
+                                                auth))))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("SUCCESS"))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
 
-	@Test
-	@DisplayName("03. 제출 완료된 지원서가 있는 경우 '지원완료' 상태로 반환해야 한다")
-	@WithMockCustomUser
-	void getMyApplications_Submitted() throws Exception {
-		// given
-		var auth = setupMemberAndSyncAuth();
-		User user =
-				userRepository
-						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
-						.orElseThrow();
-		Generation gen = createGeneration(11); // 11기
+    @Test
+    @DisplayName("03. 제출 완료된 지원서가 있는 경우 '지원완료' 상태로 반환해야 한다")
+    @WithMockCustomUser
+    void getMyApplications_Submitted() throws Exception {
+        // given
+        var auth = setupMemberAndSyncAuth();
+        // ... existing setup ...
+        User user = userRepository
+                .findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+                .orElseThrow();
+        Generation gen = createGeneration(11); // 11기
 
-		Application app = Application.createNew(user, gen);
-		app.updateBasicInfo(
-				"test",
-				"FEMALE",
-				java.time.LocalDate.now(),
-				"010-1111-2222",
-				"Univ2",
-				"Major2",
-				2,
-				true,
-				false,
-				ApplicationPartType.FE);
-		// 제출 처리 (submit 메소드 사용)
-		app.submit(List.of());
-		applicationRepository.save(app);
+        Application app = Application.createNew(user, gen);
+        app.updateBasicInfo(
+                "test",
+                "FEMALE",
+                java.time.LocalDate.now(),
+                "010-1111-2222",
+                "Univ2",
+                "Major2",
+                2,
+                true,
+                false,
+                ApplicationPartType.FE);
+        // 제출 처리 (submit 메소드 사용)
+        app.submit(List.of());
+        applicationRepository.save(app);
 
-		// when & then
-		performAndLog(
-						mockMvc.perform(
-								get("/api/submitted-applications/mypage")
-										.with(
-												SecurityMockMvcRequestPostProcessors.authentication(
-														auth))))
-				.andDo(print())
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.code").value("SUCCESS"))
-				.andExpect(jsonPath("$.data[0].applicationId").value(app.getId()))
-				.andExpect(jsonPath("$.data[0].generationNumber").value(11))
-				.andExpect(jsonPath("$.data[0].part").value("FE"))
-				.andExpect(jsonPath("$.data[0].status").value("지원완료"));
-	}
+        // when & then
+        performAndLog(
+                mockMvc.perform(
+                        get("/api/submitted-applications/mypage")
+                                .with(
+                                        SecurityMockMvcRequestPostProcessors.authentication(
+                                                auth))))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("SUCCESS"))
+                .andExpect(jsonPath("$.data[0].applicationId").value(app.getId()))
+                .andExpect(jsonPath("$.data[0].generationNumber").value(11))
+                .andExpect(jsonPath("$.data[0].part").value("FE"))
+                .andExpect(jsonPath("$.data[0].status").value("지원완료"));
+    }
 
-	@Test
-	@DisplayName("04. 여러 기수의 지원서가 있는 경우 모두 반환해야 한다")
-	@WithMockCustomUser
-	void getMyApplications_Multiple() throws Exception {
-		// given
-		var auth = setupMemberAndSyncAuth();
-		User user =
-				userRepository
-						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
-						.orElseThrow();
+    @Test
+    @DisplayName("04. 여러 기수의 지원서 중 제출된 것만 반환해야 한다")
+    @WithMockCustomUser
+    void getMyApplications_Multiple() throws Exception {
+        // given
+        var auth = setupMemberAndSyncAuth();
+        User user = userRepository
+                .findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+                .orElseThrow();
 
-		Generation gen10 = createGeneration(10);
-		Generation gen11 = createGeneration(11);
+        Generation gen10 = createGeneration(10);
+        Generation gen11 = createGeneration(11);
 
-		// 10기 지원서 (작성중)
-		Application app1 = Application.createNew(user, gen10);
-		app1.updateBasicInfo(
-				"test",
-				"MALE",
-				java.time.LocalDate.now(),
-				"010-0000-0000",
-				"Univ",
-				"Major",
-				1,
-				false,
-				true,
-				ApplicationPartType.DE);
-		applicationRepository.save(app1);
+        // 10기 지원서 (작성중, 미제출)
+        Application app1 = Application.createNew(user, gen10);
+        app1.updateBasicInfo(
+                "test",
+                "MALE",
+                java.time.LocalDate.now(),
+                "010-0000-0000",
+                "Univ",
+                "Major",
+                1,
+                false,
+                true,
+                ApplicationPartType.DE);
+        applicationRepository.save(app1);
 
-		// 11기 지원서 (제출완료)
-		Application app2 = Application.createNew(user, gen11);
-		app2.updateBasicInfo(
-				"test",
-				"MALE",
-				java.time.LocalDate.now(),
-				"010-0000-0000",
-				"Univ",
-				"Major",
-				1,
-				false,
-				true,
-				ApplicationPartType.PM);
-		app2.submit(List.of());
-		applicationRepository.save(app2);
+        // 11기 지원서 (제출완료)
+        Application app2 = Application.createNew(user, gen11);
+        app2.updateBasicInfo(
+                "test",
+                "MALE",
+                java.time.LocalDate.now(),
+                "010-0000-0000",
+                "Univ",
+                "Major",
+                1,
+                false,
+                true,
+                ApplicationPartType.PM);
+        app2.submit(List.of());
+        applicationRepository.save(app2);
 
-		// when & then
-		performAndLog(
-						mockMvc.perform(
-								get("/api/submitted-applications/mypage")
-										.with(
-												SecurityMockMvcRequestPostProcessors.authentication(
-														auth))))
-				.andDo(print())
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.code").value("SUCCESS"))
-				.andExpect(jsonPath("$.data.length()").value(2));
-	}
+        // when & then
+        performAndLog(
+                mockMvc.perform(
+                        get("/api/submitted-applications/mypage")
+                                .with(
+                                        SecurityMockMvcRequestPostProcessors.authentication(
+                                                auth))))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("SUCCESS"))
+                .andExpect(jsonPath("$.data.length()").value(1))
+                .andExpect(jsonPath("$.data[0].applicationId").value(app2.getId()));
+    }
 
-	// --------------------------------------------------------
-	// Helper Methods
-	// --------------------------------------------------------
+    // --------------------------------------------------------
+    // Helper Methods
+    // --------------------------------------------------------
 
-	private UsernamePasswordAuthenticationToken setupMemberAndSyncAuth() {
-		User user =
-				userRepository.save(User.createGoogleUser("test@gmail.com", "testUser", "123456"));
-		CustomUserDetails userDetails =
-				new CustomUserDetails(user.getId(), user.getEmail(), User.Role.APPLICANT);
-		return new UsernamePasswordAuthenticationToken(
-				userDetails, null, userDetails.getAuthorities());
-	}
+    private UsernamePasswordAuthenticationToken setupMemberAndSyncAuth() {
+        User user = userRepository.save(User.createGoogleUser("test@gmail.com", "testUser", "123456"));
+        CustomUserDetails userDetails = new CustomUserDetails(user.getId(), user.getEmail(), User.Role.APPLICANT);
+        return new UsernamePasswordAuthenticationToken(
+                userDetails, null, userDetails.getAuthorities());
+    }
 
-	private Generation createGeneration(int number) {
-		return generationRepository.save(
-				Generation.builder()
-						.id((long) number)
-						.isRecruitingActive(true)
-						.isAdditionalRecruitmentActive(false)
-						.build());
-	}
+    private Generation createGeneration(int number) {
+        return generationRepository.save(
+                Generation.builder()
+                        .id((long) number)
+                        .isRecruitingActive(true)
+                        .isAdditionalRecruitmentActive(false)
+                        .build());
+    }
 }
