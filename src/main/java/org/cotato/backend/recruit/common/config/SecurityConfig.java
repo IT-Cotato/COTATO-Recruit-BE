@@ -59,7 +59,8 @@ public class SecurityConfig {
 										"/api/test/oauth2/**",
 										"/api/faq/**",
 										"/api/recruitment/**",
-										"/backend/**")
+										"/backend/**",
+										"/api/load-test") // 부하 테스트용 인증 우회
 								.permitAll()
 								// admin api는 STAFF 역할만 접근 가능
 								.requestMatchers("/api/admin/**")
