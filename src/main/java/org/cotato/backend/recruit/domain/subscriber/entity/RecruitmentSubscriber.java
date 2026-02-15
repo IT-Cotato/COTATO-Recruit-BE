@@ -45,4 +45,9 @@ public class RecruitmentSubscriber {
 	public void markAsNotified() {
 		this.isNotified = true;
 	}
+
+	/** 알림 상태 초기화 (재구독 시 사용) */
+	public void resetNotified() {
+		this.isNotified = false;
+	}
 }

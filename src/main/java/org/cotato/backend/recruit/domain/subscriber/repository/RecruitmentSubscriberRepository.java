@@ -1,6 +1,7 @@
 package org.cotato.backend.recruit.domain.subscriber.repository;
 
 import java.util.List;
+import java.util.Optional;
 import org.cotato.backend.recruit.domain.subscriber.entity.RecruitmentSubscriber;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -15,6 +16,6 @@ public interface RecruitmentSubscriberRepository
 	/** 아직 알림을 받지 않은 모든 구독자 조회 */
 	List<RecruitmentSubscriber> findAllByIsNotified(boolean isNotified);
 
-	/** 이메일로 구독 여부 확인 */
-	boolean existsByEmail(String email);
+	/** 이메일로 구독자 조회 */
+	Optional<RecruitmentSubscriber> findByEmail(String email);
 }

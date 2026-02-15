@@ -23,6 +23,9 @@ public enum PresentationErrorCode {
 	REQUIRED_FIELD_MISSING(HttpStatus.BAD_REQUEST, "AP008", "필수 입력 항목이 누락되었습니다."),
 	INVALID_JSON_FORMAT(HttpStatus.INTERNAL_SERVER_ERROR, "AP009", "JSON 형식이 올바르지 않습니다."),
 	NOT_ALL_QUESTIONS_ANSWERED(HttpStatus.BAD_REQUEST, "AP010", "파트별 질문에 모두 답변해야 합니다."),
+	NAME_TOO_LONG(HttpStatus.BAD_REQUEST, "AP011", "이름은 10자를 초과할 수 없습니다."),
+	UNIVERSITY_TOO_LONG(HttpStatus.BAD_REQUEST, "AP012", "학교명은 20자를 초과할 수 없습니다."),
+	MAJOR_TOO_LONG(HttpStatus.BAD_REQUEST, "AP013", "전공명은 30자를 초과할 수 없습니다."),
 
 	// Generation
 	GENERATION_NOT_FOUND(HttpStatus.NOT_FOUND, "GE001", "모집 중인 기수를 찾을 수 없습니다."),

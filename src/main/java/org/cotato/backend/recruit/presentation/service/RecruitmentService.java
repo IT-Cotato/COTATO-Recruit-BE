@@ -40,9 +40,18 @@ public class RecruitmentService {
 	@Cacheable(value = "recruitmentSchedule", key = "'current'")
 	public RecruitmentScheduleResponse getRecruitmentSchedule() {
 		Generation activeGeneration = generationService.getActiveGeneration();
+		return getRecruitmentSchedule(activeGeneration);
+	}
 
+	/**
+	 * 특정 기수의 모집 일정 조회
+	 *
+	 * @param generation 기수
+	 * @return 모집 일정 응답
+	 */
+	public RecruitmentScheduleResponse getRecruitmentSchedule(Generation generation) {
 		List<RecruitmentInformation> informations =
-				recruitmentInformationRepository.findByGeneration(activeGeneration);
+				recruitmentInformationRepository.findByGeneration(generation);
 
 		// InformationType별로 그룹화
 		Map<InformationType, LocalDateTime> scheduleMap =
@@ -52,7 +61,7 @@ public class RecruitmentService {
 										RecruitmentInformation::getInformationType,
 										RecruitmentInformation::getEventDatetime));
 
-		return RecruitmentScheduleResponse.of(activeGeneration.getId(), scheduleMap);
+		return RecruitmentScheduleResponse.of(generation.getId(), scheduleMap);
 	}
 
 	/**
@@ -180,6 +189,26 @@ public class RecruitmentService {
 
 		LocalDateTime now = LocalDateTime.now();
 		return now.isAfter(recruitmentEnd.getEventDatetime());
+	}
+
+	/**
+	 * 지원 모집 시작 여부 확인 (예외 발생 없이 boolean 반환)
+	 *
+	 * @param generation 기수
+	 * @return 모집이 시작되었으면 true, 아니면 false
+	 */
+	public Boolean isRecruitmentStarted(Generation generation) {
+		RecruitmentInformation recruitmentStart =
+				recruitmentInformationRepository
+						.findByGenerationAndInformationType(
+								generation, InformationType.RECRUITMENT_START)
+						.orElseThrow(
+								() ->
+										new PresentationException(
+												PresentationErrorCode.RECRUITMENT_INFO_NOT_FOUND));
+
+		LocalDateTime now = LocalDateTime.now();
+		return now.isAfter(recruitmentStart.getEventDatetime());
 	}
 
 	/**

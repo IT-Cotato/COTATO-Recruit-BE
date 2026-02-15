@@ -15,10 +15,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class EmailHtmlTemplateRenderer {
 
-	@Value("${email.recruitment-url:https://cotato.kr}")
+	@Value("${email.recruitment-url:https://recruit.cotato.kr}")
 	private String recruitmentUrl;
 
-	@Value("${email.kakao-channel-url:https://pf.kakao.com/_KYaFG}")
+	@Value("${email.kakao-channel-url:https://pf.kakao.com/_LQLyG}")
 	private String kakaoChannelUrl;
 
 	/**
