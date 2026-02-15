@@ -50,28 +50,18 @@ import org.springframework.test.web.servlet.MockMvc;
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 class SubmittedApplicationViewApiTest extends IntegrationTestSupport {
 
-	@Autowired
-	private MockMvc mockMvc;
+	@Autowired private MockMvc mockMvc;
 
-	@Autowired
-	private UserRepository userRepository;
-	@Autowired
-	private GenerationRepository generationRepository;
-	@Autowired
-	private ApplicationRepository applicationRepository;
-	@Autowired
-	private QuestionRepository questionRepository;
-	@Autowired
-	private ApplicationAnswerRepository applicationAnswerRepository;
-	@Autowired
-	private ApplicationEtcInfoRepository applicationEtcInfoRepository;
-	@Autowired
-	private RecruitmentInformationRepository recruitmentInformationRepository;
-	@Autowired
-	private ObjectMapper objectMapper;
+	@Autowired private UserRepository userRepository;
+	@Autowired private GenerationRepository generationRepository;
+	@Autowired private ApplicationRepository applicationRepository;
+	@Autowired private QuestionRepository questionRepository;
+	@Autowired private ApplicationAnswerRepository applicationAnswerRepository;
+	@Autowired private ApplicationEtcInfoRepository applicationEtcInfoRepository;
+	@Autowired private RecruitmentInformationRepository recruitmentInformationRepository;
+	@Autowired private ObjectMapper objectMapper;
 
-	@MockitoBean
-	private JwtTokenProvider jwtTokenProvider;
+	@MockitoBean private JwtTokenProvider jwtTokenProvider;
 
 	// --------------------------------------------------------
 	// GET /api/submitted-applications/{applicationId}/basic-info
@@ -86,13 +76,13 @@ class SubmittedApplicationViewApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-				mockMvc.perform(
-						get(
-								"/api/submitted-applications/{applicationId}/basic-info",
-								99999L)
-								.with(
-										SecurityMockMvcRequestPostProcessors.authentication(
-												auth))))
+						mockMvc.perform(
+								get(
+												"/api/submitted-applications/{applicationId}/basic-info",
+												99999L)
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
 				.andDo(print())
 				.andExpect(status().isNotFound())
 				.andExpect(
@@ -106,20 +96,21 @@ class SubmittedApplicationViewApiTest extends IntegrationTestSupport {
 	void getBasicInfo_Forbidden() throws Exception {
 		// given
 		var auth = setupMemberAndSyncAuth();
-		User otherUser = userRepository.save(User.createGoogleUser("other@gmail.com", "other", "123"));
+		User otherUser =
+				userRepository.save(User.createGoogleUser("other@gmail.com", "other", "123"));
 		Generation gen = createGeneration();
 
 		Application app = createSubmittedApplication(otherUser, gen);
 
 		// when & then
 		performAndLog(
-				mockMvc.perform(
-						get(
-								"/api/submitted-applications/{applicationId}/basic-info",
-								app.getId())
-								.with(
-										SecurityMockMvcRequestPostProcessors.authentication(
-												auth))))
+						mockMvc.perform(
+								get(
+												"/api/submitted-applications/{applicationId}/basic-info",
+												app.getId())
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
 				.andDo(print())
 				.andExpect(status().isForbidden())
 				.andExpect(
@@ -133,22 +124,23 @@ class SubmittedApplicationViewApiTest extends IntegrationTestSupport {
 	void getBasicInfo_Success() throws Exception {
 		// given
 		var auth = setupMemberAndSyncAuth();
-		User user = userRepository
-				.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
-				.orElseThrow();
+		User user =
+				userRepository
+						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+						.orElseThrow();
 		Generation gen = createGeneration();
 
 		Application app = createSubmittedApplication(user, gen);
 
 		// when & then
 		performAndLog(
-				mockMvc.perform(
-						get(
-								"/api/submitted-applications/{applicationId}/basic-info",
-								app.getId())
-								.with(
-										SecurityMockMvcRequestPostProcessors.authentication(
-												auth))))
+						mockMvc.perform(
+								get(
+												"/api/submitted-applications/{applicationId}/basic-info",
+												app.getId())
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.code").value("SUCCESS"))
@@ -175,13 +167,13 @@ class SubmittedApplicationViewApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-				mockMvc.perform(
-						get(
-								"/api/submitted-applications/{applicationId}/part-questions",
-								99999L)
-								.with(
-										SecurityMockMvcRequestPostProcessors.authentication(
-												auth))))
+						mockMvc.perform(
+								get(
+												"/api/submitted-applications/{applicationId}/part-questions",
+												99999L)
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
 				.andDo(print())
 				.andExpect(status().isNotFound())
 				.andExpect(
@@ -195,20 +187,21 @@ class SubmittedApplicationViewApiTest extends IntegrationTestSupport {
 	void getPartQuestions_Forbidden() throws Exception {
 		// given
 		var auth = setupMemberAndSyncAuth();
-		User otherUser = userRepository.save(User.createGoogleUser("other@gmail.com", "other", "123"));
+		User otherUser =
+				userRepository.save(User.createGoogleUser("other@gmail.com", "other", "123"));
 		Generation gen = createGeneration();
 
 		Application app = createSubmittedApplication(otherUser, gen);
 
 		// when & then
 		performAndLog(
-				mockMvc.perform(
-						get(
-								"/api/submitted-applications/{applicationId}/part-questions",
-								app.getId())
-								.with(
-										SecurityMockMvcRequestPostProcessors.authentication(
-												auth))))
+						mockMvc.perform(
+								get(
+												"/api/submitted-applications/{applicationId}/part-questions",
+												app.getId())
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
 				.andDo(print())
 				.andExpect(status().isForbidden())
 				.andExpect(
@@ -222,9 +215,10 @@ class SubmittedApplicationViewApiTest extends IntegrationTestSupport {
 	void getPartQuestions_PartNotSelected() throws Exception {
 		// given
 		var auth = setupMemberAndSyncAuth();
-		User user = userRepository
-				.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
-				.orElseThrow();
+		User user =
+				userRepository
+						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+						.orElseThrow();
 		Generation gen = createGeneration();
 
 		Application app = Application.createNew(user, gen);
@@ -232,13 +226,13 @@ class SubmittedApplicationViewApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-				mockMvc.perform(
-						get(
-								"/api/submitted-applications/{applicationId}/part-questions",
-								app.getId())
-								.with(
-										SecurityMockMvcRequestPostProcessors.authentication(
-												auth))))
+						mockMvc.perform(
+								get(
+												"/api/submitted-applications/{applicationId}/part-questions",
+												app.getId())
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
 				.andDo(print())
 				.andExpect(status().isBadRequest())
 				.andExpect(
@@ -306,11 +300,11 @@ class SubmittedApplicationViewApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-				mockMvc.perform(
-						get("/api/submitted-applications/{applicationId}/etc-info", 99999L)
-								.with(
-										SecurityMockMvcRequestPostProcessors.authentication(
-												auth))))
+						mockMvc.perform(
+								get("/api/submitted-applications/{applicationId}/etc-info", 99999L)
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
 				.andDo(print())
 				.andExpect(status().isNotFound())
 				.andExpect(
@@ -324,7 +318,8 @@ class SubmittedApplicationViewApiTest extends IntegrationTestSupport {
 	void getEtcInfo_Forbidden() throws Exception {
 		// given
 		var auth = setupMemberAndSyncAuth();
-		User otherUser = userRepository.save(User.createGoogleUser("other@gmail.com", "other", "123"));
+		User otherUser =
+				userRepository.save(User.createGoogleUser("other@gmail.com", "other", "123"));
 		Generation gen = createGeneration();
 		createRecruitmentSchedule(gen);
 
@@ -332,13 +327,13 @@ class SubmittedApplicationViewApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-				mockMvc.perform(
-						get(
-								"/api/submitted-applications/{applicationId}/etc-info",
-								app.getId())
-								.with(
-										SecurityMockMvcRequestPostProcessors.authentication(
-												auth))))
+						mockMvc.perform(
+								get(
+												"/api/submitted-applications/{applicationId}/etc-info",
+												app.getId())
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
 				.andDo(print())
 				.andExpect(status().isForbidden())
 				.andExpect(
@@ -352,17 +347,19 @@ class SubmittedApplicationViewApiTest extends IntegrationTestSupport {
 	void getEtcInfo_Success() throws Exception {
 		// given
 		var auth = setupMemberAndSyncAuth();
-		User user = userRepository
-				.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
-				.orElseThrow();
+		User user =
+				userRepository
+						.findById(((CustomUserDetails) auth.getPrincipal()).getUserId())
+						.orElseThrow();
 		Generation gen = createGeneration();
 		createRecruitmentSchedule(gen);
 
 		Application app = createSubmittedApplication(user, gen);
 
 		// 기타 정보 저장
-		ApplicationEtcData etcData = ApplicationEtcData.of(
-				DiscoveryPath.INSTAGRAM, "병행활동 내용", "면접 불가 시간", true, true, true);
+		ApplicationEtcData etcData =
+				ApplicationEtcData.of(
+						DiscoveryPath.INSTAGRAM, "병행활동 내용", "면접 불가 시간", true, true, true);
 		String jsonData = objectMapper.writeValueAsString(etcData);
 		ApplicationEtcInfo etcInfo = ApplicationEtcInfo.createNew(app);
 		etcInfo.updateEtcData(jsonData);
@@ -370,13 +367,13 @@ class SubmittedApplicationViewApiTest extends IntegrationTestSupport {
 
 		// when & then
 		performAndLog(
-				mockMvc.perform(
-						get(
-								"/api/submitted-applications/{applicationId}/etc-info",
-								app.getId())
-								.with(
-										SecurityMockMvcRequestPostProcessors.authentication(
-												auth))))
+						mockMvc.perform(
+								get(
+												"/api/submitted-applications/{applicationId}/etc-info",
+												app.getId())
+										.with(
+												SecurityMockMvcRequestPostProcessors.authentication(
+														auth))))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.code").value("SUCCESS"))
@@ -393,8 +390,10 @@ class SubmittedApplicationViewApiTest extends IntegrationTestSupport {
 	// --------------------------------------------------------
 
 	private UsernamePasswordAuthenticationToken setupMemberAndSyncAuth() {
-		User user = userRepository.save(User.createGoogleUser("test@gmail.com", "testUser", "123456"));
-		CustomUserDetails userDetails = new CustomUserDetails(user.getId(), user.getEmail(), User.Role.APPLICANT);
+		User user =
+				userRepository.save(User.createGoogleUser("test@gmail.com", "testUser", "123456"));
+		CustomUserDetails userDetails =
+				new CustomUserDetails(user.getId(), user.getEmail(), User.Role.APPLICANT);
 		return new UsernamePasswordAuthenticationToken(
 				userDetails, null, userDetails.getAuthorities());
 	}

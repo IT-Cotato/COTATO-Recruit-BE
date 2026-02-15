@@ -55,20 +55,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				String userId = jwtTokenProvider.getUserIdFromToken(jwt);
 
 				// 사용자 조회
-				User user = userRepository
-						.findById(Long.parseLong(userId))
-						.orElseThrow(
-								() -> {
-									log.error("User not found with id: {}", userId);
-									return new GlobalException(ErrorCode.USER_NOT_FOUND);
-								});
+				User user =
+						userRepository
+								.findById(Long.parseLong(userId))
+								.orElseThrow(
+										() -> {
+											log.error("User not found with id: {}", userId);
+											return new GlobalException(ErrorCode.USER_NOT_FOUND);
+										});
 
 				// CustomUserDetails 생성
 				CustomUserDetails userDetails = CustomUserDetails.from(user);
 
 				// Spring Security 인증 객체 생성
-				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-						userDetails, null, userDetails.getAuthorities());
+				UsernamePasswordAuthenticationToken authentication =
+						new UsernamePasswordAuthenticationToken(
+								userDetails, null, userDetails.getAuthorities());
 
 				// 인증 세부 정보 설정, 요청 정보 포함, 예: IP 주소, 세션 ID 등
 				authentication.setDetails(
@@ -104,7 +106,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		response.setCharacterEncoding("UTF-8");
 
-		ApiResponse<Void> apiResponse = ApiResponse.error(errorCode.getCode(), errorCode.getMessage());
+		ApiResponse<Void> apiResponse =
+				ApiResponse.error(errorCode.getCode(), errorCode.getMessage());
 
 		response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
 	}

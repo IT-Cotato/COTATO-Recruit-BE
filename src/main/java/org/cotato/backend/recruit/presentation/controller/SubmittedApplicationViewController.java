@@ -32,41 +32,52 @@ public class SubmittedApplicationViewController {
 	@MonitorFailure(apiName = "마이페이지 지원 현황 조회")
 	public ApiResponse<List<MyPageApplicationResponse>> getMyApplications(
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails) {
-		List<MyPageApplicationResponse> response = submittedApplicationService
-				.getMyApplications(userDetails.getUserId());
+		List<MyPageApplicationResponse> response =
+				submittedApplicationService.getMyApplications(userDetails.getUserId());
 		return ApiResponse.success(response);
 	}
 
-	@Operation(summary = "제출된 지원서 기본 인적사항 조회", description = "지원자가 제출한 지원서의 기본 인적사항을 조회합니다. 본인의 지원서만 조회할 수 있습니다.")
+	@Operation(
+			summary = "제출된 지원서 기본 인적사항 조회",
+			description = "지원자가 제출한 지원서의 기본 인적사항을 조회합니다. 본인의 지원서만 조회할 수 있습니다.")
 	@GetMapping("/{applicationId}/basic-info")
 	@MonitorFailure(apiName = "제출된 지원서 기본 인적사항 조회")
 	public ApiResponse<SubmittedApplicationBasicInfoResponse> getBasicInfo(
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
-			@Parameter(description = "지원서 ID", required = true) @PathVariable("applicationId") Long applicationId) {
-		SubmittedApplicationBasicInfoResponse response = submittedApplicationService
-				.getBasicInfo(userDetails.getUserId(), applicationId);
+			@Parameter(description = "지원서 ID", required = true) @PathVariable("applicationId")
+					Long applicationId) {
+		SubmittedApplicationBasicInfoResponse response =
+				submittedApplicationService.getBasicInfo(userDetails.getUserId(), applicationId);
 		return ApiResponse.success(response);
 	}
 
-	@Operation(summary = "제출된 지원서 파트별 질문 및 답변 조회", description = "지원자가 제출한 지원서의 파트별 질문과 답변을 조회합니다. 본인의 지원서만 조회할 수 있습니다.")
+	@Operation(
+			summary = "제출된 지원서 파트별 질문 및 답변 조회",
+			description = "지원자가 제출한 지원서의 파트별 질문과 답변을 조회합니다. 본인의 지원서만 조회할 수 있습니다.")
 	@GetMapping("/{applicationId}/part-questions")
 	@MonitorFailure(apiName = "제출된 지원서 파트별 질문 및 답변 조회")
 	public ApiResponse<SubmittedApplicationPartQuestionResponse> getPartQuestionsWithAnswers(
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
-			@Parameter(description = "지원서 ID", required = true) @PathVariable("applicationId") Long applicationId) {
-		SubmittedApplicationPartQuestionResponse response = submittedApplicationService.getPartQuestionsWithAnswers(
-				userDetails.getUserId(), applicationId);
+			@Parameter(description = "지원서 ID", required = true) @PathVariable("applicationId")
+					Long applicationId) {
+		SubmittedApplicationPartQuestionResponse response =
+				submittedApplicationService.getPartQuestionsWithAnswers(
+						userDetails.getUserId(), applicationId);
 		return ApiResponse.success(response);
 	}
 
-	@Operation(summary = "제출된 지원서 기타 정보 조회", description = "지원자가 제출한 지원서의 기타 정보(알게 된 경로, 병행 활동, 동의사항 등)를 조회합니다. 본인의 지원서만 조회할 수 있습니다.")
+	@Operation(
+			summary = "제출된 지원서 기타 정보 조회",
+			description =
+					"지원자가 제출한 지원서의 기타 정보(알게 된 경로, 병행 활동, 동의사항 등)를 조회합니다. 본인의 지원서만 조회할 수 있습니다.")
 	@GetMapping("/{applicationId}/etc-info")
 	@MonitorFailure(apiName = "제출된 지원서 기타 정보 조회")
 	public ApiResponse<SubmittedApplicationEtcQuestionsResponse> getEtcInfo(
 			@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
-			@Parameter(description = "지원서 ID", required = true) @PathVariable("applicationId") Long applicationId) {
-		SubmittedApplicationEtcQuestionsResponse response = submittedApplicationService
-				.getEtcInfo(userDetails.getUserId(), applicationId);
+			@Parameter(description = "지원서 ID", required = true) @PathVariable("applicationId")
+					Long applicationId) {
+		SubmittedApplicationEtcQuestionsResponse response =
+				submittedApplicationService.getEtcInfo(userDetails.getUserId(), applicationId);
 		return ApiResponse.success(response);
 	}
 }
