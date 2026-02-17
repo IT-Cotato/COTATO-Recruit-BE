@@ -28,23 +28,23 @@ public class QuestionEditAdminService {
 
 	// 전체 삭제 후 추가
 	@Transactional
-	@CacheEvict(
-			value = {"questions", "question"},
-			allEntries = true)
+	@CacheEvict(value = { "questions", "question" }, allEntries = true)
+	@CacheEvict(value = { "questions", "question" }, allEntries = true)
 	public void updateApplicationQuestions(QuestionUpdateRequest request) {
 		Generation generation = generationAdminService.getGenerationById(request.generationId());
 		QuestionType questionType = request.questionType();
 
-		boolean isApplicationExist =
-				applicationAdminService.isApplicationExistInThisGeneration(generation.getId());
+		boolean isApplicationExist = applicationAdminService.isApplicationExistInThisGeneration(generation.getId());
+		boolean isApplicationExist = applicationAdminService.isApplicationExistInThisGeneration(generation.getId());
 
 		if (isApplicationExist) {
 			throw new AdminException(AdminErrorCode.QUESTION_CANNOT_UPDATE);
 		}
 
-		List<Question> existingQuestions =
-				questionAdminService.getQuestionsByGenerationAndQuestionType(
-						generation, questionType);
+		List<Question> existingQuestions = questionAdminService.getQuestionsByGenerationAndQuestionType(
+				generation, questionType);
+		List<Question> existingQuestions = questionAdminService.getQuestionsByGenerationAndQuestionType(
+				generation, questionType);
 		questionAdminService.deleteAll(existingQuestions);
 
 		List<Question> newQuestions = getNewQuestions(request, generation, questionType);
@@ -57,43 +57,49 @@ public class QuestionEditAdminService {
 
 	private void insertPortfolioQuestion(
 			Integer sequence, QuestionType questionType, Generation generation) {
-		String content =
-				switch (questionType) {
-					case PM ->
-							"(선택) 추가로 제출할 포트폴리오(깃허브,블로그,노션,비핸스 등) 링크를 첨부해주세요. 업로드하실 포트폴리오 양식은 꼭"
-									+ " PDF로 변경 후 제출해주세요!";
-					case DE ->
-							"(필수) 포트폴리오(비핸스, 노션 등) 링크를 첨부해주세요. 업로드하실 포트폴리오 양식은 꼭 PDF로 변경 후 제출해주세요!";
-					default ->
-							"(필수) 깃허브 링크를 첨부해주세요.\n(선택) 추가로 제출할 포트폴리오(블로그,노션,비핸스 등) 링크를 첨부해주세요."
-									+ " 업로드하실 포트폴리오 양식은 꼭 PDF로 변경 후 제출해주세요!";
-				};
+		String content = switch (questionType) {
+			case PM ->
+				"(선택) 추가로 제출할 포트폴리오(깃허브,블로그,노션,비핸스 등) 링크를 첨부해주세요. 업로드하실 포트폴리오 양식은 꼭"
+						+ " PDF로 변경 후 제출해주세요!";
+			case DE ->
+				"(필수) 포트폴리오(비핸스, 노션 등) 링크를 첨부해주세요. 업로드하실 포트폴리오 양식은 꼭 PDF로 변경 후 제출해주세요!";
+			default ->
+				"(필수) 깃허브 링크를 첨부해주세요.\n(선택) 추가로 제출할 포트폴리오(블로그,노션,비핸스 등) 링크를 첨부해주세요."
+						+ " 업로드하실 포트폴리오 양식은 꼭 PDF로 변경 후 제출해주세요!";
+		};
 
-		Question question =
-				Question.builder()
-						.generation(generation)
-						.sequence(sequence)
-						.content(content)
-						.maxLength(PORTFOLIO_MAX_LENGTH)
-						.questionType(questionType)
-						.build();
+		Question question = Question.builder()
+				.generation(generation)
+				.sequence(sequence)
+				.content(content)
+				.maxLength(PORTFOLIO_MAX_LENGTH)
+				.questionType(questionType)
+				.build();
 		questionAdminService.save(question);
 	}
 
 	private List<Question> getNewQuestions(
 			QuestionUpdateRequest request, Generation generation, QuestionType questionType) {
-		List<Question> newQuestions =
-				request.questions().stream()
-						.map(
-								element ->
-										Question.builder()
-												.generation(generation)
-												.sequence(element.sequence())
-												.content(element.content())
-												.maxLength(element.maxLength())
-												.questionType(questionType)
-												.build())
-						.toList();
+		List<Question> newQuestions = request.questions().stream()
+				.map(
+						element -> Question.builder()
+								.generation(generation)
+								.sequence(element.sequence())
+								.content(element.content())
+								.maxLength(element.maxLength())
+								.questionType(questionType)
+								.build())
+				.toList();
+		List<Question> newQuestions = request.questions().stream()
+				.map(
+						element -> Question.builder()
+								.generation(generation)
+								.sequence(element.sequence())
+								.content(element.content())
+								.maxLength(element.maxLength())
+								.questionType(questionType)
+								.build())
+				.toList();
 		return newQuestions;
 	}
 }

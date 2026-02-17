@@ -54,7 +54,9 @@ public class GenerationService {
 			throw new PresentationException(PresentationErrorCode.GENERATION_MULTIPLE_ACTIVE);
 		}
 
-		return activeGenerations.isEmpty() ? Optional.empty() : Optional.of(activeGenerations.get(0));
+		return activeGenerations.isEmpty()
+				? Optional.empty()
+				: Optional.of(activeGenerations.get(0));
 	}
 
 	/**
@@ -67,8 +69,9 @@ public class GenerationService {
 		return generationRepository
 				.findFirstByOrderByIdDesc()
 				.orElseThrow(
-						() -> new PresentationException(
-								PresentationErrorCode.GENERATION_NOT_FOUND));
+						() ->
+								new PresentationException(
+										PresentationErrorCode.GENERATION_NOT_FOUND));
 	}
 
 	// Generation find
@@ -80,8 +83,9 @@ public class GenerationService {
 		return generationRepository
 				.findById(generationId)
 				.orElseThrow(
-						() -> new PresentationException(
-								PresentationErrorCode.GENERATION_NOT_FOUND));
+						() ->
+								new PresentationException(
+										PresentationErrorCode.GENERATION_NOT_FOUND));
 	}
 
 	// Generation save

@@ -25,6 +25,22 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 	 */
 	Optional<Application> findByUserAndGeneration(User user, Generation generation);
 
+	/**
+	 * 사용자로 지원서 목록 조회
+	 *
+	 * @param user 사용자
+	 * @return 지원서 목록
+	 */
+	List<Application> findByUser(User user);
+
+	/**
+	 * 사용자로 제출된 지원서 목록 조회
+	 *
+	 * @param user 사용자
+	 * @return 제출된 지원서 목록
+	 */
+	List<Application> findByUserAndIsSubmittedTrue(User user);
+
 	/** 특정 기수의 특정 합격 상태를 가진 지원서 목록 조회 */
 	List<Application> findByGenerationAndPassStatus(Generation generation, PassStatus passStatus);
 

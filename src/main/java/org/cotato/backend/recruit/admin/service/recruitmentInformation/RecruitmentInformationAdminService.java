@@ -26,7 +26,8 @@ public class RecruitmentInformationAdminService {
 	public RecruitmentInformationResponse getRecruitmentInformation(Long generationId) {
 		Generation generation = generationAdminService.getGenerationById(generationId);
 
-		List<RecruitmentInformation> informations = recruitmentInformationRepository.findByGeneration(generation);
+		List<RecruitmentInformation> informations =
+				recruitmentInformationRepository.findByGeneration(generation);
 
 		return RecruitmentInformationResponse.of(informations);
 	}
@@ -40,7 +41,9 @@ public class RecruitmentInformationAdminService {
 	}
 
 	@Transactional
-	@CacheEvict(value = { "recruitmentSchedule", "recruitmentStatus" }, allEntries = true)
+	@CacheEvict(
+			value = {"recruitmentSchedule", "recruitmentStatus"},
+			allEntries = true)
 	public void updateRecruitmentInformation(RecruitmentInformationUpdateRequest request) {
 		validate(request);
 

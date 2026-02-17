@@ -52,7 +52,11 @@ public class S3FileService implements FileService {
 		} catch (GlobalException e) {
 			throw e;
 		} catch (Exception e) {
-			log.error("업로드용 Pre-signed URL 생성 실패 - UserId: {}, FileName: {}", userId, fileName, e);
+			log.error(
+					"업로드용 Pre-signed URL 생성 실패 - UserId: {}, FileName: {}, Error: {}",
+					userId,
+					fileName,
+					e.getMessage());
 			throw new GlobalException(ErrorCode.PRE_SIGNED_URL_GENERATION_FAILED);
 		}
 	}
@@ -67,7 +71,7 @@ public class S3FileService implements FileService {
 		} catch (GlobalException e) {
 			throw e;
 		} catch (Exception e) {
-			log.error("다운로드용 Pre-signed URL 생성 실패 - Key: {}", fileKey, e);
+			log.error("다운로드용 Pre-signed URL 생성 실패 - Key: {}, Error: {}", fileKey, e.getMessage());
 			throw new GlobalException(ErrorCode.PRE_SIGNED_URL_GENERATION_FAILED);
 		}
 	}

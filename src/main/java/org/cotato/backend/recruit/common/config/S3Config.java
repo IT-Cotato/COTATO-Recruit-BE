@@ -47,7 +47,7 @@ public class S3Config {
 				s3Presigner.close();
 				log.info("S3Presigner 리소스가 정리되었습니다.");
 			} catch (Exception e) {
-				log.error("S3Presigner 리소스 정리 중 오류 발생", e);
+				log.error("S3Presigner 리소스 정리 중 오류 발생: {}", e.getMessage());
 			}
 		}
 	}

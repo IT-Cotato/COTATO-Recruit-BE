@@ -2,26 +2,30 @@
 set -e
 
 # 서비스 및 컨테이너 이름 설정
-BLUE_SERVICE="blue"
-GREEN_SERVICE="green"
-BLUE_CONTAINER="blue"
-GREEN_CONTAINER="green"
+BLUE_SERVICE="qa-blue"
+GREEN_SERVICE="qa-green"
+BLUE_CONTAINER="qa-blue"
+GREEN_CONTAINER="qa-green"
+REDIS_SERVICE="qa-redis"
 NGINX_CONTAINER="nginx"
+ENV_PREFIX="qa"
 
 # Docker Compose 파일 경로
 COMPOSE_FILE="./docker-compose.qa.yml"
+NGINX_COMPOSE_FILE="../nginx/docker-compose.nginx.yml"
+NGINX_DIR="../nginx"
 
 # 헬스 체크 설정
 MAX_RETRY=30
 RETRY_INTERVAL=5
 
 echo "=========================================="
-echo "Blue-Green Deployment Started"
+echo "QA Blue-Green Deployment Started"
 echo "=========================================="
 
 # SSL 인증서 확인
-if [ ! -f ~/ssl/fullchain.pem ] || [ ! -f ~/ssl/privkey.pem ]; then
-    echo "[ERROR] SSL certificates not found at ~/ssl/"
+if [ ! -f ~/ssl/qa/fullchain.pem ] || [ ! -f ~/ssl/qa/privkey.pem ]; then
+    echo "[ERROR] SSL certificates not found at ~/ssl/qa/"
     echo "[ERROR] Please issue certificates first"
     exit 1
 fi
@@ -30,10 +34,17 @@ echo "[INFO] SSL certificates found"
 # certbot 디렉토리 생성
 mkdir -p ~/certbot/www
 
+# 네트워크 생성 (없으면 생성)
+docker network create qa_network 2>/dev/null || true
+docker network create prod_network 2>/dev/null || true
+
+# nginx conf.d 디렉토리 생성
+mkdir -p $NGINX_DIR/conf.d
+
 # 1. Redis 컨테이너 확인 및 시작
-if ! docker ps --format '{{.Names}}' | grep -q "^redis$"; then
+if ! docker ps --format '{{.Names}}' | grep -q "^$REDIS_SERVICE$"; then
     echo "[1/8] Starting Redis container..."
-    docker compose -f $COMPOSE_FILE up -d redis
+    docker compose -f $COMPOSE_FILE up -d $REDIS_SERVICE
     sleep 5
 else
     echo "[1/8] Redis container already running"
@@ -48,24 +59,23 @@ if [ "$BLUE_RUNNING" = "true" ]; then
     IDLE_CONTAINER=$GREEN_CONTAINER
     ACTIVE_SERVICE=$BLUE_SERVICE
     IDLE_SERVICE=$GREEN_SERVICE
-    ACTIVE_COLOR="Blue"
-    IDLE_COLOR="Green"
+    ACTIVE_COLOR="blue"
+    IDLE_COLOR="green"
 elif [ "$GREEN_RUNNING" = "true" ]; then
     ACTIVE_CONTAINER=$GREEN_CONTAINER
     IDLE_CONTAINER=$BLUE_CONTAINER
     ACTIVE_SERVICE=$GREEN_SERVICE
     IDLE_SERVICE=$BLUE_SERVICE
-    ACTIVE_COLOR="Green"
-    IDLE_COLOR="Blue"
+    ACTIVE_COLOR="green"
+    IDLE_COLOR="blue"
 else
-    # 첫 배포: 둘 다 없는 경우 Blue부터 시작
     echo "[2/8] Initial deployment detected"
     ACTIVE_CONTAINER=""
     IDLE_CONTAINER=$BLUE_CONTAINER
     ACTIVE_SERVICE=""
     IDLE_SERVICE=$BLUE_SERVICE
-    ACTIVE_COLOR="None"
-    IDLE_COLOR="Blue"
+    ACTIVE_COLOR="none"
+    IDLE_COLOR="blue"
 fi
 
 echo "[2/8] Active: $ACTIVE_COLOR -> Target: $IDLE_COLOR"
@@ -105,19 +115,18 @@ if [ "$HEALTH_CHECK_PASSED" = false ]; then
     exit 1
 fi
 
-# 6.5. Nginx 컨테이너 확인 및 시작 (IDLE 컨테이너가 준비된 후)
+# 6.5. Nginx 컨테이너 확인 및 시작
 if ! docker ps --format '{{.Names}}' | grep -q "^$NGINX_CONTAINER$"; then
     echo "[5.5/8] Starting Nginx container..."
-    docker compose -f $COMPOSE_FILE up -d $NGINX_CONTAINER
-    sleep 5
 
-    # 첫 배포 시 default.conf 초기화
-    if ! docker exec $NGINX_CONTAINER test -f /etc/nginx/conf.d/default.conf 2>/dev/null; then
-        echo "[5.5/8] Initializing Nginx default.conf..."
-        IDLE_COLOR_LOWER=$(echo "$IDLE_COLOR" | tr '[:upper:]' '[:lower:]')
-        docker exec $NGINX_CONTAINER cp /etc/nginx/templates/nginx-$IDLE_COLOR_LOWER.conf /etc/nginx/conf.d/default.conf
-        docker exec $NGINX_CONTAINER nginx -s reload
-    fi
+    # 중지된 nginx 컨테이너가 있으면 삭제
+    docker rm -f $NGINX_CONTAINER 2>/dev/null || true
+
+    # 초기 설정 파일 복사
+    cp $NGINX_DIR/templates/${ENV_PREFIX}-${IDLE_COLOR}.conf $NGINX_DIR/conf.d/${ENV_PREFIX}.conf
+
+    docker compose -f $NGINX_COMPOSE_FILE up -d
+    sleep 5
 else
     echo "[5.5/8] Nginx container already running"
 fi
@@ -125,22 +134,18 @@ fi
 # 7. Nginx 설정 전환
 echo "[6/8] Switching traffic to $IDLE_COLOR..."
 
-if [ "$IDLE_COLOR" = "Blue" ]; then
-    NEW_CONFIG="nginx-blue.conf"
-else
-    NEW_CONFIG="nginx-green.conf"
-fi
+NEW_CONFIG="${ENV_PREFIX}-${IDLE_COLOR}.conf"
 
 # 현재 설정 백업
-docker exec $NGINX_CONTAINER cp /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.backup 2>/dev/null || true
+cp $NGINX_DIR/conf.d/${ENV_PREFIX}.conf $NGINX_DIR/conf.d/${ENV_PREFIX}.conf.backup 2>/dev/null || true
 
 # 새 설정 적용
-docker exec $NGINX_CONTAINER cp /etc/nginx/templates/$NEW_CONFIG /etc/nginx/conf.d/default.conf
+cp $NGINX_DIR/templates/$NEW_CONFIG $NGINX_DIR/conf.d/${ENV_PREFIX}.conf
 
-# 설정 검증
+# 설정 검증 및 reload
 if ! docker exec $NGINX_CONTAINER nginx -t 2>&1 | grep -q "successful"; then
     echo "[ERROR] Nginx config validation failed. Rolling back..."
-    docker exec $NGINX_CONTAINER cp /etc/nginx/conf.d/default.conf.backup /etc/nginx/conf.d/default.conf 2>/dev/null || true
+    cp $NGINX_DIR/conf.d/${ENV_PREFIX}.conf.backup $NGINX_DIR/conf.d/${ENV_PREFIX}.conf 2>/dev/null || true
     docker exec $NGINX_CONTAINER nginx -s reload 2>/dev/null || true
     docker compose -f $COMPOSE_FILE rm -f -s $IDLE_SERVICE
     exit 1
@@ -160,5 +165,5 @@ else
 fi
 
 # 9. 배포 완료
-echo "[8/8] Deployment completed. Active: $IDLE_COLOR"
+echo "[8/8] QA Deployment completed. Active: $IDLE_COLOR"
 echo "=========================================="

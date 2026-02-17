@@ -97,7 +97,7 @@ public class GoogleOAuth2Service {
 			return response.getBody().accessToken();
 
 		} catch (Exception e) {
-			log.error("Failed to exchange authorization code for access token", e);
+			log.error("Failed to exchange authorization code for access token: {}", e.getMessage());
 			throw new GlobalException(ErrorCode.OAUTH2_AUTHENTICATION_FAILED);
 		}
 	}
@@ -127,7 +127,7 @@ public class GoogleOAuth2Service {
 			return response.getBody();
 
 		} catch (Exception e) {
-			log.error("Failed to get user info from Google", e);
+			log.error("Failed to get user info from Google: {}", e.getMessage());
 			throw new GlobalException(ErrorCode.OAUTH2_AUTHENTICATION_FAILED);
 		}
 	}

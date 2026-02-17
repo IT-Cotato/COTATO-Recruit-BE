@@ -39,7 +39,7 @@ public class DatabaseCleaner implements InitializingBean {
 		// 쓰기 지연 저장소 비우기
 		entityManager.flush();
 		// 제약 조건 무시 (Foreign Key 에러 방지)
-		entityManager.createNativeQuery("SET REFERENTIAL_INTEGRITY FALSE").executeUpdate();
+		entityManager.createNativeQuery("SET FOREIGN_KEY_CHECKS = 0").executeUpdate();
 
 		// 모든 테이블 TRUNCATE (데이터 삭제 및 ID 초기화)
 		for (String tableName : tableNames) {
@@ -47,7 +47,7 @@ public class DatabaseCleaner implements InitializingBean {
 		}
 
 		// 제약 조건 다시 활성화
-		entityManager.createNativeQuery("SET REFERENTIAL_INTEGRITY TRUE").executeUpdate();
+		entityManager.createNativeQuery("SET FOREIGN_KEY_CHECKS = 1").executeUpdate();
 	}
 
 	// 카멜케이스 -> 스네이크케이스 변환 유틸 (예: ApplicationAnswer -> application_answer)
