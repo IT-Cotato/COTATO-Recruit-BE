@@ -19,9 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class QuestionEditAdminService {
-	private static final String PORTFOLIO_QUESTION_CONTENT =
-			"(선택) 추가로 제출할 포트폴리오(깃허브,블로그,노션,비핸스 등) 링크를 첨부해주세요. 업로드하실 포트폴리오 양식은 꼭 PDF로 변경 후 제출해주세요!";
-	private static final Integer PORTFOLIO_MAX_LENGTH = 1000; // 제한없음 -> -1 처리
+
+	private static final Integer PORTFOLIO_MAX_LENGTH = 10000;
 
 	private final GenerationAdminService generationAdminService;
 	private final QuestionAdminService questionAdminService;
@@ -58,11 +57,23 @@ public class QuestionEditAdminService {
 
 	private void insertPortfolioQuestion(
 			Integer sequence, QuestionType questionType, Generation generation) {
+		String content =
+				switch (questionType) {
+					case PM ->
+							"(선택) 추가로 제출할 포트폴리오(깃허브,블로그,노션,비핸스 등) 링크를 첨부해주세요. 업로드하실 포트폴리오 양식은 꼭"
+									+ " PDF로 변경 후 제출해주세요!";
+					case DE ->
+							"(필수) 포트폴리오(비핸스, 노션 등) 링크를 첨부해주세요. 업로드하실 포트폴리오 양식은 꼭 PDF로 변경 후 제출해주세요!";
+					default ->
+							"(필수) 깃허브 링크를 첨부해주세요.\n(선택) 추가로 제출할 포트폴리오(블로그,노션,비핸스 등) 링크를 첨부해주세요."
+									+ " 업로드하실 포트폴리오 양식은 꼭 PDF로 변경 후 제출해주세요!";
+				};
+
 		Question question =
 				Question.builder()
 						.generation(generation)
 						.sequence(sequence)
-						.content(PORTFOLIO_QUESTION_CONTENT)
+						.content(content)
 						.maxLength(PORTFOLIO_MAX_LENGTH)
 						.questionType(questionType)
 						.build();
