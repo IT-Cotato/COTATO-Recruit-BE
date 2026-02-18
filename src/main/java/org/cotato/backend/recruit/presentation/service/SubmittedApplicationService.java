@@ -52,10 +52,9 @@ public class SubmittedApplicationService {
 	 * @return 마이페이지 지원서 목록 응답
 	 */
 	public List<MyPageApplicationResponse> getMyApplications(Long userId) {
-		User user =
-				userRepository
-						.findById(userId)
-						.orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+		User user = userRepository
+				.findById(userId)
+				.orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
 
 		return applicationRepository.findByUserAndIsSubmittedTrue(user).stream()
 				.map(MyPageApplicationResponse::of)
@@ -65,7 +64,7 @@ public class SubmittedApplicationService {
 	/**
 	 * 제출된 지원서의 기본 인적사항 조회
 	 *
-	 * @param userId 사용자 ID
+	 * @param userId        사용자 ID
 	 * @param applicationId 지원서 ID
 	 * @return 기본 인적사항 응답
 	 */
@@ -77,7 +76,7 @@ public class SubmittedApplicationService {
 	/**
 	 * 제출된 지원서의 파트별 질문 및 답변 조회
 	 *
-	 * @param userId 사용자 ID
+	 * @param userId        사용자 ID
 	 * @param applicationId 지원서 ID
 	 * @return 파트별 질문 및 답변 목록
 	 */
@@ -94,16 +93,14 @@ public class SubmittedApplicationService {
 		QuestionType questionType = application.getApplicationPartType().toQuestionType();
 
 		// 선택한 파트 질문 조회
-		List<Question> partQuestions =
-				questionService.getQuestionsByGenerationAndQuestionType(
-						application.getGeneration(), questionType);
+		List<Question> partQuestions = questionService.getQuestionsByGenerationAndQuestionType(
+				application.getGeneration(), questionType);
 
 		// 저장된 답변 조회 및 매핑
-		List<ApplicationAnswer> savedAnswers =
-				applicationAnswerRepository.findByApplication(application);
+		List<ApplicationAnswer> savedAnswers = applicationAnswerRepository.findByApplication(application);
 
-		List<SubmittedApplicationPartQuestionResponse.SubmittedPartQuestionResponse> questionList =
-				mapQuestionsWithAnswers(partQuestions, savedAnswers);
+		List<SubmittedApplicationPartQuestionResponse.SubmittedPartQuestionResponse> questionList = mapQuestionsWithAnswers(
+				partQuestions, savedAnswers);
 
 		return SubmittedApplicationPartQuestionResponse.of(
 				questionList, application.getPdfFileUrl(), application.getPdfFileKey());
@@ -112,7 +109,7 @@ public class SubmittedApplicationService {
 	/**
 	 * 제출된 지원서의 기타 정보 조회
 	 *
-	 * @param userId 사용자 ID
+	 * @param userId        사용자 ID
 	 * @param applicationId 지원서 ID
 	 * @return 기타 정보 응답
 	 */
@@ -120,8 +117,7 @@ public class SubmittedApplicationService {
 		Application application = getApplicationWithAuth(applicationId, userId);
 
 		// 모집 일정 조회
-		RecruitmentScheduleResponse schedule =
-				recruitmentService.getRecruitmentSchedule(application.getGeneration());
+		RecruitmentScheduleResponse schedule = recruitmentService.getRecruitmentSchedule(application.getGeneration());
 
 		// ApplicationEtcInfo에서 JSON 데이터 조회
 		ApplicationEtcData etcData = getEtcData(application);
@@ -130,26 +126,26 @@ public class SubmittedApplicationService {
 		String interviewStartDate = DateFormatter.formatMonthDay(schedule.interviewStartDate());
 		String interviewEndDate = DateFormatter.formatMonthDay(schedule.interviewEndDate());
 		String otDate = DateFormatter.formatMonthDay(schedule.otDate());
+		String cokerthonDate = DateFormatter.formatMonthDay(schedule.cokerthonDate());
+		String demoDayDate = DateFormatter.formatMonthDay(schedule.demoDayDate());
 
 		return SubmittedApplicationEtcQuestionsResponse.of(
-				etcData, interviewStartDate, interviewEndDate, otDate);
+				etcData, interviewStartDate, interviewEndDate, otDate, cokerthonDate, demoDayDate);
 	}
 
 	/**
 	 * 지원서 조회 및 권한 검증
 	 *
 	 * @param applicationId 지원서 ID
-	 * @param userId 사용자 ID
+	 * @param userId        사용자 ID
 	 * @return 지원서 엔티티
 	 */
 	private Application getApplicationWithAuth(Long applicationId, Long userId) {
-		Application application =
-				applicationRepository
-						.findById(applicationId)
-						.orElseThrow(
-								() ->
-										new PresentationException(
-												PresentationErrorCode.APPLICATION_NOT_FOUND));
+		Application application = applicationRepository
+				.findById(applicationId)
+				.orElseThrow(
+						() -> new PresentationException(
+								PresentationErrorCode.APPLICATION_NOT_FOUND));
 
 		// 사용자 권한 검증
 		application.validateUser(userId);
@@ -160,19 +156,17 @@ public class SubmittedApplicationService {
 	/**
 	 * 질문 목록을 저장된 답변과 함께 매핑
 	 *
-	 * @param questions 질문 목록
+	 * @param questions    질문 목록
 	 * @param savedAnswers 저장된 답변 목록
 	 * @return 질문과 답변이 매핑된 응답 목록
 	 */
-	private List<SubmittedApplicationPartQuestionResponse.SubmittedPartQuestionResponse>
-			mapQuestionsWithAnswers(
-					List<Question> questions, List<ApplicationAnswer> savedAnswers) {
+	private List<SubmittedApplicationPartQuestionResponse.SubmittedPartQuestionResponse> mapQuestionsWithAnswers(
+			List<Question> questions, List<ApplicationAnswer> savedAnswers) {
 		// 질문 ID를 키로 하는 답변 맵 생성
-		Map<Long, ApplicationAnswer> answerMap =
-				savedAnswers.stream()
-						.collect(
-								Collectors.toMap(
-										answer -> answer.getQuestion().getId(), answer -> answer));
+		Map<Long, ApplicationAnswer> answerMap = savedAnswers.stream()
+				.collect(
+						Collectors.toMap(
+								answer -> answer.getQuestion().getId(), answer -> answer));
 
 		// 질문과 저장된 답변을 함께 반환
 		return questions.stream()
@@ -180,8 +174,8 @@ public class SubmittedApplicationService {
 						q -> {
 							ApplicationAnswer savedAnswer = answerMap.get(q.getId());
 
-							return SubmittedApplicationPartQuestionResponse
-									.SubmittedPartQuestionResponse.from(q, savedAnswer);
+							return SubmittedApplicationPartQuestionResponse.SubmittedPartQuestionResponse.from(q,
+									savedAnswer);
 						})
 				.collect(Collectors.toList());
 	}
@@ -193,8 +187,7 @@ public class SubmittedApplicationService {
 	 * @return ApplicationEtcData (없으면 모든 필드 null인 객체 반환)
 	 */
 	private ApplicationEtcData getEtcData(Application application) {
-		Optional<ApplicationEtcInfo> etcInfoOpt =
-				applicationEtcInfoRepository.findByApplication(application);
+		Optional<ApplicationEtcInfo> etcInfoOpt = applicationEtcInfoRepository.findByApplication(application);
 
 		if (etcInfoOpt.isEmpty() || etcInfoOpt.get().getEtcData() == null) {
 			// 기타 정보가 없으면 모든 필드 null인 객체 반환
