@@ -5,8 +5,7 @@ import java.time.format.DateTimeFormatter;
 
 public class DateFormatter {
 
-	private static final DateTimeFormatter MONTH_DAY_FORMATTER =
-			DateTimeFormatter.ofPattern("M월 d일");
+	private static final DateTimeFormatter MONTH_DAY_FORMATTER = DateTimeFormatter.ofPattern("M월 d일");
 
 	private DateFormatter() {
 		throw new IllegalStateException("Utility class");
@@ -23,5 +22,18 @@ public class DateFormatter {
 			return null;
 		}
 		return dateTime.format(MONTH_DAY_FORMATTER);
+	}
+
+	/**
+	 * LocalDate를 "M월 d일" 형식으로 포맷팅
+	 *
+	 * @param date 포맷팅할 날짜 (null 가능)
+	 * @return 포맷팅된 문자열 또는 null
+	 */
+	public static String formatMonthDay(java.time.LocalDate date) {
+		if (date == null) {
+			return null;
+		}
+		return date.format(MONTH_DAY_FORMATTER);
 	}
 }

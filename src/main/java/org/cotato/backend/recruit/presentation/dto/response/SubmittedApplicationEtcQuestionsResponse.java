@@ -16,28 +16,29 @@ public record SubmittedApplicationEtcQuestionsResponse(
 		@Schema(description = "개인정보 처리 동의") Boolean privacyPolicy,
 		@Schema(description = "면접 시작 일자", example = "3월 3일") String interviewStartDate,
 		@Schema(description = "면접 종료 일자", example = "3월 5일") String interviewEndDate,
-		@Schema(description = "대면 OT 날짜", example = "3월 6일") String otDate) {
+		@Schema(description = "대면 OT 날짜", example = "3월 6일") String otDate,
+		@Schema(description = "해커톤 날짜", example = "4월 1일") String cokerthonDate,
+		@Schema(description = "데모데이 날짜", example = "5월 1일") String demoDayDate) {
 
 	public static SubmittedApplicationEtcQuestionsResponse of(
 			ApplicationEtcData etcData,
 			String interviewStartDate,
 			String interviewEndDate,
-			String otDate) {
+			String otDate,
+			String cokerthonDate,
+			String demoDayDate) {
 
 		// 1. 동아리를 알게 된 경로 옵션 리스트 생성
-		List<DiscoveryPathQuestion.DiscoveryPathOption> discoveryPathOptions =
-				Arrays.stream(DiscoveryPath.values())
-						.map(
-								dp ->
-										new DiscoveryPathQuestion.DiscoveryPathOption(
-												dp.name(), dp.getDescription()))
-						.toList();
+		List<DiscoveryPathQuestion.DiscoveryPathOption> discoveryPathOptions = Arrays.stream(DiscoveryPath.values())
+				.map(
+						dp -> new DiscoveryPathQuestion.DiscoveryPathOption(
+								dp.name(), dp.getDescription()))
+				.toList();
 
 		// 2. DiscoveryPathQuestion 객체 생성
-		String selectedDiscoveryPath =
-				etcData.discoveryPath() != null ? etcData.discoveryPath().name() : null;
-		DiscoveryPathQuestion discoveryPathQuestion =
-				new DiscoveryPathQuestion(discoveryPathOptions, selectedDiscoveryPath);
+		String selectedDiscoveryPath = etcData.discoveryPath() != null ? etcData.discoveryPath().name() : null;
+		DiscoveryPathQuestion discoveryPathQuestion = new DiscoveryPathQuestion(discoveryPathOptions,
+				selectedDiscoveryPath);
 
 		return new SubmittedApplicationEtcQuestionsResponse(
 				discoveryPathQuestion,
@@ -48,17 +49,19 @@ public record SubmittedApplicationEtcQuestionsResponse(
 				etcData.privacyPolicyAgreed(),
 				interviewStartDate,
 				interviewEndDate,
-				otDate);
+				otDate,
+				cokerthonDate,
+				demoDayDate);
 	}
 
 	@Schema(description = "동아리를 알게 된 경로 질문 및 답변")
 	public record DiscoveryPathQuestion(
 			@Schema(description = "선택 가능한 경로 목록") List<DiscoveryPathOption> options,
-			@Schema(description = "선택한 경로", example = "INSTAGRAM", nullable = true)
-					String selectedAnswer) {
+			@Schema(description = "선택한 경로", example = "INSTAGRAM", nullable = true) String selectedAnswer) {
 		@Schema(description = "경로 옵션")
 		public record DiscoveryPathOption(
 				@Schema(description = "enum 값", example = "INSTAGRAM") String value,
-				@Schema(description = "표시 라벨", example = "인스타그램") String label) {}
+				@Schema(description = "표시 라벨", example = "인스타그램") String label) {
+		}
 	}
 }
