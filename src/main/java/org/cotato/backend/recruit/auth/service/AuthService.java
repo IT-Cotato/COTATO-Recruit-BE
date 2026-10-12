@@ -1,5 +1,11 @@
 package org.cotato.backend.recruit.auth.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.backend.recruit.auth.dto.CustomUserDetails;
@@ -11,6 +17,7 @@ import org.cotato.backend.recruit.common.error.ErrorCode;
 import org.cotato.backend.recruit.common.exception.GlobalException;
 import org.cotato.backend.recruit.domain.user.entity.User;
 import org.cotato.backend.recruit.domain.user.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -21,6 +28,10 @@ public class AuthService {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final RefreshTokenRepository refreshTokenRepository;
 	private final UserRepository userRepository;
+	private final ObjectMapper objectMapper;
+
+	@Value("${jwt.refresh-token-reuse-interval:10000}")
+	private long refreshTokenReuseInterval;
 
 	/**
 	 * Refresh Token을 사용하여 새로운 Access Token 발급
@@ -37,31 +48,44 @@ public class AuthService {
 		// Refresh Token에서 사용자 ID 추출
 		String userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
 
-		// Redis에서 저장된 Refresh Token 조회
-		String storedRefreshToken =
-				refreshTokenRepository
-						.findByUserId(userId)
-						.orElseThrow(
-								() -> {
-									log.error("Refresh token not found for user: {}", userId);
-									return new GlobalException(ErrorCode.REFRESH_TOKEN_NOT_FOUND);
-								});
-
-		// Refresh Token 일치 여부 확인
-		if (!storedRefreshToken.equals(refreshToken)) {
-			log.error("Refresh token mismatch for user: {}", userId);
-			throw new GlobalException(ErrorCode.REFRESH_TOKEN_MISMATCH);
+		// 동시 요청 중 실제 회전에 성공한 요청의 토큰 쌍만 사용한다.
+		TokenResponse issued =
+				TokenResponse.of(
+						jwtTokenProvider.createAccessToken(userId),
+						jwtTokenProvider.createRefreshToken(userId));
+		try {
+			String result =
+					refreshTokenRepository.rotate(
+							userId,
+							refreshToken,
+							sha256(refreshToken),
+							issued.refreshToken(),
+							jwtTokenProvider.getRefreshTokenExpiration(),
+							objectMapper.writeValueAsString(issued),
+							refreshTokenReuseInterval);
+			if (result == null) {
+				throw new GlobalException(ErrorCode.INTERNAL_SERVER_ERROR);
+			}
+			return switch (result) {
+				case "ROTATED" -> issued;
+				case "NOT_FOUND" -> throw new GlobalException(ErrorCode.REFRESH_TOKEN_NOT_FOUND);
+				case "MISMATCH" -> throw new GlobalException(ErrorCode.REFRESH_TOKEN_MISMATCH);
+				default -> objectMapper.readValue(result, TokenResponse.class);
+			};
+		} catch (JsonProcessingException e) {
+			throw new GlobalException(ErrorCode.INTERNAL_SERVER_ERROR, e);
 		}
+	}
 
-		// 새로운 토큰 발급
-		String newAccessToken = jwtTokenProvider.createAccessToken(userId);
-		String newRefreshToken = jwtTokenProvider.createRefreshToken(userId);
-
-		// Redis에 새로운 Refresh Token 저장
-		refreshTokenRepository.save(
-				userId, newRefreshToken, jwtTokenProvider.getRefreshTokenExpiration());
-
-		return TokenResponse.of(newAccessToken, newRefreshToken);
+	private static String sha256(String value) {
+		try {
+			return HexFormat.of()
+					.formatHex(
+							MessageDigest.getInstance("SHA-256")
+									.digest(value.getBytes(StandardCharsets.UTF_8)));
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	/**
