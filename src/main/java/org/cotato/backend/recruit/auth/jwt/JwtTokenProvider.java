@@ -10,6 +10,7 @@ import io.jsonwebtoken.security.SecurityException;
 import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.UUID;
 import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -66,6 +67,7 @@ public class JwtTokenProvider {
 		Date expiryDate = new Date(now.getTime() + refreshTokenExpiration);
 
 		return Jwts.builder()
+				.id(UUID.randomUUID().toString()) // 같은 초에 발급해도 회전·세션을 구분한다.
 				.subject(userId) // 사용자 ID 설정
 				.issuedAt(now) // 발급 시간 설정
 				.expiration(expiryDate) // 만료 시간 설정

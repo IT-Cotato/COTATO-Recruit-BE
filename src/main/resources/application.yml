@@ -39,6 +39,7 @@ jwt:
   secret: ${JWT_SECRET}
   access-token-expiration: 3600000  # 1 hour (in milliseconds)
   refresh-token-expiration: 604800000  # 7 days (in milliseconds)
+  refresh-token-reuse-interval: 10000  # 10 seconds (in milliseconds)
 
 # AWS S3 Configuration
 cloud:
